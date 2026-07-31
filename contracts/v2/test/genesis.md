@@ -136,7 +136,7 @@ The Genesis example exposes this entire lifecycle through the **first Pons V2 la
 The Genesis deployment exposes the following Buyback Wallet:
 
 ```text
-0x30038cba4f728e90c6b7e92924fe2a7b267e4e19
+0x379e850cd7395c1528da364ad7c421156b6e9296
 ```
 
 This address is part of the buyback infrastructure associated with the Genesis launch.
@@ -288,7 +288,7 @@ The Genesis deployment explicitly exposes the address associated with its buybac
 ### Genesis Buyback Wallet
 
 ```text
-0x30038cba4f728e90c6b7e92924fe2a7b267e4e19
+0x379e850cd7395c1528da364ad7c421156b6e9296
 ```
 
 The architecture is:
@@ -326,19 +326,6 @@ The Genesis example therefore allows users to inspect:
 * Total locked supply
 * Vesting state
 * Releasable supply
-
-> [!NOTE]
->
-> ### Genesis Buyback Wallet
->
-> The Buyback Wallet associated with the Pons V2 Genesis launch is:
->
-> ```text
-> 0x30038cba4f728e90c6b7e92924fe2a7b267e4e19
-> ```
->
-> This address is included here as a deployment-specific reference for the Genesis example.
-
 ---
 
 # 25 — Why Genesis Exists

@@ -1,0 +1,27 @@
+{
+  "name": "pons-v2-protocol",
+  "version": "0.1.0",
+  "description": "Independent Solidity reference implementation of the pons v2 launch protocol (bonding curve + Uniswap v4 graduation), reconstructed from https://docs.ponsfamily.com/v2. Unaudited — see README.",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy": "hardhat run scripts/deploy.js"
+  },
+  "keywords": [
+    "solidity",
+    "uniswap-v4",
+    "bonding-curve",
+    "launchpad",
+    "pons"
+  ],
+  "dependencies": {
+    "@openzeppelin/contracts": "5.6.1",
+    "@uniswap/v4-core": "1.0.2"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "5.0.0",
+    "hardhat": "2.28.0"
+  }
+}

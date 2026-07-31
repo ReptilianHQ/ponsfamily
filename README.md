@@ -26,6 +26,8 @@ This repository holds the Solidity source for the ponsfamily.com token launchpad
 
 Website: [ponsfamily.com](https://ponsfamily.com) · Twitter/X: [@ponsdotfamily](https://x.com/ponsdotfamily)
 
+> **v2 is coming.** Alongside the v1 contracts documented in this README, this repo also carries an early, not-yet-public v2 launchpad under `contracts/v2/`: instead of a one-sided Uniswap V3 position, tokens will launch on a bonding curve that graduates into a locked Uniswap V4 pool once a threshold is reached. It isn't live for the public yet.
+
 ## Table of contents
 
 - [Why this launchpad](#why-this-launchpad)
@@ -79,6 +81,7 @@ This is the address of the `PonsLaunchFactory` used by the pons.family frontend.
 ├── README.md
 ├── abi.json
 ├── contract-meta.json
+├── media/
 └── contracts/
     ├── src/
     │   ├── PonsLaunchFactory.sol
@@ -88,32 +91,39 @@ This is the address of the `PonsLaunchFactory` used by the pons.family frontend.
     │   └── libraries/
     │       ├── PonsLiquidityMath.sol
     │       └── PonsTickMath.sol
-    └── lib/
-        └── openzeppelin-contracts/
-            └── contracts/
-                ├── access/
-                │   ├── Ownable.sol
-                │   └── Ownable2Step.sol
-                ├── interfaces/
-                │   ├── IERC1363.sol
-                │   ├── IERC165.sol
-                │   ├── IERC20.sol
-                │   ├── IERC20Metadata.sol
-                │   └── draft-IERC6093.sol
-                ├── token/ERC20/
-                │   ├── ERC20.sol
-                │   ├── IERC20.sol
-                │   ├── extensions/IERC20Metadata.sol
-                │   └── utils/SafeERC20.sol
-                └── utils/
-                    ├── Context.sol
-                    ├── Panic.sol
-                    ├── ReentrancyGuard.sol
-                    ├── StorageSlot.sol
-                    ├── introspection/IERC165.sol
-                    └── math/
-                        ├── Math.sol
-                        └── SafeCast.sol
+    ├── lib/
+    │   └── openzeppelin-contracts/
+    │       └── contracts/
+    │           ├── access/
+    │           │   ├── Ownable.sol
+    │           │   └── Ownable2Step.sol
+    │           ├── interfaces/
+    │           │   ├── IERC1363.sol
+    │           │   ├── IERC165.sol
+    │           │   ├── IERC20.sol
+    │           │   ├── IERC20Metadata.sol
+    │           │   └── draft-IERC6093.sol
+    │           ├── token/ERC20/
+    │           │   ├── ERC20.sol
+    │           │   ├── IERC20.sol
+    │           │   ├── extensions/IERC20Metadata.sol
+    │           │   └── utils/SafeERC20.sol
+    │           └── utils/
+    │               ├── Context.sol
+    │               ├── Panic.sol
+    │               ├── ReentrancyGuard.sol
+    │               ├── StorageSlot.sol
+    │               ├── introspection/IERC165.sol
+    │               └── math/
+    │                   ├── Math.sol
+    │                   └── SafeCast.sol
+    └── v2/                      # not yet live for the public — see the v2 note above
+        ├── contracts/
+        ├── scripts/
+        ├── test/
+        ├── README.md
+        ├── package.json
+        └── package-lock.json
 ```
 
 ## Core contracts

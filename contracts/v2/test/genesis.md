@@ -27,7 +27,7 @@
 > The Pons V2 deployment is at:
 >
 > ```text
-> 0x
+> 0x0d49ee0a6e38489e6b291181846bea11804551ee
 > ```
 > The Genesis deployment also exposes the protocol's designated **Buyback Wallet**:
 >

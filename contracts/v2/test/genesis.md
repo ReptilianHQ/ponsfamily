@@ -29,13 +29,6 @@
 > ```text
 > 
 > ```
-> The Genesis deployment also exposes the protocol's designated **Buyback Wallet** for the test launch:
->
-> ```text
-> 0x379e850cd7395c1528da364ad7c421156b6e9296
-> ```
->
-> This address forms part of the buyback infrastructure demonstrated by the Genesis launch and provides a publicly observable destination associated with the protocol's buyback flow.
 
 ---
 

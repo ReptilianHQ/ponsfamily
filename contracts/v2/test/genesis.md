@@ -9,7 +9,7 @@
 <p align="center">
   The first Genesis launch built to demonstrate the complete Pons V2 lifecycle — from initial token creation to post-graduation trading, buyback infrastructure and locked supply.
 </p> 
-  
+   
 ---    
 
 > [!IMPORTANT]

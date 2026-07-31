@@ -27,12 +27,12 @@
 > The Pons V2 deployment is at:
 >
 > ```text
-> 0x0d49ee0a6e38489e6b291181846bea11804551ee
+> 
 > ```
-> The Genesis deployment also exposes the protocol's designated **Buyback Wallet**:
+> The Genesis deployment also exposes the protocol's designated **Buyback Wallet** for the test launch:
 >
 > ```text
-> 0x30038cba4f728e90c6b7e92924fe2a7b267e4e19
+> 0x379e850cd7395c1528da364ad7c421156b6e9296
 > ```
 >
 > This address forms part of the buyback infrastructure demonstrated by the Genesis launch and provides a publicly observable destination associated with the protocol's buyback flow.

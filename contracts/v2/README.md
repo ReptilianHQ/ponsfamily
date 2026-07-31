@@ -1,4 +1,4 @@
-# pons v2 — protocol reference implementation
+# Pons v2 — Protocol Reference Implementation
 
 Solidity implementation of the **pons v2** launch protocol, still not live for the public
 

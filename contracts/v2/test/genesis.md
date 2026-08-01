@@ -27,7 +27,7 @@
 > The Pons V2 deployment is at:
 >
 > ```text
-> 
+> 0xb6d1bf0796c95f78486a6a2f7e56569bed16aba3
 > ```
 
 ---

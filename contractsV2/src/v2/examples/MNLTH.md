@@ -5,7 +5,7 @@
 ### The Brutalist Architecture of ponsfamily.com
    
 > "Trust is a human vulnerability. The Monolith requires only verification."
-
+ 
 > **Note:** This document is a conceptual guide. Its purpose is to explain, step by step and using $MNLTH as the archetype, the mechanics of a launch on ponsfamily.com from creation to graduation. **$MNLTH is not a deployed token.** It is an abstract entity, a structural blueprint, and the overarching brutalist philosophy of the ecosystem, manifested exclusively to guide developers and those capable of reading the code.
 
 ---

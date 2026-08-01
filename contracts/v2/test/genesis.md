@@ -13,7 +13,7 @@
 ---    
 
 > [!IMPORTANT]
->
+> 
 > ## The First Pons V2 Genesis Launch
 >
 > **Pons V2 Genesis is the first token ever launched by Pons using the V2 launch architecture.**

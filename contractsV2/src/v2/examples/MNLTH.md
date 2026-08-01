@@ -1,4 +1,4 @@
-![Monolith](./mnlth.jpg)
+![Monolith](./mnlyh.png)
 
 # Monolith ($MNLTH)
 

@@ -15,7 +15,7 @@ import {StorageSlot} from "./StorageSlot.sol";
  * Note that because there is a single `nonReentrant` guard, functions marked as
  * `nonReentrant` may not call one another. This can be worked around by making
  * those functions `private`, and then adding `external` `nonReentrant` entry
- * points to them.
+ * points to them. 
  *
  * TIP: If EIP-1153 (transient storage) is available on the chain you're deploying at,
  * consider using {ReentrancyGuardTransient} instead.

@@ -23,6 +23,11 @@
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=0:1a2740,100:05070d&height=3&section=header" width="100%" />
 
+
+> *Pons is Latin for bridge, a structure that connects two places, two states, or two points in time. A bridge exists in a liminal space, the threshold between what was and what comes next. It represents transition, the moment where one state ends and another begins. That is what Pons represents.*
+
+
+
 This repository holds the Solidity source for the [ponsfamily.com](https://ponsfamily.com) token launchpad on Robinhood Chain, in both generations:
 
 - **V1** (`contractsV1/`) — a CREATE2 factory that mints a fixed-supply ERC-20, opens a one-sided Uniswap **V3** position, locks the position NFT, and can run a developer buy in the same transaction.

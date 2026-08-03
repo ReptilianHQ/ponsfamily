@@ -24,8 +24,7 @@
 <img src="https://capsule-render.vercel.app/api?type=rect&color=0:1a2740,100:05070d&height=3&section=header" width="100%" />
 
 
-> *Pons is the stoic act of standing between what was and what comes next, remaining unmoved by the uncertainty of the transition. Like the stoic man who accepts the storm without surrendering to it, Pons exists in the liminal, connecting two worlds while enduring the forces that seek to pull them apart. It is a reminder that strength is not found in controlling the path ahead, but in having the resolve to cross it.*
-
+> *Pons is the Little John of Robinhood, the trusted companion standing beside Robin as the outlaws gather and the legend unfolds. Built as the native launchpad for Robinhood Chain, Pons is here to help build, launch, and grow the next generation of projects on-chain.*
 
 
 

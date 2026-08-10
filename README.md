@@ -24,8 +24,6 @@
 <img src="https://capsule-render.vercel.app/api?type=rect&color=0:1a2740,100:05070d&height=3&section=header" width="100%" />
 
 
-> *Pons is the Little John of Robinhood, the trusted companion standing beside Robin as the outlaws gather and the legend unfolds. Built as the native launchpad for Robinhood Chain, Pons is here to help build, launch, and grow the next generation of projects on-chain.*
-
 
 
 This repository holds the Solidity source for the [ponsfamily.com](https://ponsfamily.com) token launchpad on Robinhood Chain, in both generations:

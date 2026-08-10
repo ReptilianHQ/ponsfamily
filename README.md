@@ -55,7 +55,7 @@ Website: [ponsfamily.com](https://ponsfamily.com) · Twitter/X: [@ponsdotfamily]
 | Generation | Contract               | Address                                      |
 | ---------- | ---------------------- | -------------------------------------------- |
 | V1         | `PonsLaunchFactory`    | `0xA5aAb3F0c6EeadF30Ef1D3Eb997108E976351feB`  |
-| V2         | `PonsV2LaunchAndBuy`  | `0xe33E9E479dF8802cb0866d5d05258bEc4cF62948`  |
+| V2         | `PonsV2LaunchFactory`  | `0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e`  |
 
 `abi.json` and `contract-meta.json` in the repository root describe the V1 deployment. Always verify deployed bytecode against the verified sources before trusting an address.
 
@@ -131,7 +131,7 @@ V2 replaces day-one concentrated liquidity with a fair-launch curve. Every launc
 
 | Contract | Role |
 | --- | --- |
-| `PonsV2LaunchAndBuy.sol` | Entry point: creates each launch, enforces fee/supply bounds, orchestrates both graduation phases |
+| `PonsV2LaunchFactory.sol` | Entry point: creates each launch, enforces fee/supply bounds, orchestrates both graduation phases |
 | `PonsV2LaunchDeployer.sol` | Deploys the curve + token pair and bounds metadata length (split out to stay under EIP-170) |
 | `PonsV2BondingCurve.sol` | Constant-product curve, quote-leg fees, creator tax, fee sweeps, graduation trigger |
 | `PonsV2LauncherToken.sol` | Fixed-supply ERC-20 (with `ERC20Burnable`) minted entirely to its curve; `deployer` is metadata only, no privileges |
@@ -158,7 +158,7 @@ V2 replaces day-one concentrated liquidity with a fair-launch curve. Every launc
 | Chain           | Robinhood Chain (EVM L2)                                            |
 | Product         | [ponsfamily.com](https://ponsfamily.com)                            |
 | V1 factory      | `0xA5aAb3F0c6EeadF30Ef1D3Eb997108E976351feB`                        |
-| V2 factory      | `0xe33E9E479dF8802cb0866d5d05258bEc4cF62948`                        |
+| V2 factory      | `0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e`                        |
 | Liquidity       | Uniswap V3 (V1) · Uniswap V4 core + periphery + Permit2 (V2)        |
 | Access control  | OpenZeppelin `Ownable2Step`                                         |
 | Safety          | OpenZeppelin `ReentrancyGuard`, `SafeERC20`                         |
@@ -183,7 +183,7 @@ V2 replaces day-one concentrated liquidity with a fair-launch curve. Every launc
 │   └── lib/openzeppelin-contracts/
 └── contractsV2/
     ├── src/v2/
-    │   ├── PonsV2LaunchAndBuy.sol
+    │   ├── PonsV2LaunchFactory.sol
     │   ├── PonsV2LaunchDeployer.sol
     │   ├── PonsV2BondingCurve.sol
     │   ├── PonsV2LauncherToken.sol

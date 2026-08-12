@@ -3,7 +3,7 @@
 Holdings-based cashback rewards for Pons V2 launched tokens. Holders of a
 launch earn a share of a protocol-funded reward pool proportional to how
 much of the token they hold, and can claim that cashback in whichever
-approved token they prefer (e.g. USDT), independent of what asset the
+approved token they prefer (e.g. USDG), independent of what asset the
 launch itself trades against.
 
 Core contract: [`PonsV2CashbackRewards.sol`](./PonsV2CashbackRewards.sol).
@@ -28,8 +28,8 @@ uint16  constant TEST_CREATOR_TAX_BPS = 0;
 bool    constant TEST_BUYBACK_ENABLED = false;
 
 // ---- Reward asset for this example -----------------------------------
-address constant USDT = 0x0000000000000000000000000000000000000000; // fill in per chain
-uint256 constant TEST_CASHBACK_FUNDING_AMOUNT = 0; // USDT, in its own decimals
+address constant USDG = 0x5fc5360d0400a0fd4f2af552add042d716f1d168; // fill in per chain
+uint256 constant TEST_CASHBACK_FUNDING_AMOUNT = 0; // USDG, in its own decimals
 
 // ---- Deployed addresses (fill in after each step) ---------------------
 address constant FACTORY_ADDRESS   = address(0); // PonsV2LaunchFactory
@@ -43,7 +43,7 @@ Example wiring for this test token, once both contracts are deployed:
 // 1. Deploy the launch (see PonsV2LaunchFactory.launchToken / launchTokenNative).
 // 2. From an address the Ponsback owner has granted the funder role to:
 cashbackRewards.setAuthorizedFunder(fundingKeeper, true);
-cashbackRewards.setExtraRewardTokenAllowed(USDT, true); // no-op if USDT is already an approved pair token
+cashbackRewards.setExtraRewardTokenAllowed(USDG, true); // no-op if USDG is already an approved pair token
 
 // 3. The launched token opts itself in (normally done once in its own constructor):
 //      PonsV2CashbackRewards(CASHBACK_ADDRESS).enableTracking();
@@ -51,12 +51,12 @@ cashbackRewards.setExtraRewardTokenAllowed(USDT, true); // no-op if USDT is alre
 // 4. Holders sync themselves once if they held tokens before enableTracking():
 cashbackRewards.register(LAUNCHED_TOKEN); // called by the holder, msg.sender = holder
 
-// 5. Fund the pool in USDT:
-IERC20(USDT).approve(CASHBACK_ADDRESS, TEST_CASHBACK_FUNDING_AMOUNT);
-cashbackRewards.depositReward(LAUNCHED_TOKEN, USDT, TEST_CASHBACK_FUNDING_AMOUNT);
+// 5. Fund the pool in USDG:
+IERC20(USDG).approve(CASHBACK_ADDRESS, TEST_CASHBACK_FUNDING_AMOUNT);
+cashbackRewards.depositReward(LAUNCHED_TOKEN, USDG, TEST_CASHBACK_FUNDING_AMOUNT);
 
-// 6. A holder chooses USDT as their default and claims:
-cashbackRewards.setPreferredRewardToken(LAUNCHED_TOKEN, USDT);
+// 6. A holder chooses USDG as their default and claims:
+cashbackRewards.setPreferredRewardToken(LAUNCHED_TOKEN, USDG);
 cashbackRewards.claimPreferred(LAUNCHED_TOKEN);
 ```
 

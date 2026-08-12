@@ -22,6 +22,7 @@ string  constant TEST_TOKEN_NAME     = "";        // e.g. "Ponsback"
 string  constant TEST_TOKEN_SYMBOL   = "";        // e.g. "PBTEST"
 string  constant TEST_TOKEN_LOGO     = "";        // URI
 string  constant TEST_TOKEN_DESC     = "";
+string  constant TEST_TOKEN_DISTRIBUTION_WALLET     = "";    // e.g. "0xABE7be71DB085b9AadAE4E1976346340Cd7170e8"
 string  constant TEST_TOKEN_CA   = "";        // e.g. "0x031fcd3580d20ca18381e12aff6f0e3d67cb27c3"
 uint256 constant TEST_LAUNCH_CONFIG_ID = 0;       // id from factory.getLaunchConfig
 address constant TEST_CREATOR_FEE_RECIPIENT = address(0); // 0 = deployer

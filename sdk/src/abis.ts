@@ -1,0 +1,125 @@
+import { parseAbi } from "viem";
+
+/** ABI revision reviewed against ponsdotdev/ponsfamily commit 836f0f97f9a9569855876570d6778501c163c883. */
+export const ABI_REVISION = "pons-v2-836f0f97";
+
+const factoryStructs = [
+  "struct Socials { string twitter; string telegram; string discord; string website; string farcaster; }",
+  "struct TokenParams { string name; string symbol; string logo; string description; Socials socials; address creatorFeeRecipient; uint16 creatorTaxBps; bool buybackEnabled; bytes32 expectedEconomics; bytes32 salt; }",
+  "struct LaunchConfig { uint256 supply; uint256 curveFeeBps; uint256 phantomQuote; uint256 graduationThreshold; uint24 poolFee; int24 tickSpacing; bool enabled; }",
+  "struct LaunchedToken { address token; address curve; address deployer; address creatorFeeRecipient; address pairToken; uint256 graduationThreshold; uint24 poolFee; int24 tickSpacing; uint16 creatorTaxBps; bool buybackEnabled; uint8 phase; uint256 sweptQuote; uint256 sweptTokens; uint256 sweptAt; bool exists; }",
+  "struct FeePolicySnapshot { address protocolFeeRecipient; uint16 protocolFeeShareBps; uint16 buybackBurnBps; uint16 hookFeeBps; uint16 maxInternalPriceImpactBps; }",
+] as const;
+
+export const ponsFactoryAbi = parseAbi([
+  ...factoryStructs,
+  "function launchConfigCount() view returns (uint256)",
+  "function getLaunchConfig(uint256 id) view returns (LaunchConfig)",
+  "function getLaunchedToken(address token) view returns (LaunchedToken)",
+  "function getLaunchFeePolicy(address token) view returns (FeePolicySnapshot)",
+  "function launchFee() view returns (uint256)",
+  "function launchEnabled() view returns (bool)",
+  "function maxCreatorTaxBps() view returns (uint256)",
+  "function snipeTaxStartBps() view returns (uint256)",
+  "function snipeTaxSeconds() view returns (uint256)",
+  "function canLaunch(address launcher) view returns (bool)",
+  "function approvedPairTokens(address pairToken) view returns (bool)",
+  "function previewLaunchEconomics(uint256 launchConfigId, address pairToken) view returns (bytes32)",
+  "function launchForwarder() view returns (address)",
+  "function launchDeployer() view returns (address)",
+  "function graduationExecutor() view returns (address)",
+  "function graduationGuard() view returns (address)",
+  "function locker() view returns (address)",
+  "function memeHook() view returns (address)",
+  "function feeEscrow() view returns (address)",
+  "function buybackVault() view returns (address)",
+  "function poolManager() view returns (address)",
+  "function positionManager() view returns (address)",
+  "function permit2() view returns (address)",
+  "function launchToken(TokenParams params, uint256 launchConfigId, address pairToken) payable returns (address token, address curve)",
+  "function launchToken(TokenParams params, uint256 launchConfigId, address pairToken, address[] snipeTaxExemptions) payable returns (address token, address curve)",
+  "function graduate(address token)",
+  "function createGraduatedPool(address token) returns (uint256 positionId)",
+  "function transferCreatorFeeRecipient(address token, address newRecipient)",
+  "function setBuybackEnabled(address token, bool enabled)",
+  "event TokenLaunched(address indexed token, address indexed curve, address indexed deployer, address pairToken, uint256 launchConfigId, uint256 graduationThreshold)",
+  "event LaunchSwept(address indexed token, uint256 quoteOut, uint256 tokenOut)",
+  "event CreatorFeeRecipientUpdated(address indexed token, address indexed previousRecipient, address indexed newRecipient)",
+  "event BuybackEnabledUpdated(address indexed token, bool enabled, address indexed controller)",
+  "event PoolGraduated(address indexed token, uint256 positionId, uint256 tokenAmount, uint256 pairTokenAmount)",
+  "event LaunchGraduationRescued(address indexed token, address indexed recipient, uint256 quoteAmount, uint256 tokenAmount)",
+]);
+
+export const ponsForwarderAbi = parseAbi([
+  ...factoryStructs,
+  "function factory() view returns (address)",
+  "function launchAndBuy(TokenParams params, uint256 launchConfigId, address pairToken, uint256 quoteIn, uint256 minTokensOut, address recipient, address[] snipeTaxExemptions) payable returns (address token, address curve, uint256 tokensOut)",
+  "event Launched(address indexed token, address indexed curve, address indexed recipient, address launcher, uint256 quoteSpent, uint256 tokensReceived)",
+]);
+
+export const ponsCurveAbi = parseAbi([
+  "function pairToken() view returns (address)",
+  "function token() view returns (address)",
+  "function deployer() view returns (address)",
+  "function phantomQuote() view returns (uint256)",
+  "function feeBps() view returns (uint256)",
+  "function creatorTaxBps() view returns (uint256)",
+  "function graduationThreshold() view returns (uint256)",
+  "function buybackEnabled() view returns (bool)",
+  "function graduated() view returns (bool)",
+  "function sellableTokens() view returns (uint256)",
+  "function getReserves() view returns (uint256 quoteReserve, uint256 tokenReserve)",
+  "function quoteReserve() view returns (uint256)",
+  "function realQuoteReserve() view returns (uint256)",
+  "function tokenReserve() view returns (uint256)",
+  "function readyToGraduate() view returns (bool)",
+  "function buy(uint256 quoteIn, uint256 minTokensOut, address recipient) payable returns (uint256 tokensOut)",
+  "function sell(uint256 tokensIn, uint256 minQuoteOut, address recipient) returns (uint256 quoteOut)",
+  "function sweepFees(uint256 minBuybackTokensOut)",
+  "event CurveBuy(address indexed buyer, address indexed recipient, uint256 quoteIn, uint256 tokensOut, uint256 fee, uint256 tax)",
+  "event CurveBuyRefunded(address indexed buyer, uint256 refund)",
+  "event CurveSell(address indexed seller, address indexed recipient, uint256 tokensIn, uint256 quoteOut, uint256 fee, uint256 tax)",
+  "event FeesSwept(uint256 protocolAmount, uint256 buybackAmount, uint256 creatorAmount)",
+  "event BuybackLocked(uint256 quoteSpent, uint256 tokensLocked)",
+  "event CurveCompleted(address recipient, uint256 quoteOut, uint256 tokenOut)",
+]);
+
+export const ponsTokenAbi = parseAbi([
+  "function name() view returns (string)",
+  "function symbol() view returns (string)",
+  "function decimals() view returns (uint8)",
+  "function totalSupply() view returns (uint256)",
+  "function balanceOf(address account) view returns (uint256)",
+  "function allowance(address owner, address spender) view returns (uint256)",
+  "function approve(address spender, uint256 amount) returns (bool)",
+  "function logo() view returns (string)",
+  "function description() view returns (string)",
+  "function socials() view returns (string twitter, string telegram, string discord, string website, string farcaster)",
+  "function deployer() view returns (address)",
+  "function launchFactory() view returns (address)",
+  "function curve() view returns (address)",
+]);
+
+export const ponsFeeEscrowAbi = parseAbi([
+  "function claim() returns (uint256 amount)",
+  "function claim(uint256 amount) returns (uint256)",
+  "function claimToken(address token) returns (uint256 amount)",
+  "function claimToken(address token, uint256 amount) returns (uint256)",
+  "function balanceOf(address recipient) view returns (uint256)",
+  "function balanceOfToken(address recipient, address token) view returns (uint256)",
+]);
+
+export const ponsLockerAbi = parseAbi([
+  "function lockedPositions(address token) view returns (uint256)",
+  "function lockedTokenSupply(address token) view returns (uint256)",
+  "function isLocked(address token) view returns (bool)",
+]);
+
+export const ponsBuybackVaultAbi = parseAbi([
+  "function release(address token) returns (uint256 released)",
+  "function totalLocked(address token) view returns (uint256)",
+  "function totalReleased(address token) view returns (uint256)",
+  "function vestedAmount(address token) view returns (uint256)",
+  "function releasable(address token) view returns (uint256)",
+  "function vestingTerms(address token) view returns (address creatorRecipient, address protocolRecipient, uint16 protocolFeeShareBps)",
+]);

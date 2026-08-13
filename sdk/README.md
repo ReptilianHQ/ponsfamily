@@ -7,10 +7,10 @@ The initial release targets the live Pons v2 factory and atomic launch-and-buy f
 ## Install
 
 ```bash
-npm install @reptilianhq/pons-sdk viem
+pnpm add '@reptilianhq/pons-sdk@github:ReptilianHQ/ponsfamily#sdk-v0.1.0&path:/sdk' viem
 ```
 
-Node.js 22 or newer is supported. `viem` 2.x is a peer dependency.
+The initial release is distributed from GitHub and is not published to npm. Node.js 22 or newer is supported. `viem` 2.x is a peer dependency.
 
 ## Launch a token
 
@@ -144,5 +144,9 @@ The SDK does not derive canonical launch-token supply. Indexers must derive exac
 ## Provenance
 
 The v2 consumer ABI is reviewed against Pons source commit `836f0f97f9a9569855876570d6778501c163c883`. The mainnet factory was created at block `26841846`; its pinned runtime code hash is exposed in `robinhoodMainnet`.
+
+## License
+
+The SDK source is publicly visible, but no additional license or permission to use, copy, modify, or distribute it is granted.
 
 Run `npm test` before release.

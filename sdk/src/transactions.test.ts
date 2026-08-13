@@ -1,6 +1,6 @@
 import { decodeFunctionData, getAddress, zeroAddress } from "viem";
 import { describe, expect, it } from "vitest";
-import { ponsBuybackVaultAbi, ponsCurveAbi, ponsFactoryAbi, ponsFeeEscrowAbi, ponsForwarderAbi, ponsTokenAbi } from "./abis.js";
+import { ponsBuybackVaultAbi, ponsCurveAbi, ponsFactoryAbi, ponsFeeEscrowAbi, ponsForwarderAbi, ponsMemeHookAbi, ponsTokenAbi } from "./abis.js";
 import { robinhoodMainnet } from "./deployments.js";
 import {
   buildApprovalTransaction,
@@ -14,6 +14,7 @@ import {
   buildReleaseBuybackTransaction,
   buildSetBuybackEnabledTransaction,
   buildSweepCurveFeesTransaction,
+  buildSweepPoolFeesTransaction,
   buildTransferCreatorFeeRecipientTransaction,
 } from "./transactions.js";
 
@@ -70,6 +71,7 @@ describe("transaction builders", () => {
       [buildTransferCreatorFeeRecipientTransaction(factory, token, next), ponsFactoryAbi, "transferCreatorFeeRecipient"],
       [buildSetBuybackEnabledTransaction(factory, token, true), ponsFactoryAbi, "setBuybackEnabled"],
       [buildSweepCurveFeesTransaction(curve, 9n), ponsCurveAbi, "sweepFees"],
+      [buildSweepPoolFeesTransaction(robinhoodMainnet.contracts.memeHook, salt, 8n, 9n), ponsMemeHookAbi, "sweepPoolFees"],
       [buildClaimNativeFeesTransaction(robinhoodMainnet.contracts.feeEscrow), ponsFeeEscrowAbi, "claim"],
       [buildClaimNativeFeesTransaction(robinhoodMainnet.contracts.feeEscrow, 11n), ponsFeeEscrowAbi, "claim"],
       [buildClaimTokenFeesTransaction(robinhoodMainnet.contracts.feeEscrow, token), ponsFeeEscrowAbi, "claimToken"],

@@ -1,0 +1,4 @@
+[
+  {"type":"event","name":"HookFeeCollected","anonymous":false,"inputs":[{"name":"poolId","type":"bytes32","indexed":true},{"name":"currency","type":"address","indexed":false},{"name":"feeAmount","type":"uint256","indexed":false},{"name":"taxAmount","type":"uint256","indexed":false}]},
+  {"type":"event","name":"PoolFeesSwept","anonymous":false,"inputs":[{"name":"poolId","type":"bytes32","indexed":true},{"name":"protocolAmount","type":"uint256","indexed":false},{"name":"buybackAmount","type":"uint256","indexed":false},{"name":"creatorAmount","type":"uint256","indexed":false},{"name":"tokensLocked","type":"uint256","indexed":false}]}
+]

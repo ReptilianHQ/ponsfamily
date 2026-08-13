@@ -82,6 +82,22 @@ export interface BuybackEnabledUpdatedResult {
     enabled: boolean;
     controller: Address;
 }
+export interface PoolFeesSweptResult extends FeesSweptResult {
+    poolId: Hex;
+    tokensLocked: bigint;
+}
+export interface NativeFeesClaimedResult {
+    recipient: Address;
+    amount: bigint;
+}
+export interface TokenFeesClaimedResult extends NativeFeesClaimedResult {
+    token: Address;
+}
+export interface BuybackReleasedResult {
+    token: Address;
+    creatorAmount: bigint;
+    protocolAmount: bigint;
+}
 export declare function assertConfirmedTransaction(transaction: ConfirmedTransactionLike, request: TransactionRequest, expectedSender?: Address): void;
 export declare function assertSuccessfulReceipt(receipt: ReceiptLike): void;
 export declare function verifyLaunchReceipt(receipt: ReceiptLike, factory: Address, options?: {
@@ -104,3 +120,7 @@ export declare function verifyBuybackLockedReceipt(receipt: ReceiptLike, curve: 
 export declare function verifyLaunchSweptReceipt(receipt: ReceiptLike, factory: Address, expected?: Partial<LaunchSweptResult>): LaunchSweptResult;
 export declare function verifyCreatorFeeRecipientUpdatedReceipt(receipt: ReceiptLike, factory: Address, expected?: Partial<CreatorFeeRecipientUpdatedResult>): CreatorFeeRecipientUpdatedResult;
 export declare function verifyBuybackEnabledUpdatedReceipt(receipt: ReceiptLike, factory: Address, expected?: Partial<BuybackEnabledUpdatedResult>): BuybackEnabledUpdatedResult;
+export declare function verifyPoolFeesSweptReceipt(receipt: ReceiptLike, memeHook: Address, expected?: Partial<PoolFeesSweptResult>): PoolFeesSweptResult;
+export declare function verifyNativeFeesClaimedReceipt(receipt: ReceiptLike, feeEscrow: Address, expected?: Partial<NativeFeesClaimedResult>): NativeFeesClaimedResult;
+export declare function verifyTokenFeesClaimedReceipt(receipt: ReceiptLike, feeEscrow: Address, expected?: Partial<TokenFeesClaimedResult>): TokenFeesClaimedResult;
+export declare function verifyBuybackReleasedReceipt(receipt: ReceiptLike, buybackVault: Address, expected?: Partial<BuybackReleasedResult>): BuybackReleasedResult;

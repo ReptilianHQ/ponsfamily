@@ -111,6 +111,24 @@ quote spend and refund. Use `quoteCurveBuyExactTokensOut` when an application
 needs the minimum live quote input for a target token quantity. Both helpers
 mirror the contract's separate fee rounding and final-fill repricing.
 
+## Manage fees after graduation
+
+Use `readGraduatedPoolFeeState` to derive the canonical Uniswap v4 pool ID and
+review pending hook fees, buyback allocation, and creator tax. The returned pool
+ID can be passed to `buildSweepPoolFeesTransaction`; verify the mined evidence
+with `verifyPoolFeesSweptReceipt` before persisting it.
+
+Creator and protocol proceeds are credited to a shared escrow ledger. Read them
+with `readFeeEscrowBalances`, build exact native or ERC-20 claims with
+`buildClaimNativeFeesTransaction` or `buildClaimTokenFeesTransaction`, and
+verify the corresponding claim event. These balances are recipient-wide, not
+scoped to one launch.
+
+Use `readBuybackVest` to show locked, vested, released, and currently releasable
+amounts. `buildReleaseBuybackTransaction` releases the currently vested amount;
+`verifyBuybackReleasedReceipt` proves the creator/protocol split recorded by the
+vault.
+
 ## Verify before trusting a deployment
 
 ```ts
@@ -121,7 +139,7 @@ await assertCompatibleDeployment(publicClient, robinhoodMainnet);
 
 This checks the chain ID, factory and value-carrying forwarder runtime bytecode hashes, factory dependency pointers, and the forwarder-to-factory pointer at one block. It proves deployment identity and wiring, not live operational state such as launch enablement.
 
-The published provenance records the forwarder's creation transaction, block, verified explorer source, source hash, compiler, and runtime code hash. No public Git commit for that verified forwarder source was available at review time, so `forwarderSourceCommit` is explicitly `null` rather than implying that the factory source revision covers it.
+The published provenance records the forwarder's creation transaction, block, verified explorer source, source hash, compiler, and runtime code hash. It also identifies the verified deployed hook, escrow, and buyback-vault sources used for the exported event artifacts. No public Git commit for the verified forwarder source was available at review time, so `forwarderSourceCommit` is explicitly `null` rather than implying that the factory source revision covers it.
 
 ## Package boundaries
 

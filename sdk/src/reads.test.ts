@@ -1,7 +1,7 @@
 import { getAddress, zeroAddress, type PublicClient } from "viem";
 import { describe, expect, it, vi } from "vitest";
 import { robinhoodMainnet } from "./deployments.js";
-import { GraduationPhase, readLaunchConfigs, readLaunchLifecycle } from "./reads.js";
+import { GraduationPhase, derivePonsGraduatedPoolId, readBuybackVest, readFeeEscrowBalances, readLaunchConfigs, readLaunchLifecycle } from "./reads.js";
 
 const token = getAddress("0x1111111111111111111111111111111111111111");
 const curve = getAddress("0x2222222222222222222222222222222222222222");
@@ -63,5 +63,42 @@ describe("Pons reads", () => {
       poolPositionId: 77n,
     });
     expect(readContract).toHaveBeenCalledTimes(12);
+  });
+
+  it("derives one token-order-independent graduated pool identity", () => {
+    const left = derivePonsGraduatedPoolId({
+      token, pairToken: zeroAddress, poolFee: 10_000, tickSpacing: 200,
+      memeHook: robinhoodMainnet.contracts.memeHook,
+    });
+    const right = derivePonsGraduatedPoolId({
+      token: zeroAddress, pairToken: token, poolFee: 10_000, tickSpacing: 200,
+      memeHook: robinhoodMainnet.contracts.memeHook,
+    });
+    expect(left).toMatch(/^0x[0-9a-f]{64}$/);
+    expect(left).toBe(right);
+  });
+
+  it("reads escrow claims and buyback vesting at a pinned block", async () => {
+    const quote = getAddress("0x3333333333333333333333333333333333333333");
+    const readContract = vi.fn(async ({ functionName, args, blockNumber }: { functionName: string; args: readonly unknown[]; blockNumber?: bigint }) => {
+      expect(blockNumber).toBe(123n);
+      if (functionName === "balanceOf") return 5n;
+      if (functionName === "balanceOfToken") return args[1] === quote ? 7n : 0n;
+      if (functionName === "totalLocked") return 100n;
+      if (functionName === "totalReleased") return 20n;
+      if (functionName === "vestedAmount") return 30n;
+      if (functionName === "releasable") return 10n;
+      if (functionName === "vestingTerms") return [account, quote, 3_000];
+      throw new Error(`Unexpected read ${functionName}`);
+    });
+    const account = getAddress("0x4444444444444444444444444444444444444444");
+    const client = { readContract } as unknown as PublicClient;
+    await expect(readFeeEscrowBalances(client, robinhoodMainnet, account, [quote], { blockNumber: 123n })).resolves.toEqual({
+      recipient: account, native: 5n, tokens: [{ token: quote, balance: 7n }],
+    });
+    await expect(readBuybackVest(client, robinhoodMainnet, token, { blockNumber: 123n })).resolves.toMatchObject({
+      token, totalLocked: 100n, totalReleased: 20n, vestedAmount: 30n, releasable: 10n,
+      creatorRecipient: account, protocolRecipient: quote, protocolFeeShareBps: 3_000,
+    });
   });
 });

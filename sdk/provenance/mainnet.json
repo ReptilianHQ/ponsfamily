@@ -17,5 +17,22 @@
   "forwarderCompiler": "0.8.35+commit.47b9dedd",
   "forwarderVerifiedAt": "2026-08-04T17:42:28.107362Z",
   "forwarderSourceCommit": null,
+  "reviewedContracts": {
+    "memeHook": {
+      "address": "0xE5e702641Ea86F4ae6cC3cDaeD2B886f976Be044",
+      "artifact": "PonsV2MemeHook.json",
+      "verifiedSourceUrl": "https://robinhoodchain.blockscout.com/address/0xE5e702641Ea86F4ae6cC3cDaeD2B886f976Be044?tab=contract"
+    },
+    "feeEscrow": {
+      "address": "0xd3AFEB2a57f70eF218Aa82451c51B2fb0416Ac9e",
+      "artifact": "PonsV2FeeEscrow.json",
+      "verifiedSourceUrl": "https://robinhoodchain.blockscout.com/address/0xd3AFEB2a57f70eF218Aa82451c51B2fb0416Ac9e?tab=contract"
+    },
+    "buybackVault": {
+      "address": "0x42df2a798f82289E177311362e8f5ccC45c1219c",
+      "artifact": "PonsV2BuybackVault.json",
+      "verifiedSourceUrl": "https://robinhoodchain.blockscout.com/address/0x42df2a798f82289E177311362e8f5ccC45c1219c?tab=contract"
+    }
+  },
   "reviewedAt": "2026-08-12"
 }

@@ -62,6 +62,7 @@ export declare function buildCreateGraduatedPoolTransaction(factory: Address, to
 export declare function buildTransferCreatorFeeRecipientTransaction(factory: Address, token: Address, newRecipient: Address): TransactionRequest;
 export declare function buildSetBuybackEnabledTransaction(factory: Address, token: Address, enabled: boolean): TransactionRequest;
 export declare function buildSweepCurveFeesTransaction(curve: Address, minBuybackTokensOut: bigint): TransactionRequest;
+export declare function buildSweepPoolFeesTransaction(memeHook: Address, poolId: Hex, minConversionQuoteOut: bigint, minBuybackTokensOut: bigint): TransactionRequest;
 export declare function buildClaimNativeFeesTransaction(feeEscrow: Address, amount?: bigint): TransactionRequest;
 export declare function buildClaimTokenFeesTransaction(feeEscrow: Address, token: Address, amount?: bigint): TransactionRequest;
 export declare function buildReleaseBuybackTransaction(buybackVault: Address, token: Address): TransactionRequest;

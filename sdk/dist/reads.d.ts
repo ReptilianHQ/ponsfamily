@@ -1,4 +1,4 @@
-import { type Address, type PublicClient } from "viem";
+import { type Address, type Hex, type PublicClient } from "viem";
 import type { PonsDeployment } from "./deployments.js";
 export declare enum GraduationPhase {
     NotGraduated = 0,
@@ -113,4 +113,62 @@ export declare function readLaunchLifecycle(client: PublicClient, deployment: Po
         tickSpacing: number;
         token: `0x${string}`;
     };
+}>;
+export declare function derivePonsGraduatedPoolId(parameters: {
+    token: Address;
+    pairToken: Address;
+    poolFee: number;
+    tickSpacing: number;
+    memeHook: Address;
+}): Hex;
+export declare function readGraduatedPoolFeeState(client: PublicClient, deployment: PonsDeployment, token: Address, options?: ReadAtBlockOptions): Promise<{
+    poolId: `0x${string}`;
+    launch: {
+        buybackEnabled: boolean;
+        creatorFeeRecipient: `0x${string}`;
+        creatorTaxBps: number;
+        curve: `0x${string}`;
+        deployer: `0x${string}`;
+        exists: boolean;
+        graduationThreshold: bigint;
+        pairToken: `0x${string}`;
+        phase: number;
+        poolFee: number;
+        sweptAt: bigint;
+        sweptQuote: bigint;
+        sweptTokens: bigint;
+        tickSpacing: number;
+        token: `0x${string}`;
+    };
+    registration: readonly [boolean, boolean, `0x${string}`, quoteToken: `0x${string}`, creator: `0x${string}`, `0x${string}`, `0x${string}`, number, number, number, number, number, boolean];
+    pending: {
+        token: {
+            fees: bigint;
+            buyback: bigint;
+            creatorTax: bigint;
+        };
+        quote: {
+            fees: bigint;
+            buyback: bigint;
+            creatorTax: bigint;
+        };
+    };
+}>;
+export declare function readFeeEscrowBalances(client: PublicClient, deployment: PonsDeployment, recipient: Address, tokens?: readonly Address[], options?: ReadAtBlockOptions): Promise<{
+    recipient: `0x${string}`;
+    native: bigint;
+    tokens: {
+        token: `0x${string}`;
+        balance: bigint;
+    }[];
+}>;
+export declare function readBuybackVest(client: PublicClient, deployment: PonsDeployment, token: Address, options?: ReadAtBlockOptions): Promise<{
+    token: `0x${string}`;
+    totalLocked: bigint;
+    totalReleased: bigint;
+    vestedAmount: bigint;
+    releasable: bigint;
+    creatorRecipient: `0x${string}`;
+    protocolRecipient: `0x${string}`;
+    protocolFeeShareBps: number;
 }>;

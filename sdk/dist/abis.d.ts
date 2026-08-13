@@ -1165,6 +1165,212 @@ export declare const ponsFeeEscrowAbi: readonly [{
     readonly outputs: readonly [{
         readonly type: "uint256";
     }];
+}, {
+    readonly name: "Claimed";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "address";
+        readonly name: "recipient";
+        readonly indexed: true;
+    }, {
+        readonly type: "uint256";
+        readonly name: "amount";
+    }];
+}, {
+    readonly name: "ClaimedToken";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "address";
+        readonly name: "recipient";
+        readonly indexed: true;
+    }, {
+        readonly type: "address";
+        readonly name: "token";
+        readonly indexed: true;
+    }, {
+        readonly type: "uint256";
+        readonly name: "amount";
+    }];
+}, {
+    readonly name: "Credited";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "address";
+        readonly name: "recipient";
+        readonly indexed: true;
+    }, {
+        readonly type: "address";
+        readonly name: "depositor";
+        readonly indexed: true;
+    }, {
+        readonly type: "uint256";
+        readonly name: "amount";
+    }];
+}, {
+    readonly name: "CreditedToken";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "address";
+        readonly name: "recipient";
+        readonly indexed: true;
+    }, {
+        readonly type: "address";
+        readonly name: "token";
+        readonly indexed: true;
+    }, {
+        readonly type: "address";
+        readonly name: "depositor";
+        readonly indexed: true;
+    }, {
+        readonly type: "uint256";
+        readonly name: "amount";
+    }];
+}];
+export declare const ponsMemeHookAbi: readonly [{
+    readonly name: "launches";
+    readonly type: 'function';
+    readonly stateMutability: "view";
+    readonly inputs: readonly [{
+        readonly type: "bytes32";
+        readonly name: "poolId";
+    }];
+    readonly outputs: readonly [{
+        readonly type: "bool";
+        readonly name: "registered";
+    }, {
+        readonly type: "bool";
+        readonly name: "memecoinIsCurrency0";
+    }, {
+        readonly type: "address";
+        readonly name: "memecoin";
+    }, {
+        readonly type: "address";
+        readonly name: "quoteToken";
+    }, {
+        readonly type: "address";
+        readonly name: "creator";
+    }, {
+        readonly type: "address";
+        readonly name: "buybackCreatorRecipient";
+    }, {
+        readonly type: "address";
+        readonly name: "protocolFeeRecipient";
+    }, {
+        readonly type: "uint16";
+        readonly name: "creatorTaxBps";
+    }, {
+        readonly type: "uint16";
+        readonly name: "protocolFeeShareBps";
+    }, {
+        readonly type: "uint16";
+        readonly name: "buybackBurnBps";
+    }, {
+        readonly type: "uint16";
+        readonly name: "hookFeeBps";
+    }, {
+        readonly type: "uint16";
+        readonly name: "maxInternalPriceImpactBps";
+    }, {
+        readonly type: "bool";
+        readonly name: "buybackEnabled";
+    }];
+}, {
+    readonly name: "pendingFees";
+    readonly type: 'function';
+    readonly stateMutability: "view";
+    readonly inputs: readonly [{
+        readonly type: "bytes32";
+        readonly name: "poolId";
+    }, {
+        readonly type: "address";
+        readonly name: "currency";
+    }];
+    readonly outputs: readonly [{
+        readonly type: "uint256";
+        readonly name: "amount";
+    }];
+}, {
+    readonly name: "pendingBuyback";
+    readonly type: 'function';
+    readonly stateMutability: "view";
+    readonly inputs: readonly [{
+        readonly type: "bytes32";
+        readonly name: "poolId";
+    }, {
+        readonly type: "address";
+        readonly name: "currency";
+    }];
+    readonly outputs: readonly [{
+        readonly type: "uint256";
+        readonly name: "amount";
+    }];
+}, {
+    readonly name: "pendingCreatorTax";
+    readonly type: 'function';
+    readonly stateMutability: "view";
+    readonly inputs: readonly [{
+        readonly type: "bytes32";
+        readonly name: "poolId";
+    }, {
+        readonly type: "address";
+        readonly name: "currency";
+    }];
+    readonly outputs: readonly [{
+        readonly type: "uint256";
+        readonly name: "amount";
+    }];
+}, {
+    readonly name: "sweepPoolFees";
+    readonly type: 'function';
+    readonly stateMutability: "nonpayable";
+    readonly inputs: readonly [{
+        readonly type: "bytes32";
+        readonly name: "poolId";
+    }, {
+        readonly type: "uint256";
+        readonly name: "minConversionQuoteOut";
+    }, {
+        readonly type: "uint256";
+        readonly name: "minBuybackTokensOut";
+    }];
+    readonly outputs: readonly [];
+}, {
+    readonly name: "HookFeeCollected";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "bytes32";
+        readonly name: "poolId";
+        readonly indexed: true;
+    }, {
+        readonly type: "address";
+        readonly name: "currency";
+    }, {
+        readonly type: "uint256";
+        readonly name: "feeAmount";
+    }, {
+        readonly type: "uint256";
+        readonly name: "taxAmount";
+    }];
+}, {
+    readonly name: "PoolFeesSwept";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "bytes32";
+        readonly name: "poolId";
+        readonly indexed: true;
+    }, {
+        readonly type: "uint256";
+        readonly name: "protocolAmount";
+    }, {
+        readonly type: "uint256";
+        readonly name: "buybackAmount";
+    }, {
+        readonly type: "uint256";
+        readonly name: "creatorAmount";
+    }, {
+        readonly type: "uint256";
+        readonly name: "tokensLocked";
+    }];
 }];
 export declare const ponsLockerAbi: readonly [{
     readonly name: "lockedPositions";
@@ -1273,5 +1479,53 @@ export declare const ponsBuybackVaultAbi: readonly [{
     }, {
         readonly type: "uint16";
         readonly name: "protocolFeeShareBps";
+    }];
+}, {
+    readonly name: "Locked";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "address";
+        readonly name: "token";
+        readonly indexed: true;
+    }, {
+        readonly type: "address";
+        readonly name: "depositor";
+        readonly indexed: true;
+    }, {
+        readonly type: "uint256";
+        readonly name: "amount";
+    }, {
+        readonly type: "uint256";
+        readonly name: "newVestingStart";
+    }];
+}, {
+    readonly name: "Released";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "address";
+        readonly name: "token";
+        readonly indexed: true;
+    }, {
+        readonly type: "uint256";
+        readonly name: "creatorAmount";
+    }, {
+        readonly type: "uint256";
+        readonly name: "protocolAmount";
+    }];
+}, {
+    readonly name: "CreatorRecipientUpdated";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "address";
+        readonly name: "token";
+        readonly indexed: true;
+    }, {
+        readonly type: "address";
+        readonly name: "previousRecipient";
+        readonly indexed: true;
+    }, {
+        readonly type: "address";
+        readonly name: "newRecipient";
+        readonly indexed: true;
     }];
 }];

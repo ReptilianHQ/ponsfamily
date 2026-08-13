@@ -1,17 +1,21 @@
 import { encodeAbiParameters, encodeEventTopics, getAddress } from "viem";
 import { describe, expect, it } from "vitest";
-import { ponsCurveAbi, ponsFactoryAbi } from "./abis.js";
+import { ponsBuybackVaultAbi, ponsCurveAbi, ponsFactoryAbi, ponsFeeEscrowAbi, ponsMemeHookAbi } from "./abis.js";
 import {
   assertConfirmedTransaction,
   assertSuccessfulReceipt,
   verifyBuybackLockedReceipt,
   verifyBuybackEnabledUpdatedReceipt,
+  verifyBuybackReleasedReceipt,
   verifyCreatorFeeRecipientUpdatedReceipt,
   verifyCurveBuyReceipt,
   verifyCurveSellReceipt,
   verifyFeesSweptReceipt,
   verifyLaunchSweptReceipt,
+  verifyNativeFeesClaimedReceipt,
+  verifyPoolFeesSweptReceipt,
   verifyPoolGraduatedReceipt,
+  verifyTokenFeesClaimedReceipt,
   type ReceiptLike,
 } from "./receipts.js";
 
@@ -224,5 +228,41 @@ describe("receipt verification", () => {
     expect(verifyLaunchSweptReceipt(lifecycleReceipt, factory, { token })).toEqual({ token, quoteOut: 40n, tokenOut: 50n });
     expect(verifyPoolGraduatedReceipt(lifecycleReceipt, factory, { token })).toEqual({ token, positionId: 60n, tokenAmount: 70n, pairTokenAmount: 80n });
     expect(verifyBuybackEnabledUpdatedReceipt(lifecycleReceipt, factory, { token, controller: account, enabled: true })).toEqual({ token, enabled: true, controller: account });
+  });
+
+  it("decodes graduated fee, escrow claim, and buyback release evidence", () => {
+    const poolId = `0x${"12".repeat(32)}` as const;
+    const token = getAddress("0x4444444444444444444444444444444444444444");
+    const hook = getAddress("0x5555555555555555555555555555555555555555");
+    const escrow = getAddress("0x6666666666666666666666666666666666666666");
+    const vault = getAddress("0x7777777777777777777777777777777777777777");
+    const receipt: ReceiptLike = { status: "success", logs: [
+      {
+        address: hook,
+        topics: encodeEventTopics({ abi: ponsMemeHookAbi, eventName: "PoolFeesSwept", args: { poolId } }),
+        data: encodeAbiParameters([
+          { type: "uint256" }, { type: "uint256" }, { type: "uint256" }, { type: "uint256" },
+        ], [1n, 2n, 3n, 4n]),
+      },
+      {
+        address: escrow,
+        topics: encodeEventTopics({ abi: ponsFeeEscrowAbi, eventName: "Claimed", args: { recipient: account } }),
+        data: encodeAbiParameters([{ type: "uint256" }], [5n]),
+      },
+      {
+        address: escrow,
+        topics: encodeEventTopics({ abi: ponsFeeEscrowAbi, eventName: "ClaimedToken", args: { recipient: account, token } }),
+        data: encodeAbiParameters([{ type: "uint256" }], [6n]),
+      },
+      {
+        address: vault,
+        topics: encodeEventTopics({ abi: ponsBuybackVaultAbi, eventName: "Released", args: { token } }),
+        data: encodeAbiParameters([{ type: "uint256" }, { type: "uint256" }], [7n, 8n]),
+      },
+    ] };
+    expect(verifyPoolFeesSweptReceipt(receipt, hook, { poolId })).toMatchObject({ tokensLocked: 4n });
+    expect(verifyNativeFeesClaimedReceipt(receipt, escrow, { recipient: account })).toEqual({ recipient: account, amount: 5n });
+    expect(verifyTokenFeesClaimedReceipt(receipt, escrow, { recipient: account, token })).toEqual({ recipient: account, token, amount: 6n });
+    expect(verifyBuybackReleasedReceipt(receipt, vault, { token })).toEqual({ token, creatorAmount: 7n, protocolAmount: 8n });
   });
 });

@@ -1,5 +1,5 @@
 import { decodeEventLog, getAddress, type Address, type Hex } from "viem";
-import { ponsCurveAbi, ponsFactoryAbi, ponsForwarderAbi } from "./abis.js";
+import { ponsBuybackVaultAbi, ponsCurveAbi, ponsFactoryAbi, ponsFeeEscrowAbi, ponsForwarderAbi, ponsMemeHookAbi } from "./abis.js";
 import { PonsSdkError } from "./errors.js";
 import type { TransactionRequest } from "./transactions.js";
 
@@ -98,6 +98,15 @@ export interface BuybackEnabledUpdatedResult {
   enabled: boolean;
   controller: Address;
 }
+
+export interface PoolFeesSweptResult extends FeesSweptResult {
+  poolId: Hex;
+  tokensLocked: bigint;
+}
+
+export interface NativeFeesClaimedResult { recipient: Address; amount: bigint }
+export interface TokenFeesClaimedResult extends NativeFeesClaimedResult { token: Address }
+export interface BuybackReleasedResult { token: Address; creatorAmount: bigint; protocolAmount: bigint }
 
 export function assertConfirmedTransaction(
   transaction: ConfirmedTransactionLike,
@@ -247,6 +256,46 @@ export function verifyBuybackEnabledUpdatedReceipt(
 ): BuybackEnabledUpdatedResult {
   const result = requireEvent<BuybackEnabledUpdatedResult>(receipt, factory, ponsFactoryAbi, "BuybackEnabledUpdated");
   assertFields(result, expected, new Set(["token", "controller"]));
+  return result;
+}
+
+export function verifyPoolFeesSweptReceipt(
+  receipt: ReceiptLike,
+  memeHook: Address,
+  expected: Partial<PoolFeesSweptResult> = {},
+): PoolFeesSweptResult {
+  const result = requireEvent<PoolFeesSweptResult>(receipt, memeHook, ponsMemeHookAbi, "PoolFeesSwept");
+  assertFields(result, expected, new Set());
+  return result;
+}
+
+export function verifyNativeFeesClaimedReceipt(
+  receipt: ReceiptLike,
+  feeEscrow: Address,
+  expected: Partial<NativeFeesClaimedResult> = {},
+): NativeFeesClaimedResult {
+  const result = requireEvent<NativeFeesClaimedResult>(receipt, feeEscrow, ponsFeeEscrowAbi, "Claimed");
+  assertFields(result, expected, new Set(["recipient"]));
+  return result;
+}
+
+export function verifyTokenFeesClaimedReceipt(
+  receipt: ReceiptLike,
+  feeEscrow: Address,
+  expected: Partial<TokenFeesClaimedResult> = {},
+): TokenFeesClaimedResult {
+  const result = requireEvent<TokenFeesClaimedResult>(receipt, feeEscrow, ponsFeeEscrowAbi, "ClaimedToken");
+  assertFields(result, expected, new Set(["recipient", "token"]));
+  return result;
+}
+
+export function verifyBuybackReleasedReceipt(
+  receipt: ReceiptLike,
+  buybackVault: Address,
+  expected: Partial<BuybackReleasedResult> = {},
+): BuybackReleasedResult {
+  const result = requireEvent<BuybackReleasedResult>(receipt, buybackVault, ponsBuybackVaultAbi, "Released");
+  assertFields(result, expected, new Set(["token"]));
   return result;
 }
 

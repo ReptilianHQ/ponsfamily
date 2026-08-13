@@ -3,6 +3,7 @@
 ## 0.1.0
 
 - Mark the publicly visible SDK package as unlicensed.
+- Verify immutable production Git installs and runtime imports in CI.
 - Commit build artifacts so production git installs do not require development dependencies.
 - Reject curve-buy receipts that spend more quote than the reviewed offer.
 - Pin factory and value-carrying forwarder bytecode provenance.

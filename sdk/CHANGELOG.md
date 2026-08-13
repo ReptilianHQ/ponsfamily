@@ -2,6 +2,8 @@
 
 ## 0.1.0
 
+- Pin factory and value-carrying forwarder bytecode provenance.
+- Validate exact event artifact signatures and indexing.
 - Add reviewed Pons v2 factory, forwarder, curve, token, escrow, locker, and buyback-vault ABIs.
 - Pin and verify the Robinhood Chain mainnet deployment.
 - Add launch, atomic opening-buy, curve trade, approval, graduation, fee, and buyback builders.

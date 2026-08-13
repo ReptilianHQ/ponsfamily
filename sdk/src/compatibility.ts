@@ -8,6 +8,7 @@ export interface PonsCompatibilityReport {
   blockNumber: bigint;
   abiRevision: string;
   factoryCodeHash: Hex;
+  forwarderCodeHash: Hex;
   pointers: PonsDeployment["contracts"];
 }
 
@@ -20,11 +21,19 @@ export async function assertCompatibleDeployment(
   const chainId = await client.getChainId();
   if (chainId !== deployment.chainId) mismatch("CHAIN_MISMATCH", "chainId", String(deployment.chainId), String(chainId));
   const blockNumber = options.blockNumber ?? await client.getBlockNumber();
-  const bytecode = await client.getBytecode({ address: deployment.contracts.factory, blockNumber });
-  if (!bytecode || bytecode === "0x") mismatch("CODE_MISSING", "contracts.factory", "deployed bytecode", "0x");
-  const factoryCodeHash = keccak256(bytecode);
+  const [factoryBytecode, forwarderBytecode] = await Promise.all([
+    client.getBytecode({ address: deployment.contracts.factory, blockNumber }),
+    client.getBytecode({ address: deployment.contracts.forwarder, blockNumber }),
+  ]);
+  if (!factoryBytecode || factoryBytecode === "0x") mismatch("CODE_MISSING", "contracts.factory", "deployed bytecode", "0x");
+  if (!forwarderBytecode || forwarderBytecode === "0x") mismatch("CODE_MISSING", "contracts.forwarder", "deployed bytecode", "0x");
+  const factoryCodeHash = keccak256(factoryBytecode);
   if (factoryCodeHash !== deployment.factoryRuntimeCodeHash) {
     mismatch("CODE_HASH_MISMATCH", "contracts.factory", deployment.factoryRuntimeCodeHash, factoryCodeHash);
+  }
+  const forwarderCodeHash = keccak256(forwarderBytecode);
+  if (forwarderCodeHash !== deployment.forwarderRuntimeCodeHash) {
+    mismatch("CODE_HASH_MISMATCH", "contracts.forwarder", deployment.forwarderRuntimeCodeHash, forwarderCodeHash);
   }
   const factory = deployment.contracts.factory;
   const [forwarder, launchDeployer, graduationExecutor, graduationGuard, poolManager, positionManager, permit2, locker, memeHook, feeEscrow, buybackVault, forwarderFactory] =
@@ -48,7 +57,7 @@ export async function assertCompatibleDeployment(
     if (actual.toLowerCase() !== expected.toLowerCase()) mismatch("POINTER_MISMATCH", `contracts.${key}`, expected, actual);
   }
   if (forwarderFactory.toLowerCase() !== factory.toLowerCase()) mismatch("POINTER_MISMATCH", "forwarder.factory", factory, forwarderFactory);
-  return { chainId, blockNumber, abiRevision: deployment.abiRevision, factoryCodeHash, pointers };
+  return { chainId, blockNumber, abiRevision: deployment.abiRevision, factoryCodeHash, forwarderCodeHash, pointers };
 }
 
 async function readAddress(

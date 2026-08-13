@@ -119,7 +119,9 @@ import { assertCompatibleDeployment, robinhoodMainnet } from "@reptilianhq/pons-
 await assertCompatibleDeployment(publicClient, robinhoodMainnet);
 ```
 
-This checks the chain ID, factory runtime bytecode hash, factory dependency pointers, and the forwarder-to-factory pointer at one block. It proves deployment identity and wiring, not live operational state such as launch enablement.
+This checks the chain ID, factory and value-carrying forwarder runtime bytecode hashes, factory dependency pointers, and the forwarder-to-factory pointer at one block. It proves deployment identity and wiring, not live operational state such as launch enablement.
+
+The published provenance records the forwarder's creation transaction, block, verified explorer source, source hash, compiler, and runtime code hash. No public Git commit for that verified forwarder source was available at review time, so `forwarderSourceCommit` is explicitly `null` rather than implying that the factory source revision covers it.
 
 ## Package boundaries
 

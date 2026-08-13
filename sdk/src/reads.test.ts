@@ -1,12 +1,24 @@
 import { getAddress, zeroAddress, type PublicClient } from "viem";
 import { describe, expect, it, vi } from "vitest";
 import { robinhoodMainnet } from "./deployments.js";
-import { GraduationPhase, readLaunchLifecycle } from "./reads.js";
+import { GraduationPhase, readLaunchConfigs, readLaunchLifecycle } from "./reads.js";
 
 const token = getAddress("0x1111111111111111111111111111111111111111");
 const curve = getAddress("0x2222222222222222222222222222222222222222");
 
 describe("Pons reads", () => {
+  it("rejects an implausible launch config count before allocating", async () => {
+    const client = {
+      readContract: vi.fn().mockResolvedValue(10_001n),
+    } as unknown as PublicClient;
+
+    await expect(readLaunchConfigs(client, robinhoodMainnet)).rejects.toMatchObject({
+      code: "INVALID_ARGUMENT",
+      path: "launchConfigCount",
+    });
+    expect(client.readContract).toHaveBeenCalledTimes(1);
+  });
+
   it("reads lifecycle state at one pinned block", async () => {
     const readContract = vi.fn(async ({ functionName, blockNumber }: { functionName: string; blockNumber?: bigint }) => {
       expect(blockNumber).toBe(123n);

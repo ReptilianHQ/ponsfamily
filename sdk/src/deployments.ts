@@ -29,6 +29,7 @@ export interface PonsDeployment {
   sourceCommit: string;
   startBlock: bigint;
   factoryRuntimeCodeHash: Hex;
+  forwarderRuntimeCodeHash: Hex;
   contracts: PonsV2Contracts;
 }
 
@@ -41,6 +42,7 @@ export const robinhoodMainnet: PonsDeployment = deepFreeze({
   sourceCommit: "836f0f97f9a9569855876570d6778501c163c883",
   startBlock: 26_841_846n,
   factoryRuntimeCodeHash: "0x89a27da6f703e0a7cdd4f233e7cb57604ff75b164530962d3ff7cf8483a67d84",
+  forwarderRuntimeCodeHash: "0xed9065184519eaa24a22c2556403d5d8bbb230ff94dbc5c414cf5028e20e52e7",
   contracts: {
     factory: getAddress("0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e"),
     forwarder: getAddress("0xe33E9E479dF8802cb0866d5d05258bEc4cF62948"),

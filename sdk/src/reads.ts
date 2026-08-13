@@ -10,12 +10,21 @@ export enum GraduationPhase {
   Rescued = 3,
 }
 
+const MAX_LAUNCH_CONFIGS = 10_000n;
+
 export async function readLaunchConfigs(client: PublicClient, deployment: PonsDeployment) {
   const count = await client.readContract({
     address: deployment.contracts.factory,
     abi: ponsFactoryAbi,
     functionName: "launchConfigCount",
   });
+  if (count > MAX_LAUNCH_CONFIGS) {
+    throw new PonsSdkError("INVALID_ARGUMENT", `Factory returned an implausible launch config count ${count}`, {
+      path: "launchConfigCount",
+      expected: `0..${MAX_LAUNCH_CONFIGS}`,
+      actual: String(count),
+    });
+  }
   return Promise.all(Array.from({ length: Number(count) }, (_, id) => client.readContract({
     address: deployment.contracts.factory,
     abi: ponsFactoryAbi,

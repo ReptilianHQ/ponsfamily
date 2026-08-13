@@ -4,12 +4,14 @@ import { ABI_REVISION } from "./abis.js";
 import { assertCompatibleDeployment } from "./compatibility.js";
 import { robinhoodMainnet, type PonsDeployment } from "./deployments.js";
 
-const bytecode = "0x6000" as const;
+const factoryBytecode = "0x6000" as const;
+const forwarderBytecode = "0x6001" as const;
 
 function deployment(overrides: Partial<PonsDeployment> = {}): PonsDeployment {
   return {
     ...robinhoodMainnet,
-    factoryRuntimeCodeHash: keccak256(bytecode),
+    factoryRuntimeCodeHash: keccak256(factoryBytecode),
+    forwarderRuntimeCodeHash: keccak256(forwarderBytecode),
     ...overrides,
   };
 }
@@ -23,7 +25,7 @@ function compatibleClient(target = deployment()) {
   return {
     getChainId: vi.fn().mockResolvedValue(target.chainId),
     getBlockNumber: vi.fn().mockResolvedValue(123n),
-    getBytecode: vi.fn().mockResolvedValue(bytecode),
+    getBytecode: vi.fn(async ({ address }) => address === target.contracts.forwarder ? forwarderBytecode : factoryBytecode),
     readContract,
   } as unknown as PublicClient;
 }
@@ -39,7 +41,8 @@ describe("deployment compatibility", () => {
       chainId: target.chainId,
       blockNumber: 123n,
       abiRevision: ABI_REVISION,
-      factoryCodeHash: keccak256(bytecode),
+      factoryCodeHash: keccak256(factoryBytecode),
+      forwarderCodeHash: keccak256(forwarderBytecode),
       pointers: target.contracts,
     });
     expect(client.readContract).toHaveBeenCalledTimes(12);
@@ -66,6 +69,14 @@ describe("deployment compatibility", () => {
     const changedClient = compatibleClient(target);
     vi.mocked(changedClient.getBytecode).mockResolvedValue("0x6001");
     await expect(assertCompatibleDeployment(changedClient, target)).rejects.toMatchObject({ code: "CODE_HASH_MISMATCH" });
+
+    const changedForwarderClient = compatibleClient(target);
+    vi.mocked(changedForwarderClient.getBytecode).mockImplementation(async ({ address }) =>
+      address === target.contracts.forwarder ? "0x6002" : factoryBytecode);
+    await expect(assertCompatibleDeployment(changedForwarderClient, target)).rejects.toMatchObject({
+      code: "CODE_HASH_MISMATCH",
+      path: "contracts.forwarder",
+    });
   });
 
   it("reports a changed factory dependency by its stable path", async () => {

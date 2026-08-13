@@ -16,7 +16,7 @@
     "url": "git+https://github.com/ReptilianHQ/ponsfamily.git",
     "directory": "sdk"
   },
-  "homepage": "https://github.com/ReptilianHQ/ponsfamily/tree/feat/typescript-sdk/sdk#readme",
+  "homepage": "https://github.com/ReptilianHQ/ponsfamily/tree/main/sdk#readme",
   "bugs": {
     "url": "https://github.com/ReptilianHQ/ponsfamily/issues"
   },

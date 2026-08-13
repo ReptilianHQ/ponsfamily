@@ -1,0 +1,103 @@
+{
+  "name": "@reptilianhq/pons-sdk",
+  "version": "0.1.0",
+  "description": "Reptilian-maintained TypeScript integration SDK for Pons v2 on Robinhood Chain.",
+  "keywords": [
+    "bonding-curve",
+    "pons",
+    "robinhood-chain",
+    "sdk",
+    "typescript",
+    "uniswap-v4",
+    "viem"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ReptilianHQ/ponsfamily.git",
+    "directory": "sdk"
+  },
+  "homepage": "https://github.com/ReptilianHQ/ponsfamily/tree/main/sdk#readme",
+  "bugs": {
+    "url": "https://github.com/ReptilianHQ/ponsfamily/issues"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "npm@11.5.2",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "artifacts",
+    "dist",
+    "provenance",
+    "README.md",
+    "NOTICE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./abis": {
+      "types": "./dist/abis.d.ts",
+      "import": "./dist/abis.js"
+    },
+    "./artifacts/PonsV2Factory.json": "./artifacts/PonsV2Factory.json",
+    "./artifacts/PonsV2Curve.json": "./artifacts/PonsV2Curve.json",
+    "./provenance/mainnet.json": "./provenance/mainnet.json",
+    "./compatibility": {
+      "types": "./dist/compatibility.d.ts",
+      "import": "./dist/compatibility.js"
+    },
+    "./deployments": {
+      "types": "./dist/deployments.d.ts",
+      "import": "./dist/deployments.js"
+    },
+    "./errors": {
+      "types": "./dist/errors.d.ts",
+      "import": "./dist/errors.js"
+    },
+    "./math": {
+      "types": "./dist/math.d.ts",
+      "import": "./dist/math.js"
+    },
+    "./reads": {
+      "types": "./dist/reads.d.ts",
+      "import": "./dist/reads.js"
+    },
+    "./receipts": {
+      "types": "./dist/receipts.d.ts",
+      "import": "./dist/receipts.js"
+    },
+    "./transactions": {
+      "types": "./dist/transactions.d.ts",
+      "import": "./dist/transactions.js"
+    }
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "prepare": "npm run build",
+    "check": "npm run build && npm run check:artifacts && npm run test:unit && npm run test:pack && npm run check:package",
+    "check:artifacts": "node scripts/check-artifacts.mjs",
+    "test": "npm run check",
+    "test:unit": "vitest run",
+    "test:pack": "npm pack --dry-run",
+    "check:package": "publint && attw --pack . --profile esm-only"
+  },
+  "peerDependencies": {
+    "viem": ">=2.21.0 <3"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@hegeldev/hegel": "0.4.3",
+    "publint": "^0.3.23",
+    "typescript": "^7.0.2",
+    "viem": "^2.55.10",
+    "vitest": "4.1.10"
+  }
+}

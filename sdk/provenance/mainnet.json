@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "chainId": 4663,
+  "sourceRepository": "ponsdotdev/ponsfamily",
+  "sourceCommit": "836f0f97f9a9569855876570d6778501c163c883",
+  "factory": "0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e",
+  "factoryCreationTransaction": "0x3817f297aa7c2ef78789bffac57491ceedc218fef962d47ed36c272699deddeb",
+  "startBlock": 26841846,
+  "factoryRuntimeCodeHash": "0x89a27da6f703e0a7cdd4f233e7cb57604ff75b164530962d3ff7cf8483a67d84",
+  "forwarder": "0xe33E9E479dF8802cb0866d5d05258bEc4cF62948",
+  "forwarderCreationTransaction": "0x4be522d489114cf455739c26e676f7eb2a74d04c1fabb4f21e906d02802c016d",
+  "forwarderCreationBlock": 26841867,
+  "forwarderRuntimeCodeHash": "0xed9065184519eaa24a22c2556403d5d8bbb230ff94dbc5c414cf5028e20e52e7",
+  "forwarderVerifiedSourceUrl": "https://robinhoodchain.blockscout.com/address/0xe33E9E479dF8802cb0866d5d05258bEc4cF62948?tab=contract",
+  "forwarderSourcePath": "contracts/src/v2/PonsV2LaunchAndBuy.sol",
+  "forwarderSourceSha256": "2a8e76590329dba58c21971dc8cb8c9976fbd8fcd96332bfc30a354a8c56ab88",
+  "forwarderCompiler": "0.8.35+commit.47b9dedd",
+  "forwarderVerifiedAt": "2026-08-04T17:42:28.107362Z",
+  "forwarderSourceCommit": null,
+  "reviewedAt": "2026-08-12"
+}

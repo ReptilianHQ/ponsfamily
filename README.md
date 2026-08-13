@@ -219,6 +219,10 @@ Both generations vendor only the upstream files they actually compile against, k
 - `abi.json` — ABI of the live V1 factory
 - `contract-meta.json` — compiler version, optimizer settings, EVM target and source list for the live V1 deployment
 
+## TypeScript SDK
+
+[`sdk/`](./sdk) contains Reptilian's independent, runtime-neutral `@reptilianhq/pons-sdk` integration package for Pons v2. It publishes reviewed ABIs and deployment metadata, exact bigint bonding-curve quotes, deterministic transaction builders, read helpers, receipt verification, and deployment compatibility checks without selecting wallets or RPC policy for applications.
+
 ## Design notes
 
 1. **V1: single-transaction launch.** Deployment, pool creation, liquidity lock and any developer buy share one `launchToken` call, so the user signs once.

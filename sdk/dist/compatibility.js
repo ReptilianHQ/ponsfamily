@@ -8,14 +8,23 @@ export async function assertCompatibleDeployment(client, deployment, options = {
     if (chainId !== deployment.chainId)
         mismatch("CHAIN_MISMATCH", "chainId", String(deployment.chainId), String(chainId));
     const blockNumber = options.blockNumber ?? await client.getBlockNumber();
-    const [factoryBytecode, forwarderBytecode] = await Promise.all([
+    const [factoryBytecode, forwarderBytecode, memeHookBytecode, feeEscrowBytecode, buybackVaultBytecode] = await Promise.all([
         client.getBytecode({ address: deployment.contracts.factory, blockNumber }),
         client.getBytecode({ address: deployment.contracts.forwarder, blockNumber }),
+        client.getBytecode({ address: deployment.contracts.memeHook, blockNumber }),
+        client.getBytecode({ address: deployment.contracts.feeEscrow, blockNumber }),
+        client.getBytecode({ address: deployment.contracts.buybackVault, blockNumber }),
     ]);
     if (!factoryBytecode || factoryBytecode === "0x")
         mismatch("CODE_MISSING", "contracts.factory", "deployed bytecode", "0x");
     if (!forwarderBytecode || forwarderBytecode === "0x")
         mismatch("CODE_MISSING", "contracts.forwarder", "deployed bytecode", "0x");
+    if (!memeHookBytecode || memeHookBytecode === "0x")
+        mismatch("CODE_MISSING", "contracts.memeHook", "deployed bytecode", "0x");
+    if (!feeEscrowBytecode || feeEscrowBytecode === "0x")
+        mismatch("CODE_MISSING", "contracts.feeEscrow", "deployed bytecode", "0x");
+    if (!buybackVaultBytecode || buybackVaultBytecode === "0x")
+        mismatch("CODE_MISSING", "contracts.buybackVault", "deployed bytecode", "0x");
     const factoryCodeHash = keccak256(factoryBytecode);
     if (factoryCodeHash !== deployment.factoryRuntimeCodeHash) {
         mismatch("CODE_HASH_MISMATCH", "contracts.factory", deployment.factoryRuntimeCodeHash, factoryCodeHash);
@@ -24,6 +33,15 @@ export async function assertCompatibleDeployment(client, deployment, options = {
     if (forwarderCodeHash !== deployment.forwarderRuntimeCodeHash) {
         mismatch("CODE_HASH_MISMATCH", "contracts.forwarder", deployment.forwarderRuntimeCodeHash, forwarderCodeHash);
     }
+    const memeHookCodeHash = keccak256(memeHookBytecode);
+    if (memeHookCodeHash !== deployment.memeHookRuntimeCodeHash)
+        mismatch("CODE_HASH_MISMATCH", "contracts.memeHook", deployment.memeHookRuntimeCodeHash, memeHookCodeHash);
+    const feeEscrowCodeHash = keccak256(feeEscrowBytecode);
+    if (feeEscrowCodeHash !== deployment.feeEscrowRuntimeCodeHash)
+        mismatch("CODE_HASH_MISMATCH", "contracts.feeEscrow", deployment.feeEscrowRuntimeCodeHash, feeEscrowCodeHash);
+    const buybackVaultCodeHash = keccak256(buybackVaultBytecode);
+    if (buybackVaultCodeHash !== deployment.buybackVaultRuntimeCodeHash)
+        mismatch("CODE_HASH_MISMATCH", "contracts.buybackVault", deployment.buybackVaultRuntimeCodeHash, buybackVaultCodeHash);
     const factory = deployment.contracts.factory;
     const [forwarder, launchDeployer, graduationExecutor, graduationGuard, poolManager, positionManager, permit2, locker, memeHook, feeEscrow, buybackVault, forwarderFactory] = await Promise.all([
         readAddress(client, factory, "launchForwarder", blockNumber),
@@ -47,7 +65,7 @@ export async function assertCompatibleDeployment(client, deployment, options = {
     }
     if (forwarderFactory.toLowerCase() !== factory.toLowerCase())
         mismatch("POINTER_MISMATCH", "forwarder.factory", factory, forwarderFactory);
-    return { chainId, blockNumber, abiRevision: deployment.abiRevision, factoryCodeHash, forwarderCodeHash, pointers };
+    return { chainId, blockNumber, abiRevision: deployment.abiRevision, factoryCodeHash, forwarderCodeHash, memeHookCodeHash, feeEscrowCodeHash, buybackVaultCodeHash, pointers };
 }
 async function readAddress(client, factory, functionName, blockNumber) {
     return client.readContract({ address: factory, abi: ponsFactoryAbi, functionName, blockNumber });

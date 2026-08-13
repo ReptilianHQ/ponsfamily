@@ -122,6 +122,7 @@ export declare function derivePonsGraduatedPoolId(parameters: {
     memeHook: Address;
 }): Hex;
 export declare function readGraduatedPoolFeeState(client: PublicClient, deployment: PonsDeployment, token: Address, options?: ReadAtBlockOptions): Promise<{
+    blockNumber: bigint;
     poolId: `0x${string}`;
     launch: {
         buybackEnabled: boolean;
@@ -155,6 +156,7 @@ export declare function readGraduatedPoolFeeState(client: PublicClient, deployme
     };
 }>;
 export declare function readFeeEscrowBalances(client: PublicClient, deployment: PonsDeployment, recipient: Address, tokens?: readonly Address[], options?: ReadAtBlockOptions): Promise<{
+    blockNumber: bigint;
     recipient: `0x${string}`;
     native: bigint;
     tokens: {
@@ -163,6 +165,7 @@ export declare function readFeeEscrowBalances(client: PublicClient, deployment: 
     }[];
 }>;
 export declare function readBuybackVest(client: PublicClient, deployment: PonsDeployment, token: Address, options?: ReadAtBlockOptions): Promise<{
+    blockNumber: bigint;
     token: `0x${string}`;
     totalLocked: bigint;
     totalReleased: bigint;

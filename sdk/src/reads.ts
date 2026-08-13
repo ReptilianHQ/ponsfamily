@@ -191,7 +191,8 @@ export async function readGraduatedPoolFeeState(
   token: Address,
   options: ReadAtBlockOptions = {},
 ) {
-  const launch = await readLaunchedToken(client, deployment, token, options);
+  const blockNumber = options.blockNumber ?? await client.getBlockNumber();
+  const launch = await readLaunchedToken(client, deployment, token, { blockNumber });
   if (graduationPhase(launch.phase) !== GraduationPhase.PoolCreated) {
     throw new PonsSdkError("INVALID_ARGUMENT", `Pons token ${token} has no graduated pool`, { path: "phase", actual: String(launch.phase) });
   }
@@ -199,7 +200,7 @@ export async function readGraduatedPoolFeeState(
     token: getAddress(token), pairToken: launch.pairToken, poolFee: launch.poolFee,
     tickSpacing: launch.tickSpacing, memeHook: deployment.contracts.memeHook,
   });
-  const read = { address: deployment.contracts.memeHook, abi: ponsMemeHookAbi, blockNumber: options.blockNumber } as const;
+  const read = { address: deployment.contracts.memeHook, abi: ponsMemeHookAbi, blockNumber } as const;
   const currencies = [getAddress(token), getAddress(launch.pairToken)] as const;
   const [registration, tokenFees, quoteFees, tokenBuyback, quoteBuyback, tokenTax, quoteTax] = await Promise.all([
     client.readContract({ ...read, functionName: "launches", args: [poolId] }),
@@ -214,6 +215,7 @@ export async function readGraduatedPoolFeeState(
     throw new PonsSdkError("DEPLOYMENT_NOT_FOUND", `Pons hook has no matching pool for ${token}`, { path: "poolId", actual: poolId });
   }
   return {
+    blockNumber,
     poolId,
     launch,
     registration,
@@ -231,8 +233,9 @@ export async function readFeeEscrowBalances(
   tokens: readonly Address[] = [],
   options: ReadAtBlockOptions = {},
 ) {
+  const blockNumber = options.blockNumber ?? await client.getBlockNumber();
   recipient = getAddress(recipient);
-  const read = { address: deployment.contracts.feeEscrow, abi: ponsFeeEscrowAbi, blockNumber: options.blockNumber } as const;
+  const read = { address: deployment.contracts.feeEscrow, abi: ponsFeeEscrowAbi, blockNumber } as const;
   const [native, tokenBalances] = await Promise.all([
     client.readContract({ ...read, functionName: "balanceOf", args: [recipient] }),
     Promise.all(tokens.map(async (token) => {
@@ -241,7 +244,7 @@ export async function readFeeEscrowBalances(
       return { token: address, balance };
     })),
   ]);
-  return { recipient, native, tokens: tokenBalances };
+  return { blockNumber, recipient, native, tokens: tokenBalances };
 }
 
 export async function readBuybackVest(
@@ -250,8 +253,9 @@ export async function readBuybackVest(
   token: Address,
   options: ReadAtBlockOptions = {},
 ) {
+  const blockNumber = options.blockNumber ?? await client.getBlockNumber();
   token = getAddress(token);
-  const read = { address: deployment.contracts.buybackVault, abi: ponsBuybackVaultAbi, blockNumber: options.blockNumber } as const;
+  const read = { address: deployment.contracts.buybackVault, abi: ponsBuybackVaultAbi, blockNumber } as const;
   const [totalLocked, totalReleased, vestedAmount, releasable, terms] = await Promise.all([
     client.readContract({ ...read, functionName: "totalLocked", args: [token] }),
     client.readContract({ ...read, functionName: "totalReleased", args: [token] }),
@@ -260,7 +264,7 @@ export async function readBuybackVest(
     client.readContract({ ...read, functionName: "vestingTerms", args: [token] }),
   ]);
   return {
-    token, totalLocked, totalReleased, vestedAmount, releasable,
+    blockNumber, token, totalLocked, totalReleased, vestedAmount, releasable,
     creatorRecipient: terms[0], protocolRecipient: terms[1], protocolFeeShareBps: terms[2],
   };
 }

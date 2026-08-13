@@ -21,16 +21,19 @@
     "memeHook": {
       "address": "0xE5e702641Ea86F4ae6cC3cDaeD2B886f976Be044",
       "artifact": "PonsV2MemeHook.json",
+      "runtimeCodeHash": "0xc21b1e6c1b45403e81a581f22ed6d9c747997af1cfdac1b1dc9f4b1d346a10db",
       "verifiedSourceUrl": "https://robinhoodchain.blockscout.com/address/0xE5e702641Ea86F4ae6cC3cDaeD2B886f976Be044?tab=contract"
     },
     "feeEscrow": {
       "address": "0xd3AFEB2a57f70eF218Aa82451c51B2fb0416Ac9e",
       "artifact": "PonsV2FeeEscrow.json",
+      "runtimeCodeHash": "0xf25f75cfbc1637ba068dc34f69098fa4e8a80f8ee8fe7bf7820594e0b3fed2f1",
       "verifiedSourceUrl": "https://robinhoodchain.blockscout.com/address/0xd3AFEB2a57f70eF218Aa82451c51B2fb0416Ac9e?tab=contract"
     },
     "buybackVault": {
       "address": "0x42df2a798f82289E177311362e8f5ccC45c1219c",
       "artifact": "PonsV2BuybackVault.json",
+      "runtimeCodeHash": "0x5de8480874faffefa539648f1a7d6c1e69b39da3fa34de22fc95eb7586aece03",
       "verifiedSourceUrl": "https://robinhoodchain.blockscout.com/address/0x42df2a798f82289E177311362e8f5ccC45c1219c?tab=contract"
     }
   },

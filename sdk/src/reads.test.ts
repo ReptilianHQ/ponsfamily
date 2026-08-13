@@ -76,6 +76,10 @@ describe("Pons reads", () => {
     });
     expect(left).toMatch(/^0x[0-9a-f]{64}$/);
     expect(left).toBe(right);
+    expect(derivePonsGraduatedPoolId({
+      token, pairToken: zeroAddress, poolFee: 10_000, tickSpacing: -200,
+      memeHook: robinhoodMainnet.contracts.memeHook,
+    })).toBe("0x8d7049f57226d75b11f91f77fe7080224efa7a7953dbf94f9b2c4c681c222767");
   });
 
   it("reads escrow claims and buyback vesting at a pinned block", async () => {
@@ -92,12 +96,12 @@ describe("Pons reads", () => {
       throw new Error(`Unexpected read ${functionName}`);
     });
     const account = getAddress("0x4444444444444444444444444444444444444444");
-    const client = { readContract } as unknown as PublicClient;
-    await expect(readFeeEscrowBalances(client, robinhoodMainnet, account, [quote], { blockNumber: 123n })).resolves.toEqual({
-      recipient: account, native: 5n, tokens: [{ token: quote, balance: 7n }],
+    const client = { getBlockNumber: vi.fn().mockResolvedValue(123n), readContract } as unknown as PublicClient;
+    await expect(readFeeEscrowBalances(client, robinhoodMainnet, account, [quote])).resolves.toEqual({
+      blockNumber: 123n, recipient: account, native: 5n, tokens: [{ token: quote, balance: 7n }],
     });
-    await expect(readBuybackVest(client, robinhoodMainnet, token, { blockNumber: 123n })).resolves.toMatchObject({
-      token, totalLocked: 100n, totalReleased: 20n, vestedAmount: 30n, releasable: 10n,
+    await expect(readBuybackVest(client, robinhoodMainnet, token)).resolves.toMatchObject({
+      blockNumber: 123n, token, totalLocked: 100n, totalReleased: 20n, vestedAmount: 30n, releasable: 10n,
       creatorRecipient: account, protocolRecipient: quote, protocolFeeShareBps: 3_000,
     });
   });

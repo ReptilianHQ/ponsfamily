@@ -147,7 +147,8 @@ export function derivePonsGraduatedPoolId(parameters) {
     return keccak256(encodeAbiParameters([{ type: "address" }, { type: "address" }, { type: "uint24" }, { type: "int24" }, { type: "address" }], [currency0, currency1, parameters.poolFee, parameters.tickSpacing, getAddress(parameters.memeHook)]));
 }
 export async function readGraduatedPoolFeeState(client, deployment, token, options = {}) {
-    const launch = await readLaunchedToken(client, deployment, token, options);
+    const blockNumber = options.blockNumber ?? await client.getBlockNumber();
+    const launch = await readLaunchedToken(client, deployment, token, { blockNumber });
     if (graduationPhase(launch.phase) !== GraduationPhase.PoolCreated) {
         throw new PonsSdkError("INVALID_ARGUMENT", `Pons token ${token} has no graduated pool`, { path: "phase", actual: String(launch.phase) });
     }
@@ -155,7 +156,7 @@ export async function readGraduatedPoolFeeState(client, deployment, token, optio
         token: getAddress(token), pairToken: launch.pairToken, poolFee: launch.poolFee,
         tickSpacing: launch.tickSpacing, memeHook: deployment.contracts.memeHook,
     });
-    const read = { address: deployment.contracts.memeHook, abi: ponsMemeHookAbi, blockNumber: options.blockNumber };
+    const read = { address: deployment.contracts.memeHook, abi: ponsMemeHookAbi, blockNumber };
     const currencies = [getAddress(token), getAddress(launch.pairToken)];
     const [registration, tokenFees, quoteFees, tokenBuyback, quoteBuyback, tokenTax, quoteTax] = await Promise.all([
         client.readContract({ ...read, functionName: "launches", args: [poolId] }),
@@ -170,6 +171,7 @@ export async function readGraduatedPoolFeeState(client, deployment, token, optio
         throw new PonsSdkError("DEPLOYMENT_NOT_FOUND", `Pons hook has no matching pool for ${token}`, { path: "poolId", actual: poolId });
     }
     return {
+        blockNumber,
         poolId,
         launch,
         registration,
@@ -180,8 +182,9 @@ export async function readGraduatedPoolFeeState(client, deployment, token, optio
     };
 }
 export async function readFeeEscrowBalances(client, deployment, recipient, tokens = [], options = {}) {
+    const blockNumber = options.blockNumber ?? await client.getBlockNumber();
     recipient = getAddress(recipient);
-    const read = { address: deployment.contracts.feeEscrow, abi: ponsFeeEscrowAbi, blockNumber: options.blockNumber };
+    const read = { address: deployment.contracts.feeEscrow, abi: ponsFeeEscrowAbi, blockNumber };
     const [native, tokenBalances] = await Promise.all([
         client.readContract({ ...read, functionName: "balanceOf", args: [recipient] }),
         Promise.all(tokens.map(async (token) => {
@@ -190,11 +193,12 @@ export async function readFeeEscrowBalances(client, deployment, recipient, token
             return { token: address, balance };
         })),
     ]);
-    return { recipient, native, tokens: tokenBalances };
+    return { blockNumber, recipient, native, tokens: tokenBalances };
 }
 export async function readBuybackVest(client, deployment, token, options = {}) {
+    const blockNumber = options.blockNumber ?? await client.getBlockNumber();
     token = getAddress(token);
-    const read = { address: deployment.contracts.buybackVault, abi: ponsBuybackVaultAbi, blockNumber: options.blockNumber };
+    const read = { address: deployment.contracts.buybackVault, abi: ponsBuybackVaultAbi, blockNumber };
     const [totalLocked, totalReleased, vestedAmount, releasable, terms] = await Promise.all([
         client.readContract({ ...read, functionName: "totalLocked", args: [token] }),
         client.readContract({ ...read, functionName: "totalReleased", args: [token] }),
@@ -203,7 +207,7 @@ export async function readBuybackVest(client, deployment, token, options = {}) {
         client.readContract({ ...read, functionName: "vestingTerms", args: [token] }),
     ]);
     return {
-        token, totalLocked, totalReleased, vestedAmount, releasable,
+        blockNumber, token, totalLocked, totalReleased, vestedAmount, releasable,
         creatorRecipient: terms[0], protocolRecipient: terms[1], protocolFeeShareBps: terms[2],
     };
 }

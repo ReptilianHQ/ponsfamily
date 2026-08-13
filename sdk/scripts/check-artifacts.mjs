@@ -25,6 +25,7 @@ for (const [name, artifact] of [
 ]) {
   assert.equal(robinhoodMainnet.contracts[name].toLowerCase(), provenance.reviewedContracts[name].address.toLowerCase());
   assert.equal(provenance.reviewedContracts[name].artifact, artifact);
+  assert.equal(robinhoodMainnet[`${name}RuntimeCodeHash`], provenance.reviewedContracts[name].runtimeCodeHash);
   assert.match(provenance.reviewedContracts[name].verifiedSourceUrl, /^https:\/\/robinhoodchain\.blockscout\.com\/address\/0x[0-9a-fA-F]{40}\?tab=contract$/);
 }
 const factoryEventNames = [
@@ -36,7 +37,7 @@ const factoryEventNames = [
 const curveEventNames = ["CurveBuy", "CurveSell", "FeesSwept", "BuybackLocked"];
 assert.deepEqual(factoryEvents.map(canonicalEvent), selectEvents(ponsFactoryAbi, factoryEventNames));
 assert.deepEqual(curveEvents.map(canonicalEvent), selectEvents(ponsCurveAbi, curveEventNames));
-assert.deepEqual(hookEvents.map(canonicalEvent), selectEvents(ponsMemeHookAbi, ["HookFeeCollected", "PoolFeesSwept"]));
+assert.deepEqual(hookEvents.map(canonicalEvent), selectEvents(ponsMemeHookAbi, ["HookFeeCollected", "PoolFeesSwept", "PoolFeesRescued"]));
 assert.deepEqual(escrowEvents.map(canonicalEvent), selectEvents(ponsFeeEscrowAbi, ["Claimed", "ClaimedToken", "Credited", "CreditedToken"]));
 assert.deepEqual(vaultEvents.map(canonicalEvent), selectEvents(ponsBuybackVaultAbi, ["Locked", "Released", "CreatorRecipientUpdated"]));
 

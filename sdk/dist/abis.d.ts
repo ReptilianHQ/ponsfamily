@@ -1371,6 +1371,24 @@ export declare const ponsMemeHookAbi: readonly [{
         readonly type: "uint256";
         readonly name: "tokensLocked";
     }];
+}, {
+    readonly name: "PoolFeesRescued";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "bytes32";
+        readonly name: "poolId";
+        readonly indexed: true;
+    }, {
+        readonly type: "address";
+        readonly name: "quoteToken";
+        readonly indexed: true;
+    }, {
+        readonly type: "uint256";
+        readonly name: "protocolAmount";
+    }, {
+        readonly type: "uint256";
+        readonly name: "creatorAmount";
+    }];
 }];
 export declare const ponsLockerAbi: readonly [{
     readonly name: "lockedPositions";

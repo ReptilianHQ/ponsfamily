@@ -6,6 +6,9 @@ export interface PonsCompatibilityReport {
     abiRevision: string;
     factoryCodeHash: Hex;
     forwarderCodeHash: Hex;
+    memeHookCodeHash: Hex;
+    feeEscrowCodeHash: Hex;
+    buybackVaultCodeHash: Hex;
     pointers: PonsDeployment["contracts"];
 }
 export declare function assertCompatibleDeployment(client: PublicClient, deployment: PonsDeployment, options?: {

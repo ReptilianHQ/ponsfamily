@@ -2,6 +2,7 @@
 
 ## 0.1.0
 
+- Reject curve-buy receipts that spend more quote than the reviewed offer.
 - Pin factory and value-carrying forwarder bytecode provenance.
 - Validate exact event artifact signatures and indexing.
 - Add reviewed Pons v2 factory, forwarder, curve, token, escrow, locker, and buyback-vault ABIs.

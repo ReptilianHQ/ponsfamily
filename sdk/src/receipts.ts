@@ -157,6 +157,9 @@ export function verifyCurveBuyReceipt(
   const result = requireEvent<CurveBuyResult>(receipt, curve, ponsCurveAbi, "CurveBuy");
   const { minTokensOut, quoteOffered, ...exact } = expected;
   assertFields(result, exact, new Set(["buyer", "recipient"]));
+  if (quoteOffered !== undefined && result.quoteIn > quoteOffered) {
+    mismatch("RECEIPT_FIELD_MISMATCH", "quoteIn", `<= ${quoteOffered}`, String(result.quoteIn));
+  }
   if (minTokensOut !== undefined) {
     const satisfied = quoteOffered === undefined
       ? result.tokensOut >= minTokensOut

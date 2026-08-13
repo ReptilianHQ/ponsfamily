@@ -49,6 +49,35 @@ describe("receipt verification", () => {
     }).tokensOut).toBe(101n);
   });
 
+  it("rejects final-buy evidence that spends more than the offered quote", () => {
+    const receipt: ReceiptLike = {
+      status: "success",
+      logs: [{
+        address: curve,
+        topics: encodeEventTopics({
+          abi: ponsCurveAbi,
+          eventName: "CurveBuy",
+          args: { buyer: account, recipient: account },
+        }),
+        data: encodeAbiParameters(
+          [
+            { name: "quoteIn", type: "uint256" },
+            { name: "tokensOut", type: "uint256" },
+            { name: "fee", type: "uint256" },
+            { name: "tax", type: "uint256" },
+          ],
+          [101n, 203n, 1n, 1n],
+        ),
+      }],
+    };
+    expect(() => verifyCurveBuyReceipt(receipt, curve, {
+      buyer: account,
+      recipient: account,
+      minTokensOut: 200n,
+      quoteOffered: 100n,
+    })).toThrow(/quoteIn mismatch/);
+  });
+
   it("decodes creator-recipient management evidence", () => {
     const token = getAddress("0x4444444444444444444444444444444444444444");
     const next = getAddress("0x5555555555555555555555555555555555555555");

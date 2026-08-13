@@ -107,6 +107,21 @@ export const ponsFeeEscrowAbi = parseAbi([
   "function claimToken(address token, uint256 amount) returns (uint256)",
   "function balanceOf(address recipient) view returns (uint256)",
   "function balanceOfToken(address recipient, address token) view returns (uint256)",
+  "event Claimed(address indexed recipient, uint256 amount)",
+  "event ClaimedToken(address indexed recipient, address indexed token, uint256 amount)",
+  "event Credited(address indexed recipient, address indexed depositor, uint256 amount)",
+  "event CreditedToken(address indexed recipient, address indexed token, address indexed depositor, uint256 amount)",
+]);
+
+export const ponsMemeHookAbi = parseAbi([
+  "function launches(bytes32 poolId) view returns (bool registered, bool memecoinIsCurrency0, address memecoin, address quoteToken, address creator, address buybackCreatorRecipient, address protocolFeeRecipient, uint16 creatorTaxBps, uint16 protocolFeeShareBps, uint16 buybackBurnBps, uint16 hookFeeBps, uint16 maxInternalPriceImpactBps, bool buybackEnabled)",
+  "function pendingFees(bytes32 poolId, address currency) view returns (uint256 amount)",
+  "function pendingBuyback(bytes32 poolId, address currency) view returns (uint256 amount)",
+  "function pendingCreatorTax(bytes32 poolId, address currency) view returns (uint256 amount)",
+  "function sweepPoolFees(bytes32 poolId, uint256 minConversionQuoteOut, uint256 minBuybackTokensOut)",
+  "event HookFeeCollected(bytes32 indexed poolId, address currency, uint256 feeAmount, uint256 taxAmount)",
+  "event PoolFeesSwept(bytes32 indexed poolId, uint256 protocolAmount, uint256 buybackAmount, uint256 creatorAmount, uint256 tokensLocked)",
+  "event PoolFeesRescued(bytes32 indexed poolId, address indexed quoteToken, uint256 protocolAmount, uint256 creatorAmount)",
 ]);
 
 export const ponsLockerAbi = parseAbi([
@@ -122,4 +137,7 @@ export const ponsBuybackVaultAbi = parseAbi([
   "function vestedAmount(address token) view returns (uint256)",
   "function releasable(address token) view returns (uint256)",
   "function vestingTerms(address token) view returns (address creatorRecipient, address protocolRecipient, uint16 protocolFeeShareBps)",
+  "event Locked(address indexed token, address indexed depositor, uint256 amount, uint256 newVestingStart)",
+  "event Released(address indexed token, uint256 creatorAmount, uint256 protocolAmount)",
+  "event CreatorRecipientUpdated(address indexed token, address indexed previousRecipient, address indexed newRecipient)",
 ]);

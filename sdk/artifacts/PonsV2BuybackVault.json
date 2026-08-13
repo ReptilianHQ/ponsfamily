@@ -1,0 +1,5 @@
+[
+  {"type":"event","name":"Locked","anonymous":false,"inputs":[{"name":"token","type":"address","indexed":true},{"name":"depositor","type":"address","indexed":true},{"name":"amount","type":"uint256","indexed":false},{"name":"newVestingStart","type":"uint256","indexed":false}]},
+  {"type":"event","name":"Released","anonymous":false,"inputs":[{"name":"token","type":"address","indexed":true},{"name":"creatorAmount","type":"uint256","indexed":false},{"name":"protocolAmount","type":"uint256","indexed":false}]},
+  {"type":"event","name":"CreatorRecipientUpdated","anonymous":false,"inputs":[{"name":"token","type":"address","indexed":true},{"name":"previousRecipient","type":"address","indexed":true},{"name":"newRecipient","type":"address","indexed":true}]}
+]

@@ -6,12 +6,18 @@ import { robinhoodMainnet, type PonsDeployment } from "./deployments.js";
 
 const factoryBytecode = "0x6000" as const;
 const forwarderBytecode = "0x6001" as const;
+const memeHookBytecode = "0x6002" as const;
+const feeEscrowBytecode = "0x6003" as const;
+const buybackVaultBytecode = "0x6004" as const;
 
 function deployment(overrides: Partial<PonsDeployment> = {}): PonsDeployment {
   return {
     ...robinhoodMainnet,
     factoryRuntimeCodeHash: keccak256(factoryBytecode),
     forwarderRuntimeCodeHash: keccak256(forwarderBytecode),
+    memeHookRuntimeCodeHash: keccak256(memeHookBytecode),
+    feeEscrowRuntimeCodeHash: keccak256(feeEscrowBytecode),
+    buybackVaultRuntimeCodeHash: keccak256(buybackVaultBytecode),
     ...overrides,
   };
 }
@@ -25,7 +31,13 @@ function compatibleClient(target = deployment()) {
   return {
     getChainId: vi.fn().mockResolvedValue(target.chainId),
     getBlockNumber: vi.fn().mockResolvedValue(123n),
-    getBytecode: vi.fn(async ({ address }) => address === target.contracts.forwarder ? forwarderBytecode : factoryBytecode),
+    getBytecode: vi.fn(async ({ address }) => {
+      if (address === target.contracts.forwarder) return forwarderBytecode;
+      if (address === target.contracts.memeHook) return memeHookBytecode;
+      if (address === target.contracts.feeEscrow) return feeEscrowBytecode;
+      if (address === target.contracts.buybackVault) return buybackVaultBytecode;
+      return factoryBytecode;
+    }),
     readContract,
   } as unknown as PublicClient;
 }
@@ -43,6 +55,9 @@ describe("deployment compatibility", () => {
       abiRevision: ABI_REVISION,
       factoryCodeHash: keccak256(factoryBytecode),
       forwarderCodeHash: keccak256(forwarderBytecode),
+      memeHookCodeHash: keccak256(memeHookBytecode),
+      feeEscrowCodeHash: keccak256(feeEscrowBytecode),
+      buybackVaultCodeHash: keccak256(buybackVaultBytecode),
       pointers: target.contracts,
     });
     expect(client.readContract).toHaveBeenCalledTimes(12);

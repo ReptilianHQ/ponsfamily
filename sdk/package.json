@@ -49,6 +49,9 @@
     },
     "./artifacts/PonsV2Factory.json": "./artifacts/PonsV2Factory.json",
     "./artifacts/PonsV2Curve.json": "./artifacts/PonsV2Curve.json",
+    "./artifacts/PonsV2MemeHook.json": "./artifacts/PonsV2MemeHook.json",
+    "./artifacts/PonsV2FeeEscrow.json": "./artifacts/PonsV2FeeEscrow.json",
+    "./artifacts/PonsV2BuybackVault.json": "./artifacts/PonsV2BuybackVault.json",
     "./provenance/mainnet.json": "./provenance/mainnet.json",
     "./compatibility": {
       "types": "./dist/compatibility.d.ts",

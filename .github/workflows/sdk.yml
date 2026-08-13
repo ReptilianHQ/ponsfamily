@@ -31,3 +31,6 @@ jobs:
           cache-dependency-path: sdk/package-lock.json
       - run: npm ci
       - run: npm test
+      - run: node scripts/check-production-git-install.mjs
+        env:
+          PONS_SDK_GIT_REF: ${{ github.event.pull_request.head.sha || github.sha }}

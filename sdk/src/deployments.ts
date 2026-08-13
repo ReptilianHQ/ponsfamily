@@ -30,6 +30,9 @@ export interface PonsDeployment {
   startBlock: bigint;
   factoryRuntimeCodeHash: Hex;
   forwarderRuntimeCodeHash: Hex;
+  memeHookRuntimeCodeHash: Hex;
+  feeEscrowRuntimeCodeHash: Hex;
+  buybackVaultRuntimeCodeHash: Hex;
   contracts: PonsV2Contracts;
 }
 
@@ -43,6 +46,9 @@ export const robinhoodMainnet: PonsDeployment = deepFreeze({
   startBlock: 26_841_846n,
   factoryRuntimeCodeHash: "0x89a27da6f703e0a7cdd4f233e7cb57604ff75b164530962d3ff7cf8483a67d84",
   forwarderRuntimeCodeHash: "0xed9065184519eaa24a22c2556403d5d8bbb230ff94dbc5c414cf5028e20e52e7",
+  memeHookRuntimeCodeHash: "0xc21b1e6c1b45403e81a581f22ed6d9c747997af1cfdac1b1dc9f4b1d346a10db",
+  feeEscrowRuntimeCodeHash: "0xf25f75cfbc1637ba068dc34f69098fa4e8a80f8ee8fe7bf7820594e0b3fed2f1",
+  buybackVaultRuntimeCodeHash: "0x5de8480874faffefa539648f1a7d6c1e69b39da3fa34de22fc95eb7586aece03",
   contracts: {
     factory: getAddress("0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e"),
     forwarder: getAddress("0xe33E9E479dF8802cb0866d5d05258bEc4cF62948"),

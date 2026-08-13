@@ -13,6 +13,7 @@ import {
   ponsFactoryAbi,
   ponsFeeEscrowAbi,
   ponsForwarderAbi,
+  ponsMemeHookAbi,
   ponsTokenAbi,
 } from "./abis.js";
 import type { PonsDeployment } from "./deployments.js";
@@ -195,6 +196,27 @@ export function buildSweepCurveFeesTransaction(curve: Address, minBuybackTokensO
   return {
     to: curve,
     data: encodeFunctionData({ abi: ponsCurveAbi, functionName: "sweepFees", args: [minBuybackTokensOut] }),
+    value: 0n,
+  };
+}
+
+export function buildSweepPoolFeesTransaction(
+  memeHook: Address,
+  poolId: Hex,
+  minConversionQuoteOut: bigint,
+  minBuybackTokensOut: bigint,
+): TransactionRequest {
+  memeHook = normalizeAddress(memeHook, "memeHook");
+  assertBytes32(poolId, "poolId");
+  assertNonNegative(minConversionQuoteOut, "minConversionQuoteOut");
+  assertNonNegative(minBuybackTokensOut, "minBuybackTokensOut");
+  return {
+    to: memeHook,
+    data: encodeFunctionData({
+      abi: ponsMemeHookAbi,
+      functionName: "sweepPoolFees",
+      args: [poolId, minConversionQuoteOut, minBuybackTokensOut],
+    }),
     value: 0n,
   };
 }

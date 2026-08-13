@@ -25,6 +25,9 @@ export interface PonsDeployment {
     startBlock: bigint;
     factoryRuntimeCodeHash: Hex;
     forwarderRuntimeCodeHash: Hex;
+    memeHookRuntimeCodeHash: Hex;
+    feeEscrowRuntimeCodeHash: Hex;
+    buybackVaultRuntimeCodeHash: Hex;
     contracts: PonsV2Contracts;
 }
 export declare const robinhoodMainnet: PonsDeployment;

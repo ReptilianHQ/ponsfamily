@@ -1,5 +1,5 @@
-import { getAddress, zeroAddress, type Address, type PublicClient } from "viem";
-import { ponsCurveAbi, ponsFactoryAbi, ponsLockerAbi, ponsTokenAbi } from "./abis.js";
+import { encodeAbiParameters, getAddress, keccak256, zeroAddress, type Address, type Hex, type PublicClient } from "viem";
+import { ponsBuybackVaultAbi, ponsCurveAbi, ponsFactoryAbi, ponsFeeEscrowAbi, ponsLockerAbi, ponsMemeHookAbi, ponsTokenAbi } from "./abis.js";
 import type { PonsDeployment } from "./deployments.js";
 import { PonsSdkError } from "./errors.js";
 
@@ -12,11 +12,13 @@ export enum GraduationPhase {
 
 const MAX_LAUNCH_CONFIGS = 10_000n;
 
-export async function readLaunchConfigs(client: PublicClient, deployment: PonsDeployment) {
+export async function readLaunchConfigs(client: PublicClient, deployment: PonsDeployment, options: ReadAtBlockOptions = {}) {
+  const blockNumber = options.blockNumber ?? await client.getBlockNumber();
   const count = await client.readContract({
     address: deployment.contracts.factory,
     abi: ponsFactoryAbi,
     functionName: "launchConfigCount",
+    blockNumber,
   });
   if (count > MAX_LAUNCH_CONFIGS) {
     throw new PonsSdkError("INVALID_ARGUMENT", `Factory returned an implausible launch config count ${count}`, {
@@ -30,27 +32,30 @@ export async function readLaunchConfigs(client: PublicClient, deployment: PonsDe
     abi: ponsFactoryAbi,
     functionName: "getLaunchConfig",
     args: [BigInt(id)],
+    blockNumber,
   }).then((config) => ({ id, ...config }))));
 }
 
-export async function readLaunchTerms(client: PublicClient, deployment: PonsDeployment, launcher?: Address) {
+export async function readLaunchTerms(client: PublicClient, deployment: PonsDeployment, launcher?: Address, options: ReadAtBlockOptions = {}) {
+  const blockNumber = options.blockNumber ?? await client.getBlockNumber();
   const factory = deployment.contracts.factory;
   const [launchFee, launchEnabled, maxCreatorTaxBps, snipeTaxStartBps, snipeTaxSeconds, configs, canLaunch] =
     await Promise.all([
-      client.readContract({ address: factory, abi: ponsFactoryAbi, functionName: "launchFee" }),
-      client.readContract({ address: factory, abi: ponsFactoryAbi, functionName: "launchEnabled" }),
-      client.readContract({ address: factory, abi: ponsFactoryAbi, functionName: "maxCreatorTaxBps" }),
-      client.readContract({ address: factory, abi: ponsFactoryAbi, functionName: "snipeTaxStartBps" }),
-      client.readContract({ address: factory, abi: ponsFactoryAbi, functionName: "snipeTaxSeconds" }),
-      readLaunchConfigs(client, deployment),
+      client.readContract({ address: factory, abi: ponsFactoryAbi, functionName: "launchFee", blockNumber }),
+      client.readContract({ address: factory, abi: ponsFactoryAbi, functionName: "launchEnabled", blockNumber }),
+      client.readContract({ address: factory, abi: ponsFactoryAbi, functionName: "maxCreatorTaxBps", blockNumber }),
+      client.readContract({ address: factory, abi: ponsFactoryAbi, functionName: "snipeTaxStartBps", blockNumber }),
+      client.readContract({ address: factory, abi: ponsFactoryAbi, functionName: "snipeTaxSeconds", blockNumber }),
+      readLaunchConfigs(client, deployment, { blockNumber }),
       launcher === undefined ? Promise.resolve(undefined) : client.readContract({
         address: factory,
         abi: ponsFactoryAbi,
         functionName: "canLaunch",
         args: [getAddress(launcher)],
+        blockNumber,
       }),
     ]);
-  return { launchFee, launchEnabled, maxCreatorTaxBps, snipeTaxStartBps, snipeTaxSeconds, configs, canLaunch };
+  return { blockNumber, launchFee, launchEnabled, maxCreatorTaxBps, snipeTaxStartBps, snipeTaxSeconds, configs, canLaunch };
 }
 
 export interface ReadAtBlockOptions {
@@ -84,8 +89,9 @@ export async function readCurveSnapshot(
   curve: Address,
   options: ReadAtBlockOptions = {},
 ) {
+  const blockNumber = options.blockNumber ?? await client.getBlockNumber();
   curve = getAddress(curve);
-  const readOptions = { address: curve, abi: ponsCurveAbi, blockNumber: options.blockNumber } as const;
+  const readOptions = { address: curve, abi: ponsCurveAbi, blockNumber } as const;
   const [token, pairToken, feeBps, creatorTaxBps, graduationThreshold, sellableTokens, reserves, realQuoteReserve, readyToGraduate, graduated] =
     await Promise.all([
       client.readContract({ ...readOptions, functionName: "token" }),
@@ -103,9 +109,10 @@ export async function readCurveSnapshot(
     address: pairToken,
     abi: ponsTokenAbi,
     functionName: "decimals",
-    blockNumber: options.blockNumber,
+    blockNumber,
   });
   return {
+    blockNumber,
     curve,
     token,
     pairToken,
@@ -158,6 +165,114 @@ export async function readLaunchLifecycle(
     poolPositionId,
     snapshot,
     launch,
+  };
+}
+
+export function derivePonsGraduatedPoolId(parameters: {
+  token: Address;
+  pairToken: Address;
+  poolFee: number;
+  tickSpacing: number;
+  memeHook: Address;
+}): Hex {
+  const token = getAddress(parameters.token);
+  const pairToken = getAddress(parameters.pairToken);
+  const [currency0, currency1] = BigInt(token) < BigInt(pairToken)
+    ? [token, pairToken]
+    : [pairToken, token];
+  if (!Number.isInteger(parameters.poolFee) || parameters.poolFee < 0 || parameters.poolFee > 0xffffff) {
+    throw new PonsSdkError("INVALID_ARGUMENT", `Invalid Pons pool fee ${parameters.poolFee}`, { path: "poolFee" });
+  }
+  if (!Number.isInteger(parameters.tickSpacing) || parameters.tickSpacing < -0x800000 || parameters.tickSpacing > 0x7fffff) {
+    throw new PonsSdkError("INVALID_ARGUMENT", `Invalid Pons tick spacing ${parameters.tickSpacing}`, { path: "tickSpacing" });
+  }
+  return keccak256(encodeAbiParameters(
+    [{ type: "address" }, { type: "address" }, { type: "uint24" }, { type: "int24" }, { type: "address" }],
+    [currency0, currency1, parameters.poolFee, parameters.tickSpacing, getAddress(parameters.memeHook)],
+  ));
+}
+
+export async function readGraduatedPoolFeeState(
+  client: PublicClient,
+  deployment: PonsDeployment,
+  token: Address,
+  options: ReadAtBlockOptions = {},
+) {
+  const blockNumber = options.blockNumber ?? await client.getBlockNumber();
+  const launch = await readLaunchedToken(client, deployment, token, { blockNumber });
+  if (graduationPhase(launch.phase) !== GraduationPhase.PoolCreated) {
+    throw new PonsSdkError("INVALID_ARGUMENT", `Pons token ${token} has no graduated pool`, { path: "phase", actual: String(launch.phase) });
+  }
+  const poolId = derivePonsGraduatedPoolId({
+    token: getAddress(token), pairToken: launch.pairToken, poolFee: launch.poolFee,
+    tickSpacing: launch.tickSpacing, memeHook: deployment.contracts.memeHook,
+  });
+  const read = { address: deployment.contracts.memeHook, abi: ponsMemeHookAbi, blockNumber } as const;
+  const currencies = [getAddress(token), getAddress(launch.pairToken)] as const;
+  const [registration, tokenFees, quoteFees, tokenBuyback, quoteBuyback, tokenTax, quoteTax] = await Promise.all([
+    client.readContract({ ...read, functionName: "launches", args: [poolId] }),
+    client.readContract({ ...read, functionName: "pendingFees", args: [poolId, currencies[0]] }),
+    client.readContract({ ...read, functionName: "pendingFees", args: [poolId, currencies[1]] }),
+    client.readContract({ ...read, functionName: "pendingBuyback", args: [poolId, currencies[0]] }),
+    client.readContract({ ...read, functionName: "pendingBuyback", args: [poolId, currencies[1]] }),
+    client.readContract({ ...read, functionName: "pendingCreatorTax", args: [poolId, currencies[0]] }),
+    client.readContract({ ...read, functionName: "pendingCreatorTax", args: [poolId, currencies[1]] }),
+  ]);
+  if (!registration[0] || getAddress(registration[2]) !== getAddress(token)) {
+    throw new PonsSdkError("DEPLOYMENT_NOT_FOUND", `Pons hook has no matching pool for ${token}`, { path: "poolId", actual: poolId });
+  }
+  return {
+    blockNumber,
+    poolId,
+    launch,
+    registration,
+    pending: {
+      token: { fees: tokenFees, buyback: tokenBuyback, creatorTax: tokenTax },
+      quote: { fees: quoteFees, buyback: quoteBuyback, creatorTax: quoteTax },
+    },
+  };
+}
+
+export async function readFeeEscrowBalances(
+  client: PublicClient,
+  deployment: PonsDeployment,
+  recipient: Address,
+  tokens: readonly Address[] = [],
+  options: ReadAtBlockOptions = {},
+) {
+  const blockNumber = options.blockNumber ?? await client.getBlockNumber();
+  recipient = getAddress(recipient);
+  const read = { address: deployment.contracts.feeEscrow, abi: ponsFeeEscrowAbi, blockNumber } as const;
+  const [native, tokenBalances] = await Promise.all([
+    client.readContract({ ...read, functionName: "balanceOf", args: [recipient] }),
+    Promise.all(tokens.map(async (token) => {
+      const address = getAddress(token);
+      const balance = await client.readContract({ ...read, functionName: "balanceOfToken", args: [recipient, address] });
+      return { token: address, balance };
+    })),
+  ]);
+  return { blockNumber, recipient, native, tokens: tokenBalances };
+}
+
+export async function readBuybackVest(
+  client: PublicClient,
+  deployment: PonsDeployment,
+  token: Address,
+  options: ReadAtBlockOptions = {},
+) {
+  const blockNumber = options.blockNumber ?? await client.getBlockNumber();
+  token = getAddress(token);
+  const read = { address: deployment.contracts.buybackVault, abi: ponsBuybackVaultAbi, blockNumber } as const;
+  const [totalLocked, totalReleased, vestedAmount, releasable, terms] = await Promise.all([
+    client.readContract({ ...read, functionName: "totalLocked", args: [token] }),
+    client.readContract({ ...read, functionName: "totalReleased", args: [token] }),
+    client.readContract({ ...read, functionName: "vestedAmount", args: [token] }),
+    client.readContract({ ...read, functionName: "releasable", args: [token] }),
+    client.readContract({ ...read, functionName: "vestingTerms", args: [token] }),
+  ]);
+  return {
+    blockNumber, token, totalLocked, totalReleased, vestedAmount, releasable,
+    creatorRecipient: terms[0], protocolRecipient: terms[1], protocolFeeShareBps: terms[2],
   };
 }
 

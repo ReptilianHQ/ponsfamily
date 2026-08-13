@@ -1,5 +1,5 @@
 import { encodeFunctionData, getAddress, isAddress, isHex, zeroAddress, } from "viem";
-import { ponsBuybackVaultAbi, ponsCurveAbi, ponsFactoryAbi, ponsFeeEscrowAbi, ponsForwarderAbi, ponsTokenAbi, } from "./abis.js";
+import { ponsBuybackVaultAbi, ponsCurveAbi, ponsFactoryAbi, ponsFeeEscrowAbi, ponsForwarderAbi, ponsMemeHookAbi, ponsTokenAbi, } from "./abis.js";
 import { PonsSdkError } from "./errors.js";
 export function buildLaunchTransaction(deployment, parameters) {
     const params = normalizeTokenParameters(parameters.token);
@@ -100,6 +100,21 @@ export function buildSweepCurveFeesTransaction(curve, minBuybackTokensOut) {
     return {
         to: curve,
         data: encodeFunctionData({ abi: ponsCurveAbi, functionName: "sweepFees", args: [minBuybackTokensOut] }),
+        value: 0n,
+    };
+}
+export function buildSweepPoolFeesTransaction(memeHook, poolId, minConversionQuoteOut, minBuybackTokensOut) {
+    memeHook = normalizeAddress(memeHook, "memeHook");
+    assertBytes32(poolId, "poolId");
+    assertNonNegative(minConversionQuoteOut, "minConversionQuoteOut");
+    assertNonNegative(minBuybackTokensOut, "minBuybackTokensOut");
+    return {
+        to: memeHook,
+        data: encodeFunctionData({
+            abi: ponsMemeHookAbi,
+            functionName: "sweepPoolFees",
+            args: [poolId, minConversionQuoteOut, minBuybackTokensOut],
+        }),
         value: 0n,
     };
 }

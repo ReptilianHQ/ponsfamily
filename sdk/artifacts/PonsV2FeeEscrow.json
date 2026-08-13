@@ -1,0 +1,6 @@
+[
+  {"type":"event","name":"Claimed","anonymous":false,"inputs":[{"name":"recipient","type":"address","indexed":true},{"name":"amount","type":"uint256","indexed":false}]},
+  {"type":"event","name":"ClaimedToken","anonymous":false,"inputs":[{"name":"recipient","type":"address","indexed":true},{"name":"token","type":"address","indexed":true},{"name":"amount","type":"uint256","indexed":false}]},
+  {"type":"event","name":"Credited","anonymous":false,"inputs":[{"name":"recipient","type":"address","indexed":true},{"name":"depositor","type":"address","indexed":true},{"name":"amount","type":"uint256","indexed":false}]},
+  {"type":"event","name":"CreditedToken","anonymous":false,"inputs":[{"name":"recipient","type":"address","indexed":true},{"name":"token","type":"address","indexed":true},{"name":"depositor","type":"address","indexed":true},{"name":"amount","type":"uint256","indexed":false}]}
+]

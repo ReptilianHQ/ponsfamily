@@ -81,7 +81,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "npm run clean && tsc -p tsconfig.json",
-    "prepare": "npm run build",
+    "prepack": "npm run build",
     "check": "npm run build && npm run check:artifacts && npm run test:unit && npm run test:pack && npm run check:package",
     "check:artifacts": "node scripts/check-artifacts.mjs",
     "test": "npm run check",

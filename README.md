@@ -8,7 +8,6 @@
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=500&size=20&duration=2800&pause=900&color=1a2740&center=true&vCenter=true&width=680&lines=Token+launchpad+contracts+for+ponsfamily.com;V1%3A+CREATE2+factory+%2B+locked+Uniswap+V3+liquidity;V2%3A+bonding+curve+that+graduates+into+Uniswap+V4;Shared+fee+policy%2C+buyback+vault+and+permanent+locks;Deployed+on+Robinhood+Chain" alt="Typing SVG" />
 </a>   
             
-[![License: MIT](https://img.shields.io/badge/license-MIT-1a2740?style=for-the-badge)](LICENSE)
 [![Solidity](https://img.shields.io/badge/solidity-%5E0.8.26%20%7C%20%5E0.8.30-1a2740?style=for-the-badge&logo=solidity&logoColor=white)](#repository-layout)
 [![Chain](https://img.shields.io/badge/chain-Robinhood%20Chain-1a2740?style=for-the-badge)](#stack)
 [![Website](https://img.shields.io/badge/website-ponsfamily.com-1a2740?style=for-the-badge&logo=googlechrome&logoColor=white)](https://ponsfamily.com)
@@ -251,6 +250,7 @@ Issues and pull requests are welcome.
 
 ## License
 
+- Reptilian integration SDK (`sdk/`): publicly visible source; no license is granted
 - First-party Pons contracts (V1 and V2): MIT (see SPDX headers)
 - `PonsTickMath.sol`: GPL-2.0-or-later (Uniswap V3 tick math lineage)
 - OpenZeppelin sources: MIT (upstream)

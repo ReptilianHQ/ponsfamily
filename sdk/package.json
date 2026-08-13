@@ -2,6 +2,7 @@
   "name": "@reptilianhq/pons-sdk",
   "version": "0.1.0",
   "description": "Reptilian-maintained TypeScript integration SDK for Pons v2 on Robinhood Chain.",
+  "license": "UNLICENSED",
   "keywords": [
     "bonding-curve",
     "pons",

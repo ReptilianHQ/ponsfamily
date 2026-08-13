@@ -6,7 +6,7 @@ export declare enum GraduationPhase {
     PoolCreated = 2,
     Rescued = 3
 }
-export declare function readLaunchConfigs(client: PublicClient, deployment: PonsDeployment): Promise<{
+export declare function readLaunchConfigs(client: PublicClient, deployment: PonsDeployment, options?: ReadAtBlockOptions): Promise<{
     id: number;
     curveFeeBps: bigint;
     enabled: boolean;
@@ -16,7 +16,8 @@ export declare function readLaunchConfigs(client: PublicClient, deployment: Pons
     supply: bigint;
     tickSpacing: number;
 }[]>;
-export declare function readLaunchTerms(client: PublicClient, deployment: PonsDeployment, launcher?: Address): Promise<{
+export declare function readLaunchTerms(client: PublicClient, deployment: PonsDeployment, launcher?: Address, options?: ReadAtBlockOptions): Promise<{
+    blockNumber: bigint;
     launchFee: bigint;
     launchEnabled: boolean;
     maxCreatorTaxBps: bigint;
@@ -55,6 +56,7 @@ export declare function readLaunchedToken(client: PublicClient, deployment: Pons
     token: `0x${string}`;
 }>;
 export declare function readCurveSnapshot(client: PublicClient, curve: Address, options?: ReadAtBlockOptions): Promise<{
+    blockNumber: bigint;
     curve: `0x${string}`;
     token: `0x${string}`;
     pairToken: `0x${string}`;
@@ -81,6 +83,7 @@ export declare function readLaunchLifecycle(client: PublicClient, deployment: Po
     graduationProgressBps: bigint | undefined;
     poolPositionId: bigint;
     snapshot: {
+        blockNumber: bigint;
         curve: `0x${string}`;
         token: `0x${string}`;
         pairToken: `0x${string}`;

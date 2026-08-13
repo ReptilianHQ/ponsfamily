@@ -9,6 +9,7 @@ const curve = getAddress("0x2222222222222222222222222222222222222222");
 describe("Pons reads", () => {
   it("rejects an implausible launch config count before allocating", async () => {
     const client = {
+      getBlockNumber: vi.fn().mockResolvedValue(123n),
       readContract: vi.fn().mockResolvedValue(10_001n),
     } as unknown as PublicClient;
 

@@ -12,11 +12,13 @@ export enum GraduationPhase {
 
 const MAX_LAUNCH_CONFIGS = 10_000n;
 
-export async function readLaunchConfigs(client: PublicClient, deployment: PonsDeployment) {
+export async function readLaunchConfigs(client: PublicClient, deployment: PonsDeployment, options: ReadAtBlockOptions = {}) {
+  const blockNumber = options.blockNumber ?? await client.getBlockNumber();
   const count = await client.readContract({
     address: deployment.contracts.factory,
     abi: ponsFactoryAbi,
     functionName: "launchConfigCount",
+    blockNumber,
   });
   if (count > MAX_LAUNCH_CONFIGS) {
     throw new PonsSdkError("INVALID_ARGUMENT", `Factory returned an implausible launch config count ${count}`, {
@@ -30,27 +32,30 @@ export async function readLaunchConfigs(client: PublicClient, deployment: PonsDe
     abi: ponsFactoryAbi,
     functionName: "getLaunchConfig",
     args: [BigInt(id)],
+    blockNumber,
   }).then((config) => ({ id, ...config }))));
 }
 
-export async function readLaunchTerms(client: PublicClient, deployment: PonsDeployment, launcher?: Address) {
+export async function readLaunchTerms(client: PublicClient, deployment: PonsDeployment, launcher?: Address, options: ReadAtBlockOptions = {}) {
+  const blockNumber = options.blockNumber ?? await client.getBlockNumber();
   const factory = deployment.contracts.factory;
   const [launchFee, launchEnabled, maxCreatorTaxBps, snipeTaxStartBps, snipeTaxSeconds, configs, canLaunch] =
     await Promise.all([
-      client.readContract({ address: factory, abi: ponsFactoryAbi, functionName: "launchFee" }),
-      client.readContract({ address: factory, abi: ponsFactoryAbi, functionName: "launchEnabled" }),
-      client.readContract({ address: factory, abi: ponsFactoryAbi, functionName: "maxCreatorTaxBps" }),
-      client.readContract({ address: factory, abi: ponsFactoryAbi, functionName: "snipeTaxStartBps" }),
-      client.readContract({ address: factory, abi: ponsFactoryAbi, functionName: "snipeTaxSeconds" }),
-      readLaunchConfigs(client, deployment),
+      client.readContract({ address: factory, abi: ponsFactoryAbi, functionName: "launchFee", blockNumber }),
+      client.readContract({ address: factory, abi: ponsFactoryAbi, functionName: "launchEnabled", blockNumber }),
+      client.readContract({ address: factory, abi: ponsFactoryAbi, functionName: "maxCreatorTaxBps", blockNumber }),
+      client.readContract({ address: factory, abi: ponsFactoryAbi, functionName: "snipeTaxStartBps", blockNumber }),
+      client.readContract({ address: factory, abi: ponsFactoryAbi, functionName: "snipeTaxSeconds", blockNumber }),
+      readLaunchConfigs(client, deployment, { blockNumber }),
       launcher === undefined ? Promise.resolve(undefined) : client.readContract({
         address: factory,
         abi: ponsFactoryAbi,
         functionName: "canLaunch",
         args: [getAddress(launcher)],
+        blockNumber,
       }),
     ]);
-  return { launchFee, launchEnabled, maxCreatorTaxBps, snipeTaxStartBps, snipeTaxSeconds, configs, canLaunch };
+  return { blockNumber, launchFee, launchEnabled, maxCreatorTaxBps, snipeTaxStartBps, snipeTaxSeconds, configs, canLaunch };
 }
 
 export interface ReadAtBlockOptions {
@@ -84,8 +89,9 @@ export async function readCurveSnapshot(
   curve: Address,
   options: ReadAtBlockOptions = {},
 ) {
+  const blockNumber = options.blockNumber ?? await client.getBlockNumber();
   curve = getAddress(curve);
-  const readOptions = { address: curve, abi: ponsCurveAbi, blockNumber: options.blockNumber } as const;
+  const readOptions = { address: curve, abi: ponsCurveAbi, blockNumber } as const;
   const [token, pairToken, feeBps, creatorTaxBps, graduationThreshold, sellableTokens, reserves, realQuoteReserve, readyToGraduate, graduated] =
     await Promise.all([
       client.readContract({ ...readOptions, functionName: "token" }),
@@ -103,9 +109,10 @@ export async function readCurveSnapshot(
     address: pairToken,
     abi: ponsTokenAbi,
     functionName: "decimals",
-    blockNumber: options.blockNumber,
+    blockNumber,
   });
   return {
+    blockNumber,
     curve,
     token,
     pairToken,

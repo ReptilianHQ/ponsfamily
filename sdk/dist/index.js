@@ -3,6 +3,7 @@ export * from "./compatibility.js";
 export * from "./deployments.js";
 export * from "./errors.js";
 export * from "./math.js";
+export * from "./pools.js";
 export * from "./reads.js";
 export * from "./receipts.js";
 export * from "./transactions.js";

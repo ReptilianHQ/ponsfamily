@@ -1,7 +1,7 @@
 # Pons Treasury -- the $TREASURY standard
 
 ```
-$TREASURY: `CA`
+$TREASURY: 0xd0225586596b8231e4340e11ab50432a6424e660
 ```
 
 Pons Treasury exists to give $TREASURY a real, recurring job: it is the
@@ -59,7 +59,7 @@ only through whatever policy that launch's creator has set.
 
 | Name | Purpose |
 |---|---|
-| `TREASURY_TOKEN` | `CA` -- $TREASURY, this standard's canonical asset. Always an allowed treasury holding; every asset-taking function has an overload that resolves to it automatically. |
+| `TREASURY_TOKEN` | `0xd0225586596b8231e4340e11ab50432a6424e660` -- $TREASURY, this standard's canonical asset. Always an allowed treasury holding; every asset-taking function has an overload that resolves to it automatically. |
 | `MAX_TREASURY_ASSETS_PER_LAUNCH` | Caps how many distinct assets one launch's treasury can ever hold (8), so per-launch accounting stays bounded. This bounds *additional* assets a launch chooses to hold alongside $TREASURY -- it is not a limit on $TREASURY itself. |
 
 ### 2.2 Errors & events

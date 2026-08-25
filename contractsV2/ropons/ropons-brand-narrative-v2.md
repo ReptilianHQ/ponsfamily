@@ -3,9 +3,10 @@
 **A Brand Narrative and Technical Launch Reference for the Pons Family V2 Mascot**
 
 ---
-
-> 🖼️ **Visual Reference:** `ropons.jpg` — the canonical Ropons artwork, the fox dressed as Robin Hood. Read this document alongside that image, since every narrative and technical decision below is written to justify and extend what's shown in it.
-
+ 
+![Ropons — canonical mascot artwork](ropons.jpg)
+*Ropons, the fox dressed as Robin Hood, canonical mascot of Pons Family. Read this document alongside the image above, since every narrative and technical decision below is written to justify and extend what's shown in it.*
+ 
 ---
 
 ## Who Ropons Is, in Short

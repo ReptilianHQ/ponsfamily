@@ -4,7 +4,7 @@ const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 indexer.contractRegister(
   { contract: 'PonsV2Factory', event: 'TokenLaunched' },
-  async ({ event, context }) => {
+  ({ event, context }) => {
     context.chain.PonsV2Curve.add(event.params.curve);
     context.chain.PonsLaunchToken.add(event.params.token);
   },

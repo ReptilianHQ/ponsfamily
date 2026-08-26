@@ -10,6 +10,12 @@ const handler = readFileSync(resolve(exampleRoot, 'src/EventHandlers.ts'), 'utf8
 const readme = readFileSync(resolve(exampleRoot, 'README.md'), 'utf8');
 const provenance = JSON.parse(readFileSync(resolve(sdkRoot, 'provenance/mainnet.json'), 'utf8'));
 
+assert.match(
+  config,
+  /^handlers: \.\/src\/EventHandlers\.ts$/m,
+  'Envio must load the packaged example handler instead of its src/handlers default',
+);
+
 const artifactContracts = [
   'PonsV2Factory',
   'PonsV2Curve',

@@ -1,6 +1,8 @@
 [
   {"type":"event","name":"CurveBuy","anonymous":false,"inputs":[{"name":"buyer","type":"address","indexed":true},{"name":"recipient","type":"address","indexed":true},{"name":"quoteIn","type":"uint256","indexed":false},{"name":"tokensOut","type":"uint256","indexed":false},{"name":"fee","type":"uint256","indexed":false},{"name":"tax","type":"uint256","indexed":false}]},
+  {"type":"event","name":"CurveBuyRefunded","anonymous":false,"inputs":[{"name":"buyer","type":"address","indexed":true},{"name":"refund","type":"uint256","indexed":false}]},
   {"type":"event","name":"CurveSell","anonymous":false,"inputs":[{"name":"seller","type":"address","indexed":true},{"name":"recipient","type":"address","indexed":true},{"name":"tokensIn","type":"uint256","indexed":false},{"name":"quoteOut","type":"uint256","indexed":false},{"name":"fee","type":"uint256","indexed":false},{"name":"tax","type":"uint256","indexed":false}]},
   {"type":"event","name":"FeesSwept","anonymous":false,"inputs":[{"name":"protocolAmount","type":"uint256","indexed":false},{"name":"buybackAmount","type":"uint256","indexed":false},{"name":"creatorAmount","type":"uint256","indexed":false}]},
-  {"type":"event","name":"BuybackLocked","anonymous":false,"inputs":[{"name":"quoteSpent","type":"uint256","indexed":false},{"name":"tokensLocked","type":"uint256","indexed":false}]}
+  {"type":"event","name":"BuybackLocked","anonymous":false,"inputs":[{"name":"quoteSpent","type":"uint256","indexed":false},{"name":"tokensLocked","type":"uint256","indexed":false}]},
+  {"type":"event","name":"CurveCompleted","anonymous":false,"inputs":[{"name":"recipient","type":"address","indexed":false},{"name":"quoteOut","type":"uint256","indexed":false},{"name":"tokenOut","type":"uint256","indexed":false}]}
 ]

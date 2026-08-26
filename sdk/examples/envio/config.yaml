@@ -4,6 +4,7 @@ description: Canonical Pons v2 source discovery and supply evidence on Robinhood
 rollback_on_reorg: true
 raw_events: false
 address_format: lowercase
+handlers: ./src/EventHandlers.ts
 full_batch_size: 5000
 storage:
   postgres:
@@ -27,9 +28,11 @@ contracts:
     abi_file_path: ./node_modules/@reptilianhq/pons-sdk/artifacts/PonsV2Curve.json
     events:
       - event: CurveBuy
+      - event: CurveBuyRefunded
       - event: CurveSell
       - event: FeesSwept
       - event: BuybackLocked
+      - event: CurveCompleted
   - name: PonsV2MemeHook
     abi_file_path: ./node_modules/@reptilianhq/pons-sdk/artifacts/PonsV2MemeHook.json
     events:

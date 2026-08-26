@@ -4,8 +4,8 @@
 
 - Add a canonical Envio mainnet example with fixed-source provenance, dynamic
   curve/token registration, and exact full-supply mint projection.
-- Complete the Envio factory artifact with creator-recipient and buyback-state
-  update events already present in the reviewed consumer ABI.
+- Complete the Envio factory and curve artifacts with every event already
+  present in the reviewed consumer ABI.
 
 ## 0.1.0
 

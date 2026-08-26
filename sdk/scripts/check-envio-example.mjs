@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const sdkRoot = resolve(fileURLToPath(new URL('..', import.meta.url)));
@@ -63,4 +65,40 @@ assert.match(handler, /canonicalSupply: event\.params\.value/);
 assert.match(readme, /full-supply ERC-20/);
 assert.match(readme, /reorg rollback/);
 
-console.log('Envio example matches the reviewed Pons deployment and event artifacts.');
+const verificationRoot = mkdtempSync(resolve(tmpdir(), 'pons-envio-example-'));
+try {
+  cpSync(exampleRoot, verificationRoot, { recursive: true });
+  const scopedModules = resolve(verificationRoot, 'node_modules/@reptilianhq');
+  mkdirSync(scopedModules, { recursive: true });
+  symlinkSync(sdkRoot, resolve(scopedModules, 'pons-sdk'), 'dir');
+  symlinkSync(resolve(sdkRoot, 'node_modules/envio'), resolve(verificationRoot, 'node_modules/envio'), 'dir');
+
+  run(resolve(sdkRoot, 'node_modules/.bin/envio'), ['codegen', '--directory', verificationRoot], {
+    ...process.env,
+    ENVIO_ROBINHOOD_MAINNET_RPC_URL: 'http://127.0.0.1:8545',
+  });
+  run(resolve(sdkRoot, 'node_modules/.bin/tsc'), [
+    '--ignoreConfig',
+    '--noEmit',
+    '--strict',
+    '--target', 'ES2022',
+    '--module', 'NodeNext',
+    '--moduleResolution', 'NodeNext',
+    '--skipLibCheck',
+    resolve(verificationRoot, 'envio-env.d.ts'),
+    resolve(verificationRoot, 'src/EventHandlers.ts'),
+  ]);
+} finally {
+  rmSync(verificationRoot, { recursive: true, force: true });
+}
+
+console.log('Envio example matches reviewed Pons artifacts and passes Envio codegen/typecheck.');
+
+function run(command, args, env = process.env) {
+  const result = spawnSync(command, args, { cwd: sdkRoot, encoding: 'utf8', env });
+  assert.equal(
+    result.status,
+    0,
+    `${command} ${args.join(' ')} failed:\n${result.stdout}${result.stderr}`,
+  );
+}

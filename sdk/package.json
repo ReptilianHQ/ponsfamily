@@ -102,6 +102,7 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@hegeldev/hegel": "0.4.3",
+    "envio": "3.6.1",
     "publint": "^0.3.23",
     "typescript": "^7.0.2",
     "viem": "^2.55.10",

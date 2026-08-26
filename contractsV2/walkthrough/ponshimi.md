@@ -5,7 +5,7 @@
 ![Ponshimi, the sumo cat mascot of Pons Family](./ponshimi.jpg)
 
 ---
-
+ 
 ## Who Ponshimi Is
 
 Ponshimi is a round tabby cat dressed as a rikishi: gold mawashi knotted at the waist, chonmage tied above a heavy-lidded stare. He was never the fastest wrestler on the dohyo. He was the one nobody could push out of the circle.

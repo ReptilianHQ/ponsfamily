@@ -1,0 +1,13 @@
+"""Minimal launch identity and exact full-supply mint evidence."""
+type PonsLaunch {
+  id: ID!
+  token: String! @index
+  curve: String @index
+  deployer: String @index
+  pairToken: String
+  launchConfigId: BigInt
+  graduationThreshold: BigInt
+  canonicalSupply: BigInt
+  createdBlock: BigInt
+  supplyMintBlock: BigInt
+}

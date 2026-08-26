@@ -31,6 +31,8 @@ for (const [name, artifact] of [
 const factoryEventNames = [
   "TokenLaunched",
   "LaunchSwept",
+  "CreatorFeeRecipientUpdated",
+  "BuybackEnabledUpdated",
   "PoolGraduated",
   "LaunchGraduationRescued",
 ];

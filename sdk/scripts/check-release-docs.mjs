@@ -9,7 +9,15 @@ const changelog = await readFile(new URL("CHANGELOG.md", root), "utf8");
 const workflow = await readFile(new URL("../.github/workflows/sdk-release.yml", root), "utf8");
 const releaseProvenanceScript = "scripts/release-provenance.mjs";
 
-assert.match(packageJson.version, /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/);
+export function stableVersionFromManifest(version) {
+  const match = /^((?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))(?:-rc)?$/.exec(version);
+  if (!match) {
+    throw new Error(`SDK release docs require a stable or workflow-generated -rc version; received ${version}`);
+  }
+  return match[1];
+}
+
+const stableVersion = stableVersionFromManifest(packageJson.version);
 assert.ok(
   readme.includes("@reptilianhq:registry=https://npm.pkg.github.com"),
   "README must configure the GitHub Packages registry before installation",
@@ -24,12 +32,12 @@ for (const channel of ["rc", "latest"]) {
   assert.ok(releasing.includes(install), `RELEASING.md must verify the ${channel} channel with ${install}`);
 }
 assert.ok(
-  !readme.includes(`@reptilianhq/pons-sdk@${packageJson.version}`),
+  !readme.includes(`@reptilianhq/pons-sdk@${stableVersion}`),
   "README install commands must use dist-tags instead of an exact version that may not be published yet",
 );
 assert.ok(
-  changelog.includes(`## ${packageJson.version}`),
-  `CHANGELOG.md must contain a section for package version ${packageJson.version}`,
+  changelog.includes(`## ${stableVersion}`),
+  `CHANGELOG.md must contain a section for package version ${stableVersion}`,
 );
 assert.ok(packageJson.files.includes("RELEASING.md"), "Published packages must include the release guide linked from README");
 assert.ok(

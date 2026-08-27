@@ -43,7 +43,7 @@ jobs:
           rc_package="@reptilianhq/pons-sdk@${{ steps.release.outputs.version }}-rc"
           rc_version="$(npm view "$rc_package" version)"
           rc_git_head="$(npm view "$rc_package" gitHead)"
-          node scripts/verify-release-provenance.mjs "$GITHUB_SHA" "$rc_version" "$rc_git_head"
+          node scripts/release-provenance.mjs "$GITHUB_SHA" "$rc_version" "$rc_git_head"
           git merge-base --is-ancestor HEAD origin/main
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

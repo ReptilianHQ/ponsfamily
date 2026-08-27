@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 
 const root = new URL("../", import.meta.url);
 const packageJson = JSON.parse(await readFile(new URL("package.json", root), "utf8"));
@@ -7,6 +7,7 @@ const readme = await readFile(new URL("README.md", root), "utf8");
 const releasing = await readFile(new URL("RELEASING.md", root), "utf8");
 const changelog = await readFile(new URL("CHANGELOG.md", root), "utf8");
 const workflow = await readFile(new URL("../.github/workflows/sdk-release.yml", root), "utf8");
+const releaseProvenanceScript = "scripts/release-provenance.mjs";
 
 assert.match(packageJson.version, /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/);
 assert.ok(
@@ -34,8 +35,9 @@ assert.ok(packageJson.files.includes("RELEASING.md"), "Published packages must i
 assert.ok(
   workflow.includes('rc_package="@reptilianhq/pons-sdk@${{ steps.release.outputs.version }}-rc"')
     && workflow.includes('npm view "$rc_package" gitHead')
-    && workflow.includes('verify-release-provenance.mjs "$GITHUB_SHA" "$rc_version" "$rc_git_head"'),
+    && workflow.includes(`${releaseProvenanceScript} "$GITHUB_SHA" "$rc_version" "$rc_git_head"`),
   "Stable releases must verify the immutable RC package provenance",
 );
+await access(new URL(releaseProvenanceScript, root));
 
 console.log(`Release docs describe ${packageJson.version} through the rc and latest channels.`);

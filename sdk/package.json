@@ -1,6 +1,6 @@
 {
   "name": "@reptilianhq/pons-sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Reptilian-maintained TypeScript integration SDK for Pons v2 on Robinhood Chain.",
   "license": "UNLICENSED",
   "keywords": [

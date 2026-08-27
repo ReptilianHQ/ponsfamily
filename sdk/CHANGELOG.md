@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No changes yet.
+
+## 0.1.1
+
 - Require launch economics to be pinned by default and make the unpinned path
   an explicit unsafe opt-out.
 - Require stable tags to match the immutable commit recorded by the published RC.

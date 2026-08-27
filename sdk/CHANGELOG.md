@@ -11,6 +11,7 @@ No changes yet.
 - Require stable tags to match the immutable commit recorded by the published RC.
 - Document authenticated GitHub Packages installs and the complete RC-to-stable workflow.
 - Enforce intentionally public package visibility after every publication.
+- Validate release documentation against source and workflow-generated RC manifests.
 
 ## 0.1.0
 

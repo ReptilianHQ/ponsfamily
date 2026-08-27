@@ -1,0 +1,94 @@
+# yaml-language-server: $schema=./node_modules/envio/evm.schema.json
+name: pons-v2-mainnet-example
+description: Canonical Pons v2 source discovery and supply evidence on Robinhood Chain mainnet.
+rollback_on_reorg: true
+raw_events: false
+address_format: lowercase
+handlers: ./src/EventHandlers.ts
+full_batch_size: 5000
+storage:
+  postgres:
+    default: true
+field_selection:
+  transaction_fields:
+    - hash
+    - transactionIndex
+
+contracts:
+  - name: PonsV2Factory
+    abi_file_path: ./node_modules/@reptilianhq/pons-sdk/artifacts/PonsV2Factory.json
+    events:
+      - event: TokenLaunched
+      - event: LaunchSwept
+      - event: CreatorFeeRecipientUpdated
+      - event: BuybackEnabledUpdated
+      - event: PoolGraduated
+      - event: LaunchGraduationRescued
+  - name: PonsV2Curve
+    abi_file_path: ./node_modules/@reptilianhq/pons-sdk/artifacts/PonsV2Curve.json
+    events:
+      - event: CurveBuy
+      - event: CurveBuyRefunded
+      - event: CurveSell
+      - event: FeesSwept
+      - event: BuybackLocked
+      - event: CurveCompleted
+  - name: PonsV2MemeHook
+    abi_file_path: ./node_modules/@reptilianhq/pons-sdk/artifacts/PonsV2MemeHook.json
+    events:
+      - event: HookFeeCollected
+      - event: PoolFeesSwept
+      - event: PoolFeesRescued
+  - name: PonsV2FeeEscrow
+    abi_file_path: ./node_modules/@reptilianhq/pons-sdk/artifacts/PonsV2FeeEscrow.json
+    events:
+      - event: Credited
+      - event: CreditedToken
+      - event: Claimed
+      - event: ClaimedToken
+  - name: PonsV2BuybackVault
+    abi_file_path: ./node_modules/@reptilianhq/pons-sdk/artifacts/PonsV2BuybackVault.json
+    events:
+      - event: Locked
+      - event: Released
+      - event: CreatorRecipientUpdated
+  - name: PonsLaunchToken
+    abi_file_path: ./abis/LaunchToken.json
+    events:
+      - event: Transfer
+
+chains:
+  - id: 4663
+    start_block: 26841846
+    block_lag: 2
+    max_reorg_depth: 200
+    hypersync_config:
+      url: https://4663.hypersync.xyz
+    rpc:
+      - url: ${ENVIO_ROBINHOOD_MAINNET_RPC_URL}
+        for: fallback
+        initial_block_interval: 2000
+        interval_ceiling: 10000
+        backoff_millis: 2000
+        query_timeout_millis: 20000
+      - url: ${ENVIO_ROBINHOOD_MAINNET_RPC_URL}
+        for: realtime
+        query_timeout_millis: 10000
+        polling_interval: 25000
+    contracts:
+      - name: PonsV2Factory
+        start_block: 26841846
+        address:
+          - "0x7ed598bcef8bd9edd8c97a195c6d13f40801ec7e"
+      - name: PonsV2MemeHook
+        start_block: 26841846
+        address:
+          - "0xe5e702641ea86f4ae6cc3cdaed2b886f976be044"
+      - name: PonsV2FeeEscrow
+        start_block: 26841846
+        address:
+          - "0xd3afeb2a57f70ef218aa82451c51b2fb0416ac9e"
+      - name: PonsV2BuybackVault
+        start_block: 26841846
+        address:
+          - "0x42df2a798f82289e177311362e8f5ccc45c1219c"

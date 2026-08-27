@@ -31,10 +31,12 @@ for (const [name, artifact] of [
 const factoryEventNames = [
   "TokenLaunched",
   "LaunchSwept",
+  "CreatorFeeRecipientUpdated",
+  "BuybackEnabledUpdated",
   "PoolGraduated",
   "LaunchGraduationRescued",
 ];
-const curveEventNames = ["CurveBuy", "CurveSell", "FeesSwept", "BuybackLocked"];
+const curveEventNames = ["CurveBuy", "CurveBuyRefunded", "CurveSell", "FeesSwept", "BuybackLocked", "CurveCompleted"];
 assert.deepEqual(factoryEvents.map(canonicalEvent), selectEvents(ponsFactoryAbi, factoryEventNames));
 assert.deepEqual(curveEvents.map(canonicalEvent), selectEvents(ponsCurveAbi, curveEventNames));
 assert.deepEqual(hookEvents.map(canonicalEvent), selectEvents(ponsMemeHookAbi, ["HookFeeCollected", "PoolFeesSwept", "PoolFeesRescued"]));

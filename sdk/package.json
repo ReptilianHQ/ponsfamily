@@ -34,6 +34,7 @@
   "files": [
     "artifacts",
     "dist",
+    "examples",
     "provenance",
     "README.md",
     "NOTICE"
@@ -85,10 +86,11 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "npm run clean && tsc -p tsconfig.json",
-    "prepublishOnly": "npm run build && npm run check:dist && npm run check:artifacts && npm run test:unit",
-    "check": "npm run build && npm run check:dist && npm run check:artifacts && npm run test:unit && npm run test:pack && npm run check:package",
+    "prepublishOnly": "npm run build && npm run check:dist && npm run check:artifacts && npm run check:envio-example && npm run test:unit",
+    "check": "npm run build && npm run check:dist && npm run check:artifacts && npm run check:envio-example && npm run test:unit && npm run test:pack && npm run check:package",
     "check:dist": "git diff --exit-code -- dist && test -z \"$(git ls-files --others --exclude-standard -- dist)\"",
     "check:artifacts": "node scripts/check-artifacts.mjs",
+    "check:envio-example": "node scripts/check-envio-example.mjs",
     "test": "npm run check",
     "test:unit": "vitest run",
     "test:pack": "npm pack --dry-run",
@@ -100,6 +102,7 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@hegeldev/hegel": "0.4.3",
+    "envio": "3.6.1",
     "publint": "^0.3.23",
     "typescript": "^7.0.2",
     "viem": "^2.55.10",

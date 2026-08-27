@@ -1,0 +1,52 @@
+name: Publish Pons SDK
+
+on:
+  push:
+    branches:
+      - "release/v*"
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    if: github.ref_type == 'tag' || github.event.created
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sdk
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: sdk/package-lock.json
+          registry-url: https://npm.pkg.github.com
+          scope: "@reptilianhq"
+      - name: Validate release identity
+        id: release
+        run: node scripts/release-plan.mjs
+      - name: Verify release commit is based on main
+        if: github.ref_type == 'branch'
+        run: git merge-base --is-ancestor origin/main HEAD
+        working-directory: .
+      - name: Verify final release is on main
+        if: github.ref_type == 'tag'
+        run: git merge-base --is-ancestor HEAD origin/main
+        working-directory: .
+      - run: npm ci
+      - run: npm test
+      - name: Set published version
+        if: github.ref_type == 'branch'
+        run: npm version --no-git-tag-version --allow-same-version "${{ steps.release.outputs.version }}"
+      - name: Publish to GitHub Packages
+        run: npm publish --tag "${{ steps.release.outputs.dist_tag }}"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

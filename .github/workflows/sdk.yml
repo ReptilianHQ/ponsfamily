@@ -5,10 +5,12 @@ on:
     paths:
       - "sdk/**"
       - ".github/workflows/sdk.yml"
+      - ".github/workflows/sdk-release.yml"
   push:
     paths:
       - "sdk/**"
       - ".github/workflows/sdk.yml"
+      - ".github/workflows/sdk-release.yml"
 
 permissions:
   contents: read

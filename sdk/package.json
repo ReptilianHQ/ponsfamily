@@ -94,7 +94,7 @@
     "check:envio-example": "node scripts/check-envio-example.mjs",
     "check:release-docs": "node scripts/check-release-docs.mjs",
     "test": "npm run check",
-    "test:release": "node --test scripts/release-plan.node-test.mjs",
+    "test:release": "node --test scripts/release-plan.node-test.mjs scripts/release-provenance.node-test.mjs",
     "test:unit": "vitest run",
     "test:pack": "npm pack --dry-run",
     "check:package": "publint && attw --pack . --profile esm-only"

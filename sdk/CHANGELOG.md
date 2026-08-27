@@ -4,7 +4,7 @@
 
 - Require launch economics to be pinned by default and make the unpinned path
   an explicit unsafe opt-out.
-- Require stable tags to match the release-branch commit that published the RC.
+- Require stable tags to match the immutable commit recorded by the published RC.
 
 ## 0.1.0
 

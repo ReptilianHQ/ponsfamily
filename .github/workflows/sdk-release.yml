@@ -40,16 +40,13 @@ jobs:
       - name: Verify final release matches the published release candidate
         if: github.ref_type == 'tag'
         run: |
-          release_branch="release/v${{ steps.release.outputs.version }}"
-          release_branch_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/${release_branch}" --jq .object.sha)"
-          test "$GITHUB_SHA" = "$release_branch_sha" || {
-            echo "::error::${GITHUB_REF_NAME} points to ${GITHUB_SHA}, but ${release_branch} published the RC from ${release_branch_sha}."
-            exit 1
-          }
+          rc_package="@reptilianhq/pons-sdk@${{ steps.release.outputs.version }}-rc"
+          rc_version="$(npm view "$rc_package" version)"
+          rc_git_head="$(npm view "$rc_package" gitHead)"
+          node scripts/verify-release-provenance.mjs "$GITHUB_SHA" "$rc_version" "$rc_git_head"
           git merge-base --is-ancestor HEAD origin/main
-        working-directory: .
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm ci
       - run: npm test
       - name: Set published version

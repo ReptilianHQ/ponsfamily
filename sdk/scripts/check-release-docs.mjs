@@ -32,9 +32,10 @@ assert.ok(
 );
 assert.ok(packageJson.files.includes("RELEASING.md"), "Published packages must include the release guide linked from README");
 assert.ok(
-  workflow.includes('release_branch="release/v${{ steps.release.outputs.version }}"')
-    && workflow.includes('test "$GITHUB_SHA" = "$release_branch_sha"'),
-  "Stable releases must match the commit that published the release candidate",
+  workflow.includes('rc_package="@reptilianhq/pons-sdk@${{ steps.release.outputs.version }}-rc"')
+    && workflow.includes('npm view "$rc_package" gitHead')
+    && workflow.includes('verify-release-provenance.mjs "$GITHUB_SHA" "$rc_version" "$rc_git_head"'),
+  "Stable releases must verify the immutable RC package provenance",
 );
 
 console.log(`Release docs describe ${packageJson.version} through the rc and latest channels.`);

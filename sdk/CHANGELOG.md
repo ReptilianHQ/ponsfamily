@@ -2,16 +2,21 @@
 
 ## Unreleased
 
+No changes yet.
+
+## 0.1.1
+
 - Require launch economics to be pinned by default and make the unpinned path
   an explicit unsafe opt-out.
 - Require stable tags to match the immutable commit recorded by the published RC.
+- Document authenticated GitHub Packages installs and the complete RC-to-stable workflow.
+- Enforce intentionally public package visibility after every publication.
 
 ## 0.1.0
 
 This release line is available as `0.1.0-rc` on the `rc` channel before the
 `v0.1.0` tag promotes the same version line to the stable `latest` channel.
 
-- Publish intentionally public releases and fail on unexpected package visibility.
 - Publish release-candidate branches and stable tags to GitHub Packages with
   validated versions and separate `rc` and `latest` install channels.
 - Add a canonical Envio mainnet example with fixed-source provenance, dynamic

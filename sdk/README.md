@@ -182,4 +182,9 @@ dist-tag. After that release is merged to `main`, tagging its commit `vX.Y.Z`
 publishes the stable `X.Y.Z` package with the `latest` dist-tag. Branches and
 tags whose version does not exactly match `package.json` fail closed.
 
+The package container must be configured as private in the ReptilianHQ GitHub
+Packages settings before a release is accepted. The workflow verifies that
+GitHub still reports private visibility after every publish; npm's
+`access=restricted` setting is not used as a substitute for that check.
+
 Run `npm test` before release.

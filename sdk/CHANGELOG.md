@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Publish intentionally public releases and fail on unexpected package visibility.
 - Publish release-candidate branches and stable tags to GitHub Packages with
   validated versions and separate `rc` and `latest` install channels.
 - Add a canonical Envio mainnet example with fixed-source provenance, dynamic

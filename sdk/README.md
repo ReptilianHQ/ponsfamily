@@ -182,4 +182,10 @@ dist-tag. After that release is merged to `main`, tagging its commit `vX.Y.Z`
 publishes the stable `X.Y.Z` package with the `latest` dist-tag. Branches and
 tags whose version does not exactly match `package.json` fail closed.
 
+The package is intentionally public and contains only the runtime-neutral SDK,
+public deployment provenance, ABI artifacts, and the canonical Envio example.
+GitHub's npm registry still requires an access token to install public packages.
+The workflow publishes with `--access public` and verifies that GitHub continues
+to report public visibility after every release.
+
 Run `npm test` before release.

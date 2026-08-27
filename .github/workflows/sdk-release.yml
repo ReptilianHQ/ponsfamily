@@ -47,6 +47,16 @@ jobs:
         if: github.ref_type == 'branch'
         run: npm version --no-git-tag-version --allow-same-version "${{ steps.release.outputs.version }}"
       - name: Publish to GitHub Packages
-        run: npm publish --tag "${{ steps.release.outputs.dist_tag }}"
+        run: npm publish --access public --tag "${{ steps.release.outputs.dist_tag }}"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify package remains public
+        run: |
+          visibility="$(gh api /orgs/ReptilianHQ/packages/npm/pons-sdk --jq .visibility)"
+          test "$visibility" = public || {
+            echo "::error::@reptilianhq/pons-sdk visibility is $visibility; the SDK release policy requires a public package."
+            exit 1
+          }
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

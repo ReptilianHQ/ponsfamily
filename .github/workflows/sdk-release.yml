@@ -33,14 +33,20 @@ jobs:
       - name: Validate release identity
         id: release
         run: node scripts/release-plan.mjs
-      - name: Verify release commit is based on main
+      - name: Verify release candidate is contained in main
         if: github.ref_type == 'branch'
-        run: git merge-base --is-ancestor origin/main HEAD
-        working-directory: .
-      - name: Verify final release is on main
-        if: github.ref_type == 'tag'
         run: git merge-base --is-ancestor HEAD origin/main
         working-directory: .
+      - name: Verify final release matches the published release candidate
+        if: github.ref_type == 'tag'
+        run: |
+          rc_package="@reptilianhq/pons-sdk@${{ steps.release.outputs.version }}-rc"
+          rc_version="$(npm view "$rc_package" version)"
+          rc_git_head="$(npm view "$rc_package" gitHead)"
+          node scripts/release-provenance.mjs "$GITHUB_SHA" "$rc_version" "$rc_git_head"
+          git merge-base --is-ancestor HEAD origin/main
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm ci
       - run: npm test
       - name: Set published version
@@ -48,6 +54,22 @@ jobs:
         run: npm version --no-git-tag-version --allow-same-version "${{ steps.release.outputs.version }}"
       - name: Publish to GitHub Packages
         run: npm publish --access public --tag "${{ steps.release.outputs.dist_tag }}"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify published install channel
+        run: |
+          expected="${{ steps.release.outputs.version }}"
+          package="@reptilianhq/pons-sdk@${{ steps.release.outputs.dist_tag }}"
+          for attempt in 1 2 3 4 5 6; do
+            actual="$(npm view "$package" version 2>/dev/null || true)"
+            if test "$actual" = "$expected"; then
+              echo "$package resolves to $actual"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::$package did not resolve to expected version $expected (last observed: ${actual:-missing})"
+          exit 1
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify package remains public

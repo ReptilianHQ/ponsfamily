@@ -12,7 +12,7 @@ export interface PonsSocials {
     website?: string;
     farcaster?: string;
 }
-export interface PonsTokenParameters {
+interface PonsTokenMetadata {
     name: string;
     symbol: string;
     logo?: string;
@@ -22,10 +22,17 @@ export interface PonsTokenParameters {
     creatorFeeRecipient?: Address;
     creatorTaxBps?: number;
     buybackEnabled?: boolean;
-    /** Pin from `previewLaunchEconomics`; zero waives the on-chain consistency check. */
-    expectedEconomics?: Hex;
     salt: Hex;
 }
+export type PonsTokenParameters = PonsTokenMetadata & ({
+    /** Nonzero digest returned by `previewLaunchEconomics`. */
+    expectedEconomics: Hex;
+    unsafeAllowUnpinnedEconomics?: false;
+} | {
+    expectedEconomics?: never;
+    /** Explicitly waive the on-chain launch-economics consistency check. */
+    unsafeAllowUnpinnedEconomics: true;
+});
 export interface BuildLaunchParameters {
     token: PonsTokenParameters;
     launchConfigId: bigint;
@@ -66,3 +73,4 @@ export declare function buildSweepPoolFeesTransaction(memeHook: Address, poolId:
 export declare function buildClaimNativeFeesTransaction(feeEscrow: Address, amount?: bigint): TransactionRequest;
 export declare function buildClaimTokenFeesTransaction(feeEscrow: Address, token: Address, amount?: bigint): TransactionRequest;
 export declare function buildReleaseBuybackTransaction(buybackVault: Address, token: Address): TransactionRequest;
+export {};

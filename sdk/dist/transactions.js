@@ -153,6 +153,7 @@ export function buildReleaseBuybackTransaction(buybackVault, token) {
     };
 }
 function normalizeTokenParameters(parameters) {
+    const expectedEconomics = normalizeExpectedEconomics(parameters);
     const socials = parameters.socials ?? {};
     const normalized = {
         name: parameters.name.trim(),
@@ -169,7 +170,7 @@ function normalizeTokenParameters(parameters) {
         creatorFeeRecipient: normalizeAddress(parameters.creatorFeeRecipient ?? zeroAddress, "creatorFeeRecipient"),
         creatorTaxBps: parameters.creatorTaxBps ?? 0,
         buybackEnabled: parameters.buybackEnabled ?? false,
-        expectedEconomics: parameters.expectedEconomics ?? ("0x" + "00".repeat(32)),
+        expectedEconomics,
         salt: parameters.salt,
     };
     assertLength(normalized.name, 1, 64, "name");
@@ -184,6 +185,24 @@ function normalizeTokenParameters(parameters) {
     assertBytes32(normalized.expectedEconomics, "expectedEconomics");
     assertBytes32(normalized.salt, "salt");
     return normalized;
+}
+const ZERO_BYTES32 = `0x${"00".repeat(32)}`;
+function normalizeExpectedEconomics(parameters) {
+    const unsafeAllowUnpinnedEconomics = parameters.unsafeAllowUnpinnedEconomics;
+    if (parameters.expectedEconomics === undefined) {
+        if (unsafeAllowUnpinnedEconomics !== true) {
+            invalid("expectedEconomics", "a nonzero previewLaunchEconomics digest or an explicit unsafe waiver", "missing");
+        }
+        return ZERO_BYTES32;
+    }
+    assertBytes32(parameters.expectedEconomics, "expectedEconomics");
+    if (parameters.expectedEconomics.toLowerCase() === ZERO_BYTES32) {
+        invalid("expectedEconomics", "a nonzero previewLaunchEconomics digest", parameters.expectedEconomics);
+    }
+    if (unsafeAllowUnpinnedEconomics !== undefined && unsafeAllowUnpinnedEconomics !== false) {
+        invalid("unsafeAllowUnpinnedEconomics", "false or omitted when expectedEconomics is supplied", unsafeAllowUnpinnedEconomics);
+    }
+    return parameters.expectedEconomics;
 }
 function factoryTransaction(factory, functionName, args) {
     factory = normalizeAddress(factory, "factory");

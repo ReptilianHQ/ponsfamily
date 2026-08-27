@@ -21,11 +21,12 @@ import {
 const account = getAddress("0x1111111111111111111111111111111111111111");
 const curve = getAddress("0x2222222222222222222222222222222222222222");
 const salt = `0x${"12".repeat(32)}` as const;
+const expectedEconomics = `0x${"34".repeat(32)}` as const;
 
 describe("transaction builders", () => {
   it("builds a direct launch against the pinned factory", () => {
     const request = buildLaunchTransaction(robinhoodMainnet, {
-      token: { name: "Pons SDK", symbol: "PONS", salt },
+      token: { name: "Pons SDK", symbol: "PONS", salt, expectedEconomics },
       launchConfigId: 0n,
       launchFee: 500_000_000_000_000n,
     });
@@ -36,7 +37,7 @@ describe("transaction builders", () => {
 
   it("builds an atomic native launch and buy through the forwarder", () => {
     const request = buildLaunchTransaction(robinhoodMainnet, {
-      token: { name: "Pons SDK", symbol: "PONS", salt },
+      token: { name: "Pons SDK", symbol: "PONS", salt, expectedEconomics },
       launchConfigId: 0n,
       launchFee: 5n,
       openingBuy: { quoteIn: 10n, minTokensOut: 9n, recipient: account },
@@ -87,11 +88,46 @@ describe("transaction builders", () => {
 
   it("rejects unsafe launch and trade arguments before encoding", () => {
     expect(() => buildLaunchTransaction(robinhoodMainnet, {
-      token: { name: "Pons SDK", symbol: "PONS", salt, creatorTaxBps: 1_001 },
+      token: { name: "Pons SDK", symbol: "PONS", salt, expectedEconomics, creatorTaxBps: 1_001 },
       launchConfigId: 0n,
       launchFee: 1n,
     })).toThrow(/creatorTaxBps/);
     expect(() => buildCurveBuyTransaction({ curve, pairToken: zeroAddress, quoteIn: 0n, minTokensOut: 0n, recipient: account })).toThrow(/quoteIn/);
     expect(() => buildCurveSellTransaction({ curve, tokensIn: 1n, minQuoteOut: -1n, recipient: account })).toThrow(/minQuoteOut/);
+  });
+
+  it("requires pinned launch economics unless the caller explicitly opts out", () => {
+    const unsafeToken = {
+      name: "Pons SDK",
+      symbol: "PONS",
+      salt,
+      unsafeAllowUnpinnedEconomics: true,
+    } as const;
+    expect(() => buildLaunchTransaction(robinhoodMainnet, {
+      token: unsafeToken,
+      launchConfigId: 0n,
+      launchFee: 1n,
+    })).not.toThrow();
+    expect(() => buildLaunchTransaction(robinhoodMainnet, {
+      token: { ...unsafeToken, unsafeAllowUnpinnedEconomics: undefined } as never,
+      launchConfigId: 0n,
+      launchFee: 1n,
+    })).toThrow(/expectedEconomics/);
+    expect(() => buildLaunchTransaction(robinhoodMainnet, {
+      token: { name: "Pons SDK", symbol: "PONS", salt, expectedEconomics: `0x${"00".repeat(32)}` },
+      launchConfigId: 0n,
+      launchFee: 1n,
+    })).toThrow(/nonzero previewLaunchEconomics/);
+    expect(() => buildLaunchTransaction(robinhoodMainnet, {
+      token: {
+        name: "Pons SDK",
+        symbol: "PONS",
+        salt,
+        expectedEconomics,
+        unsafeAllowUnpinnedEconomics: "true",
+      } as never,
+      launchConfigId: 0n,
+      launchFee: 1n,
+    })).toThrow(/unsafeAllowUnpinnedEconomics/);
   });
 });

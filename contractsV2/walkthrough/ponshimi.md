@@ -1,4 +1,4 @@
-# $PONSHIMI
+# $PONSHIMI - 0x0fb133f107fc5a3f3f94983c2a65b9b9d5f3092c
 ### The Weight Nobody Moves
 **Brand Narrative and Technical Launch Reference for the Pons Family V2 Mascot**
 

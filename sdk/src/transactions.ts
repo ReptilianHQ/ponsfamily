@@ -33,7 +33,7 @@ export interface PonsSocials {
   farcaster?: string;
 }
 
-export interface PonsTokenParameters {
+interface PonsTokenMetadata {
   name: string;
   symbol: string;
   logo?: string;
@@ -43,10 +43,21 @@ export interface PonsTokenParameters {
   creatorFeeRecipient?: Address;
   creatorTaxBps?: number;
   buybackEnabled?: boolean;
-  /** Pin from `previewLaunchEconomics`; zero waives the on-chain consistency check. */
-  expectedEconomics?: Hex;
   salt: Hex;
 }
+
+export type PonsTokenParameters = PonsTokenMetadata & (
+  | {
+    /** Nonzero digest returned by `previewLaunchEconomics`. */
+    expectedEconomics: Hex;
+    unsafeAllowUnpinnedEconomics?: false;
+  }
+  | {
+    expectedEconomics?: never;
+    /** Explicitly waive the on-chain launch-economics consistency check. */
+    unsafeAllowUnpinnedEconomics: true;
+  }
+);
 
 export interface BuildLaunchParameters {
   token: PonsTokenParameters;
@@ -257,6 +268,7 @@ export function buildReleaseBuybackTransaction(buybackVault: Address, token: Add
 }
 
 function normalizeTokenParameters(parameters: PonsTokenParameters) {
+  const expectedEconomics = normalizeExpectedEconomics(parameters);
   const socials = parameters.socials ?? {};
   const normalized = {
     name: parameters.name.trim(),
@@ -273,7 +285,7 @@ function normalizeTokenParameters(parameters: PonsTokenParameters) {
     creatorFeeRecipient: normalizeAddress(parameters.creatorFeeRecipient ?? zeroAddress, "creatorFeeRecipient"),
     creatorTaxBps: parameters.creatorTaxBps ?? 0,
     buybackEnabled: parameters.buybackEnabled ?? false,
-    expectedEconomics: parameters.expectedEconomics ?? ("0x" + "00".repeat(32)) as Hex,
+    expectedEconomics,
     salt: parameters.salt,
   };
   assertLength(normalized.name, 1, 64, "name");
@@ -287,6 +299,28 @@ function normalizeTokenParameters(parameters: PonsTokenParameters) {
   assertBytes32(normalized.expectedEconomics, "expectedEconomics");
   assertBytes32(normalized.salt, "salt");
   return normalized;
+}
+
+const ZERO_BYTES32 = `0x${"00".repeat(32)}` as Hex;
+
+function normalizeExpectedEconomics(parameters: PonsTokenParameters): Hex {
+  const unsafeAllowUnpinnedEconomics = (
+    parameters as { unsafeAllowUnpinnedEconomics?: unknown }
+  ).unsafeAllowUnpinnedEconomics;
+  if (parameters.expectedEconomics === undefined) {
+    if (unsafeAllowUnpinnedEconomics !== true) {
+      invalid("expectedEconomics", "a nonzero previewLaunchEconomics digest or an explicit unsafe waiver", "missing");
+    }
+    return ZERO_BYTES32;
+  }
+  assertBytes32(parameters.expectedEconomics, "expectedEconomics");
+  if (parameters.expectedEconomics.toLowerCase() === ZERO_BYTES32) {
+    invalid("expectedEconomics", "a nonzero previewLaunchEconomics digest", parameters.expectedEconomics);
+  }
+  if (unsafeAllowUnpinnedEconomics === true) {
+    invalid("unsafeAllowUnpinnedEconomics", "false when expectedEconomics is supplied", true);
+  }
+  return parameters.expectedEconomics;
 }
 
 function factoryTransaction(factory: Address, functionName: "graduate" | "createGraduatedPool" | "transferCreatorFeeRecipient" | "setBuybackEnabled", args: readonly unknown[]): TransactionRequest {

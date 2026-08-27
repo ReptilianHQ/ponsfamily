@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-No changes yet.
+- Require launch economics to be pinned by default and make the unpinned path
+  an explicit unsafe opt-out.
 
 ## 0.1.0
 

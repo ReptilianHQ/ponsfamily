@@ -90,6 +90,11 @@ const hash = await walletClient.sendTransaction({ account, ...request });
 
 The example derives its minimum from the live launch config with a 1% tolerance. If `creatorTaxBps` is nonzero, use the same value in the quote. In production, re-read the config and economics immediately before use, simulate the exact request, and verify the mined transaction and receipt before persisting a launch.
 
+`buildLaunchTransaction` requires a nonzero `expectedEconomics` digest so a
+reviewed launch cannot silently execute under changed economics. Infrastructure
+that intentionally accepts the live terms may omit the digest only by passing
+`unsafeAllowUnpinnedEconomics: true` in the token parameters.
+
 ## Trade the bonding curve
 
 ```ts

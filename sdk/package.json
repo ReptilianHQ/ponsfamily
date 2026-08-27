@@ -26,8 +26,8 @@
   },
   "packageManager": "npm@11.5.2",
   "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org"
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com"
   },
   "type": "module",
   "sideEffects": false,
@@ -87,11 +87,12 @@
     "clean": "rm -rf dist",
     "build": "npm run clean && tsc -p tsconfig.json",
     "prepublishOnly": "npm run build && npm run check:dist && npm run check:artifacts && npm run check:envio-example && npm run test:unit",
-    "check": "npm run build && npm run check:dist && npm run check:artifacts && npm run check:envio-example && npm run test:unit && npm run test:pack && npm run check:package",
+    "check": "npm run build && npm run check:dist && npm run check:artifacts && npm run check:envio-example && npm run test:release && npm run test:unit && npm run test:pack && npm run check:package",
     "check:dist": "git diff --exit-code -- dist && test -z \"$(git ls-files --others --exclude-standard -- dist)\"",
     "check:artifacts": "node scripts/check-artifacts.mjs",
     "check:envio-example": "node scripts/check-envio-example.mjs",
     "test": "npm run check",
+    "test:release": "node --test scripts/release-plan.node-test.mjs",
     "test:unit": "vitest run",
     "test:pack": "npm pack --dry-run",
     "check:package": "publint && attw --pack . --profile esm-only"

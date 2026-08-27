@@ -7,10 +7,14 @@ The initial release targets the live Pons v2 factory and atomic launch-and-buy f
 ## Install
 
 ```bash
-pnpm add '@reptilianhq/pons-sdk@github:ReptilianHQ/ponsfamily#sdk-v0.1.0&path:/sdk' viem
+pnpm add @reptilianhq/pons-sdk@0.1.0 viem
 ```
 
-The initial release is distributed from GitHub and is not published to npm. Node.js 22 or newer is supported. `viem` 2.x is a peer dependency.
+The package is distributed through ReptilianHQ's GitHub Packages registry. Configure your package manager for the `@reptilianhq` scope and authenticate with a token that can read packages. Node.js 22 or newer is supported. `viem` 2.x is a peer dependency.
+
+```ini
+@reptilianhq:registry=https://npm.pkg.github.com
+```
 
 ## Launch a token
 
@@ -169,5 +173,13 @@ The v2 consumer ABI is reviewed against Pons source commit `836f0f97f9a956985587
 ## License
 
 The SDK source is publicly visible, but no additional license or permission to use, copy, modify, or distribute it is granted.
+
+## Release
+
+Keep `package.json` at the intended stable version. Creating a branch named
+`release/vX.Y.Z` publishes `X.Y.Z-rc` to GitHub Packages with the `rc`
+dist-tag. After that release is merged to `main`, tagging its commit `vX.Y.Z`
+publishes the stable `X.Y.Z` package with the `latest` dist-tag. Branches and
+tags whose version does not exactly match `package.json` fail closed.
 
 Run `npm test` before release.

@@ -317,8 +317,12 @@ function normalizeExpectedEconomics(parameters: PonsTokenParameters): Hex {
   if (parameters.expectedEconomics.toLowerCase() === ZERO_BYTES32) {
     invalid("expectedEconomics", "a nonzero previewLaunchEconomics digest", parameters.expectedEconomics);
   }
-  if (unsafeAllowUnpinnedEconomics === true) {
-    invalid("unsafeAllowUnpinnedEconomics", "false when expectedEconomics is supplied", true);
+  if (unsafeAllowUnpinnedEconomics !== undefined && unsafeAllowUnpinnedEconomics !== false) {
+    invalid(
+      "unsafeAllowUnpinnedEconomics",
+      "false or omitted when expectedEconomics is supplied",
+      unsafeAllowUnpinnedEconomics,
+    );
   }
   return parameters.expectedEconomics;
 }

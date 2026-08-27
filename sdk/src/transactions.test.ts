@@ -118,5 +118,16 @@ describe("transaction builders", () => {
       launchConfigId: 0n,
       launchFee: 1n,
     })).toThrow(/nonzero previewLaunchEconomics/);
+    expect(() => buildLaunchTransaction(robinhoodMainnet, {
+      token: {
+        name: "Pons SDK",
+        symbol: "PONS",
+        salt,
+        expectedEconomics,
+        unsafeAllowUnpinnedEconomics: "true",
+      } as never,
+      launchConfigId: 0n,
+      launchFee: 1n,
+    })).toThrow(/unsafeAllowUnpinnedEconomics/);
   });
 });

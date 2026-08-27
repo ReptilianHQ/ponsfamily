@@ -15,13 +15,13 @@ before installing:
 //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
 ```
 
-The current public release is the release candidate:
+Install the release-candidate channel with:
 
 ```bash
 pnpm add @reptilianhq/pons-sdk@rc viem
 ```
 
-After a stable release is tagged, install the stable channel with:
+Install the stable channel with:
 
 ```bash
 pnpm add @reptilianhq/pons-sdk@latest viem

@@ -7,7 +7,7 @@ dist-tags:
 | Git ref | Published version | Dist-tag |
 | --- | --- | --- |
 | `release/vX.Y.Z` branch creation | `X.Y.Z-rc` | `rc` |
-| `vX.Y.Z` tag on a commit contained in `main` | `X.Y.Z` | `latest` |
+| `vX.Y.Z` tag on the matching release-branch commit | `X.Y.Z` | `latest` |
 
 GitHub Packages requires authentication even when the package is public. Set
 the `@reptilianhq` registry to `https://npm.pkg.github.com` and use a token with
@@ -21,8 +21,10 @@ package read access when running the verification commands below.
    section.
 3. Run `npm ci` and `npm test` from `sdk/`.
 4. Merge the release preparation into `main`.
-5. Create `release/vX.Y.Z` at that exact `main` commit. Branch creation publishes
-   `X.Y.Z-rc` once; branch-only commits and later pushes do not publish.
+5. Create `release/vX.Y.Z` at that reviewed `main` commit. Branch creation
+   publishes `X.Y.Z-rc` once; branch-only commits and later pushes do not
+   publish. Preserve this branch until the stable release is complete because
+   the tag gate compares its commit with the release branch.
 6. Verify the public RC channel:
 
    ```bash
@@ -36,8 +38,8 @@ branch.
 
 ## Stable release
 
-1. Confirm the accepted RC commit is still contained in `main` and `npm test`
-   passes on that commit.
+1. Confirm the accepted RC commit is still the head of `release/vX.Y.Z`, is
+   contained in `main`, and `npm test` passes on that commit.
 2. Tag the same RC commit `vX.Y.Z` and push the tag. Do not create
    `vX.Y.Z-rc`; the RC is the package published from the release branch.
 3. Verify the stable channel:
@@ -47,6 +49,7 @@ branch.
    pnpm add @reptilianhq/pons-sdk@latest viem
    ```
 
-The workflow rejects mismatched branch, tag, and manifest versions, verifies
-the selected dist-tag resolves to the newly published version, and fails if the
-GitHub package is not public.
+The workflow rejects mismatched branch, tag, and manifest versions, requires
+the stable tag to identify the exact release-branch commit that published the
+RC, verifies the selected dist-tag resolves to the newly published version, and
+fails if the GitHub package is not public.

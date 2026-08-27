@@ -6,6 +6,7 @@ const packageJson = JSON.parse(await readFile(new URL("package.json", root), "ut
 const readme = await readFile(new URL("README.md", root), "utf8");
 const releasing = await readFile(new URL("RELEASING.md", root), "utf8");
 const changelog = await readFile(new URL("CHANGELOG.md", root), "utf8");
+const workflow = await readFile(new URL("../.github/workflows/sdk-release.yml", root), "utf8");
 
 assert.match(packageJson.version, /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/);
 assert.ok(
@@ -30,5 +31,10 @@ assert.ok(
   `CHANGELOG.md must contain a section for package version ${packageJson.version}`,
 );
 assert.ok(packageJson.files.includes("RELEASING.md"), "Published packages must include the release guide linked from README");
+assert.ok(
+  workflow.includes('release_branch="release/v${{ steps.release.outputs.version }}"')
+    && workflow.includes('test "$GITHUB_SHA" = "$release_branch_sha"'),
+  "Stable releases must match the commit that published the release candidate",
+);
 
 console.log(`Release docs describe ${packageJson.version} through the rc and latest channels.`);

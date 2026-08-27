@@ -6,15 +6,28 @@ The initial release targets the live Pons v2 factory and atomic launch-and-buy f
 
 ## Install
 
-```bash
-pnpm add @reptilianhq/pons-sdk@0.1.0 viem
-```
-
-The package is distributed through ReptilianHQ's GitHub Packages registry. Configure your package manager for the `@reptilianhq` scope and authenticate with a token that can read packages. Node.js 22 or newer is supported. `viem` 2.x is a peer dependency.
+The package is distributed through ReptilianHQ's GitHub Packages registry.
+Configure the `@reptilianhq` scope and provide a token with package read access
+before installing:
 
 ```ini
 @reptilianhq:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
 ```
+
+The current public release is the release candidate:
+
+```bash
+pnpm add @reptilianhq/pons-sdk@rc viem
+```
+
+After a stable release is tagged, install the stable channel with:
+
+```bash
+pnpm add @reptilianhq/pons-sdk@latest viem
+```
+
+Node.js 22 or newer is supported. `viem` 2.x is a peer dependency.
 
 ## Launch a token
 
@@ -177,10 +190,17 @@ The SDK source is publicly visible, but no additional license or permission to u
 ## Release
 
 Keep `package.json` at the intended stable version. Creating a branch named
-`release/vX.Y.Z` publishes `X.Y.Z-rc` to GitHub Packages with the `rc`
-dist-tag. After that release is merged to `main`, tagging its commit `vX.Y.Z`
-publishes the stable `X.Y.Z` package with the `latest` dist-tag. Branches and
-tags whose version does not exactly match `package.json` fail closed.
+`release/vX.Y.Z` from the exact reviewed `main` commit publishes `X.Y.Z-rc` to
+GitHub Packages with the `rc` dist-tag. After the RC is accepted, tagging that
+same commit `vX.Y.Z` publishes the stable `X.Y.Z` package with the `latest`
+dist-tag. Branches and tags whose version does not exactly match `package.json`
+fail closed.
+
+RC and stable package versions are immutable. Do not commit an `-rc` version to
+`package.json`, reuse an already published version, or create an RC Git tag. If
+an RC is rejected, update the intended stable version and create its matching
+release branch. See [`RELEASING.md`](./RELEASING.md) for the exact checklist and
+verification commands.
 
 The package is intentionally public and contains only the runtime-neutral SDK,
 public deployment provenance, ABI artifacts, and the canonical Envio example.

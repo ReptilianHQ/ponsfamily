@@ -37,6 +37,7 @@
     "examples",
     "provenance",
     "README.md",
+    "RELEASING.md",
     "NOTICE"
   ],
   "exports": {
@@ -86,11 +87,12 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "npm run clean && tsc -p tsconfig.json",
-    "prepublishOnly": "npm run build && npm run check:dist && npm run check:artifacts && npm run check:envio-example && npm run test:unit",
-    "check": "npm run build && npm run check:dist && npm run check:artifacts && npm run check:envio-example && npm run test:release && npm run test:unit && npm run test:pack && npm run check:package",
+    "prepublishOnly": "npm run build && npm run check:dist && npm run check:artifacts && npm run check:envio-example && npm run check:release-docs && npm run test:unit",
+    "check": "npm run build && npm run check:dist && npm run check:artifacts && npm run check:envio-example && npm run check:release-docs && npm run test:release && npm run test:unit && npm run test:pack && npm run check:package",
     "check:dist": "git diff --exit-code -- dist && test -z \"$(git ls-files --others --exclude-standard -- dist)\"",
     "check:artifacts": "node scripts/check-artifacts.mjs",
     "check:envio-example": "node scripts/check-envio-example.mjs",
+    "check:release-docs": "node scripts/check-release-docs.mjs",
     "test": "npm run check",
     "test:release": "node --test scripts/release-plan.node-test.mjs",
     "test:unit": "vitest run",

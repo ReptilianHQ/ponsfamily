@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+No changes yet.
+
+## 0.1.0
+
+This release line is available as `0.1.0-rc` on the `rc` channel before the
+`v0.1.0` tag promotes the same version line to the stable `latest` channel.
+
 - Publish intentionally public releases and fail on unexpected package visibility.
 - Publish release-candidate branches and stable tags to GitHub Packages with
   validated versions and separate `rc` and `latest` install channels.
@@ -9,9 +16,6 @@
   curve/token registration, and exact full-supply mint projection.
 - Complete the Envio factory and curve artifacts with every event already
   present in the reviewed consumer ABI.
-
-## 0.1.0
-
 - Mark the publicly visible SDK package as unlicensed.
 - Verify immutable production Git installs and runtime imports in CI.
 - Add graduated-pool fees, escrow claims, buyback vesting, and receipt evidence.

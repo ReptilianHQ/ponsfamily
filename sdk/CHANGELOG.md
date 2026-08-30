@@ -4,6 +4,10 @@
 
 No changes yet.
 
+## 0.2.0
+
+- Add persistence-neutral reserve accounting and launch-lifecycle projection helpers.
+
 ## 0.1.1
 
 - Require launch economics to be pinned by default and make the unpinned path

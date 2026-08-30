@@ -1,6 +1,6 @@
 {
   "name": "@reptilianhq/pons-sdk",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Reptilian-maintained TypeScript integration SDK for Pons v2 on Robinhood Chain.",
   "license": "UNLICENSED",
   "keywords": [
@@ -70,6 +70,10 @@
     "./math": {
       "types": "./dist/math.d.ts",
       "import": "./dist/math.js"
+    },
+    "./projection": {
+      "types": "./dist/projection.d.ts",
+      "import": "./dist/projection.js"
     },
     "./reads": {
       "types": "./dist/reads.d.ts",

@@ -171,12 +171,16 @@ The published provenance records the forwarder's creation transaction, block, ve
 - `@reptilianhq/pons-sdk/provenance/mainnet.json` — machine-readable reviewed deployment provenance
 - `@reptilianhq/pons-sdk/deployments` — pinned chain and contract metadata
 - `@reptilianhq/pons-sdk/math` — exact bigint curve quotes and slippage floors
+- `@reptilianhq/pons-sdk/projection` — persistence-neutral reserve and launch-lifecycle event folds
 - `@reptilianhq/pons-sdk/transactions` — deterministic calldata builders
 - `@reptilianhq/pons-sdk/reads` — typed public-client reads
 - `@reptilianhq/pons-sdk/receipts` — transaction and event verification
 - `@reptilianhq/pons-sdk/compatibility` — deployment identity checks
 
-The SDK never signs, broadcasts, chooses gas, stores keys, or calls an application API.
+The SDK never signs, broadcasts, chooses gas, stores keys, chooses an indexer
+schema, or calls an application API. Its projection helpers return protocol
+state only; consumers remain responsible for persistence, block metadata,
+pricing, balances, aggregates, and telemetry.
 Curve helpers fail with `ARITHMETIC_OVERFLOW` when an input or checked intermediate cannot be represented by Solidity's `uint256` arithmetic.
 Published source maps intentionally embed the TypeScript source so consumers can inspect and debug the open integration logic.
 

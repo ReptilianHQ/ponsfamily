@@ -1,4 +1,5 @@
 import { PonsSdkError } from "./errors.js";
+import { MAX_UINT256 } from "./math.js";
 
 export type PonsCurveReserves = {
   reserveToken: bigint;
@@ -56,6 +57,34 @@ function projectionInvariant(message: string, path: string): never {
   throw new PonsSdkError("PROJECTION_INVARIANT", message, { path });
 }
 
+function assertProjectionUint256(value: bigint, path: string): void {
+  if (value < 0n) {
+    throw new PonsSdkError("INVALID_ARGUMENT", `${path} must be zero or greater`, {
+      path,
+      expected: "zero or greater",
+      actual: value.toString(),
+    });
+  }
+  if (value > MAX_UINT256) {
+    throw new PonsSdkError("ARITHMETIC_OVERFLOW", `${path} exceeds uint256`, {
+      path,
+      expected: `at most ${MAX_UINT256}`,
+      actual: value.toString(),
+    });
+  }
+}
+
+function checkedProjectionAdd(left: bigint, right: bigint, path: string): bigint {
+  const result = left + right;
+  assertProjectionUint256(result, path);
+  return result;
+}
+
+function assertPonsCurveReserves(reserves: PonsCurveReserves): void {
+  assertProjectionUint256(reserves.reserveToken, "curve.reserveToken");
+  assertProjectionUint256(reserves.reserveQuote, "curve.reserveQuote");
+}
+
 export function parsePonsLifecyclePhase(value: string): PonsLifecyclePhase {
   if (value === "bonding" || value === "swept" || value === "pool_created" || value === "rescued") {
     return value;
@@ -67,7 +96,12 @@ export function foldPonsCurveBuy(
   reserves: PonsCurveReserves,
   trade: { tokensOut: bigint; quoteIn: bigint; fee: bigint; tax: bigint },
 ): PonsCurveReserves {
-  const deductions = trade.fee + trade.tax;
+  assertPonsCurveReserves(reserves);
+  assertProjectionUint256(trade.tokensOut, "trade.tokensOut");
+  assertProjectionUint256(trade.quoteIn, "trade.quoteIn");
+  assertProjectionUint256(trade.fee, "trade.fee");
+  assertProjectionUint256(trade.tax, "trade.tax");
+  const deductions = checkedProjectionAdd(trade.fee, trade.tax, "trade.deductions");
   if (deductions > trade.quoteIn) {
     projectionInvariant("pons curve buy deductions exceed quote input", "trade.quoteIn");
   }
@@ -76,7 +110,11 @@ export function foldPonsCurveBuy(
   }
   return {
     reserveToken: reserves.reserveToken - trade.tokensOut,
-    reserveQuote: reserves.reserveQuote + trade.quoteIn - deductions,
+    reserveQuote: checkedProjectionAdd(
+      reserves.reserveQuote,
+      trade.quoteIn,
+      "curve.reserveQuoteAfterInput",
+    ) - deductions,
   };
 }
 
@@ -84,12 +122,25 @@ export function foldPonsCurveSell(
   reserves: PonsCurveReserves,
   trade: { tokensIn: bigint; quoteOut: bigint; fee: bigint; tax: bigint },
 ): PonsCurveReserves {
-  const grossReleased = trade.quoteOut + trade.fee + trade.tax;
+  assertPonsCurveReserves(reserves);
+  assertProjectionUint256(trade.tokensIn, "trade.tokensIn");
+  assertProjectionUint256(trade.quoteOut, "trade.quoteOut");
+  assertProjectionUint256(trade.fee, "trade.fee");
+  assertProjectionUint256(trade.tax, "trade.tax");
+  const grossReleased = checkedProjectionAdd(
+    checkedProjectionAdd(trade.quoteOut, trade.fee, "trade.quoteOutWithFee"),
+    trade.tax,
+    "trade.grossReleased",
+  );
   if (grossReleased > reserves.reserveQuote) {
     throw new PonsCurveReserveUnderflowError(reserves.reserveQuote, grossReleased);
   }
   return {
-    reserveToken: reserves.reserveToken + trade.tokensIn,
+    reserveToken: checkedProjectionAdd(
+      reserves.reserveToken,
+      trade.tokensIn,
+      "curve.reserveTokenAfterInput",
+    ),
     reserveQuote: reserves.reserveQuote - grossReleased,
   };
 }
@@ -98,12 +149,19 @@ export function foldPonsBuyback(
   reserves: PonsCurveReserves,
   buyback: { quoteSpent: bigint; tokensLocked: bigint },
 ): PonsCurveReserves {
+  assertPonsCurveReserves(reserves);
+  assertProjectionUint256(buyback.quoteSpent, "buyback.quoteSpent");
+  assertProjectionUint256(buyback.tokensLocked, "buyback.tokensLocked");
   if (buyback.tokensLocked > reserves.reserveToken) {
     projectionInvariant("pons buyback exceeds token reserve", "curve.reserveToken");
   }
   return {
     reserveToken: reserves.reserveToken - buyback.tokensLocked,
-    reserveQuote: reserves.reserveQuote + buyback.quoteSpent,
+    reserveQuote: checkedProjectionAdd(
+      reserves.reserveQuote,
+      buyback.quoteSpent,
+      "curve.reserveQuoteAfterBuyback",
+    ),
   };
 }
 

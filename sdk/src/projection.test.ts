@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { MAX_UINT256 } from "./math.js";
 import {
   PonsCurveReserveUnderflowError,
   PonsLifecycleTransitionError,
@@ -55,6 +56,40 @@ describe("Pons projection", () => {
       reserveQuote: 2n,
       grossReleased: 3n,
     });
+  });
+
+  it("rejects negative reserve and event values", () => {
+    expect(captureError(() => foldPonsCurveBuy(
+      { reserveToken: -1n, reserveQuote: 0n },
+      { tokensOut: 0n, quoteIn: 0n, fee: 0n, tax: 0n },
+    ))).toMatchObject({ code: "INVALID_ARGUMENT", path: "curve.reserveToken" });
+    expect(captureError(() => foldPonsCurveSell(
+      { reserveToken: 1n, reserveQuote: 1n },
+      { tokensIn: -1n, quoteOut: 0n, fee: 0n, tax: 0n },
+    ))).toMatchObject({ code: "INVALID_ARGUMENT", path: "trade.tokensIn" });
+    expect(captureError(() => foldPonsBuyback(
+      { reserveToken: 1n, reserveQuote: 1n },
+      { quoteSpent: -1n, tokensLocked: 0n },
+    ))).toMatchObject({ code: "INVALID_ARGUMENT", path: "buyback.quoteSpent" });
+  });
+
+  it("rejects uint256 input and checked-addition overflow", () => {
+    expect(captureError(() => foldPonsCurveBuy(
+      { reserveToken: 1n, reserveQuote: 0n },
+      { tokensOut: 0n, quoteIn: MAX_UINT256 + 1n, fee: 0n, tax: 0n },
+    ))).toMatchObject({ code: "ARITHMETIC_OVERFLOW", path: "trade.quoteIn" });
+    expect(captureError(() => foldPonsCurveBuy(
+      { reserveToken: 1n, reserveQuote: MAX_UINT256 },
+      { tokensOut: 0n, quoteIn: 1n, fee: 0n, tax: 0n },
+    ))).toMatchObject({ code: "ARITHMETIC_OVERFLOW", path: "curve.reserveQuoteAfterInput" });
+    expect(captureError(() => foldPonsCurveSell(
+      { reserveToken: MAX_UINT256, reserveQuote: 1n },
+      { tokensIn: 1n, quoteOut: 0n, fee: 0n, tax: 0n },
+    ))).toMatchObject({ code: "ARITHMETIC_OVERFLOW", path: "curve.reserveTokenAfterInput" });
+    expect(captureError(() => foldPonsBuyback(
+      { reserveToken: 1n, reserveQuote: MAX_UINT256 },
+      { quoteSpent: 1n, tokensLocked: 0n },
+    ))).toMatchObject({ code: "ARITHMETIC_OVERFLOW", path: "curve.reserveQuoteAfterBuyback" });
   });
 
   it("allows exact reserve drains", () => {

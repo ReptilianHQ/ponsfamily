@@ -36,6 +36,8 @@ contracts:
   - name: PonsV2MemeHook
     abi_file_path: ./node_modules/@reptilianhq/pons-sdk/artifacts/PonsV2MemeHook.json
     events:
+      - event: PoolRegistered
+      - event: ProtocolFeeRecipientUpdated
       - event: HookFeeCollected
       - event: PoolFeesSwept
       - event: PoolFeesRescued

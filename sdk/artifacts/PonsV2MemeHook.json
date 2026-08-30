@@ -1,4 +1,6 @@
 [
+  {"type":"event","name":"PoolRegistered","anonymous":false,"inputs":[{"name":"poolId","type":"bytes32","indexed":true},{"name":"memecoin","type":"address","indexed":false},{"name":"quoteToken","type":"address","indexed":false},{"name":"creator","type":"address","indexed":false}]},
+  {"type":"event","name":"ProtocolFeeRecipientUpdated","anonymous":false,"inputs":[{"name":"recipient","type":"address","indexed":false}]},
   {"type":"event","name":"HookFeeCollected","anonymous":false,"inputs":[{"name":"poolId","type":"bytes32","indexed":true},{"name":"currency","type":"address","indexed":false},{"name":"feeAmount","type":"uint256","indexed":false},{"name":"taxAmount","type":"uint256","indexed":false}]},
   {"type":"event","name":"PoolFeesSwept","anonymous":false,"inputs":[{"name":"poolId","type":"bytes32","indexed":true},{"name":"protocolAmount","type":"uint256","indexed":false},{"name":"buybackAmount","type":"uint256","indexed":false},{"name":"creatorAmount","type":"uint256","indexed":false},{"name":"tokensLocked","type":"uint256","indexed":false}]},
   {"type":"event","name":"PoolFeesRescued","anonymous":false,"inputs":[{"name":"poolId","type":"bytes32","indexed":true},{"name":"quoteToken","type":"address","indexed":true},{"name":"protocolAmount","type":"uint256","indexed":false},{"name":"creatorAmount","type":"uint256","indexed":false}]}

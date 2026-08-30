@@ -39,7 +39,7 @@ const factoryEventNames = [
 const curveEventNames = ["CurveBuy", "CurveBuyRefunded", "CurveSell", "FeesSwept", "BuybackLocked", "CurveCompleted"];
 assert.deepEqual(factoryEvents.map(canonicalEvent), selectEvents(ponsFactoryAbi, factoryEventNames));
 assert.deepEqual(curveEvents.map(canonicalEvent), selectEvents(ponsCurveAbi, curveEventNames));
-assert.deepEqual(hookEvents.map(canonicalEvent), selectEvents(ponsMemeHookAbi, ["HookFeeCollected", "PoolFeesSwept", "PoolFeesRescued"]));
+assert.deepEqual(hookEvents.map(canonicalEvent), selectEvents(ponsMemeHookAbi, ["PoolRegistered", "ProtocolFeeRecipientUpdated", "HookFeeCollected", "PoolFeesSwept", "PoolFeesRescued"]));
 assert.deepEqual(escrowEvents.map(canonicalEvent), selectEvents(ponsFeeEscrowAbi, ["Claimed", "ClaimedToken", "Credited", "CreditedToken"]));
 assert.deepEqual(vaultEvents.map(canonicalEvent), selectEvents(ponsBuybackVaultAbi, ["Locked", "Released", "CreatorRecipientUpdated"]));
 

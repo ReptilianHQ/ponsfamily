@@ -119,6 +119,8 @@ export const ponsMemeHookAbi = parseAbi([
   "function pendingBuyback(bytes32 poolId, address currency) view returns (uint256 amount)",
   "function pendingCreatorTax(bytes32 poolId, address currency) view returns (uint256 amount)",
   "function sweepPoolFees(bytes32 poolId, uint256 minConversionQuoteOut, uint256 minBuybackTokensOut)",
+  "event PoolRegistered(bytes32 indexed poolId, address memecoin, address quoteToken, address creator)",
+  "event ProtocolFeeRecipientUpdated(address recipient)",
   "event HookFeeCollected(bytes32 indexed poolId, address currency, uint256 feeAmount, uint256 taxAmount)",
   "event PoolFeesSwept(bytes32 indexed poolId, uint256 protocolAmount, uint256 buybackAmount, uint256 creatorAmount, uint256 tokensLocked)",
   "event PoolFeesRescued(bytes32 indexed poolId, address indexed quoteToken, uint256 protocolAmount, uint256 creatorAmount)",

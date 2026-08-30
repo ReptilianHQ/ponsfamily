@@ -1335,6 +1335,30 @@ export declare const ponsMemeHookAbi: readonly [{
     }];
     readonly outputs: readonly [];
 }, {
+    readonly name: "PoolRegistered";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "bytes32";
+        readonly name: "poolId";
+        readonly indexed: true;
+    }, {
+        readonly type: "address";
+        readonly name: "memecoin";
+    }, {
+        readonly type: "address";
+        readonly name: "quoteToken";
+    }, {
+        readonly type: "address";
+        readonly name: "creator";
+    }];
+}, {
+    readonly name: "ProtocolFeeRecipientUpdated";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "address";
+        readonly name: "recipient";
+    }];
+}, {
     readonly name: "HookFeeCollected";
     readonly type: 'event';
     readonly inputs: readonly [{

@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-No changes yet.
+- Bound SDK CI and publishing runtimes while canceling superseded verification runs.
 
 ## 0.2.0
 

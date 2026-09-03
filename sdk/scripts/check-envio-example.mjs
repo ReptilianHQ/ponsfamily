@@ -67,7 +67,7 @@ assert.match(handler, /event\.params\.from\.toLowerCase\(\) !== ZERO_ADDRESS/);
 assert.match(handler, /canonicalSupply: event\.params\.value/);
 for (const event of [
   'LaunchSwept', 'CurveBuy', 'CurveSell', 'PoolRegistered', 'HookFeeCollected',
-  'Credited', 'Claimed', 'Locked', 'Released', 'Swap',
+  'Credited', 'Claimed', 'Locked', 'Released', 'Initialize', 'Swap',
 ]) {
   assert.ok(handler.includes(`'${event}'`), `Envio reference does not capture ${event}`);
 }

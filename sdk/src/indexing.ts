@@ -75,7 +75,7 @@ const EVENTS = {
   PonsV2FeeEscrow: ["Claimed", "ClaimedToken", "Credited", "CreditedToken"],
   PonsV2BuybackVault: ["Locked", "Released", "CreatorRecipientUpdated"],
   PonsLaunchToken: ["Transfer"],
-  UniswapV4PoolManager: ["Swap"],
+  UniswapV4PoolManager: ["Initialize", "Swap"],
 } as const satisfies Record<PonsIndexingContractName, readonly string[]>;
 
 const contracts = (Object.entries(EVENTS) as [PonsIndexingContractName, readonly string[]][])

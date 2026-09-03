@@ -133,4 +133,5 @@ indexer.onEvent({ contract: 'PonsV2FeeEscrow', event: 'ClaimedToken' }, capture(
 indexer.onEvent({ contract: 'PonsV2BuybackVault', event: 'Locked' }, capture('PonsV2BuybackVault', 'Locked'));
 indexer.onEvent({ contract: 'PonsV2BuybackVault', event: 'Released' }, capture('PonsV2BuybackVault', 'Released'));
 indexer.onEvent({ contract: 'PonsV2BuybackVault', event: 'CreatorRecipientUpdated' }, capture('PonsV2BuybackVault', 'CreatorRecipientUpdated'));
+indexer.onEvent({ contract: 'UniswapV4PoolManager', event: 'Initialize' }, capture('UniswapV4PoolManager', 'Initialize'));
 indexer.onEvent({ contract: 'UniswapV4PoolManager', event: 'Swap' }, capture('UniswapV4PoolManager', 'Swap'));

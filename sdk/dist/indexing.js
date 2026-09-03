@@ -28,7 +28,7 @@ const EVENTS = {
     PonsV2FeeEscrow: ["Claimed", "ClaimedToken", "Credited", "CreditedToken"],
     PonsV2BuybackVault: ["Locked", "Released", "CreatorRecipientUpdated"],
     PonsLaunchToken: ["Transfer"],
-    UniswapV4PoolManager: ["Swap"],
+    UniswapV4PoolManager: ["Initialize", "Swap"],
 };
 const contracts = Object.entries(EVENTS)
     .map(([name, events]) => ({

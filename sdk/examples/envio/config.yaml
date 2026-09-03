@@ -61,6 +61,7 @@ contracts:
   - name: UniswapV4PoolManager
     abi_file_path: ./node_modules/@reptilianhq/pons-sdk/artifacts/UniswapV4PoolManager.json
     events:
+      - event: Initialize
       - event: Swap
 
 chains:

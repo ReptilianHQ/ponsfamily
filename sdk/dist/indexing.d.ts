@@ -28,7 +28,6 @@ export interface PonsIndexingManifest {
     coverage: "pons-v2-public-events";
     chainId: number;
     startBlock: bigint;
-    hypersyncUrl: string;
     contracts: readonly PonsIndexingContract[];
     sources: readonly (PonsFixedIndexingSource | PonsDynamicIndexingSource)[];
 }

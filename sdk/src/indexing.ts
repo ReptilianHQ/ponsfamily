@@ -43,7 +43,6 @@ export interface PonsIndexingManifest {
   coverage: "pons-v2-public-events";
   chainId: number;
   startBlock: bigint;
-  hypersyncUrl: string;
   contracts: readonly PonsIndexingContract[];
   sources: readonly (PonsFixedIndexingSource | PonsDynamicIndexingSource)[];
 }
@@ -100,7 +99,6 @@ export function getPonsIndexingManifest(chainId = 4663): PonsIndexingManifest {
     coverage: "pons-v2-public-events",
     chainId,
     startBlock,
-    hypersyncUrl: `https://${chainId}.hypersync.xyz`,
     contracts,
     sources: [
       fixed("PonsV2Factory", deployment.contracts.factory, startBlock, deployment.factoryRuntimeCodeHash),

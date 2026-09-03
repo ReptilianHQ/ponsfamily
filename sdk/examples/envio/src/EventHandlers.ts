@@ -1,4 +1,5 @@
 import { indexer } from 'envio';
+import { captureKnownPonsPoolEvent } from './ponsPoolEvents.js';
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
@@ -22,6 +23,16 @@ type ProtocolEventContext = {
       blockNumber: bigint;
       logIndex: bigint;
       payload: string;
+    }): void;
+  };
+  PonsPool: {
+    get(id: string): Promise<{ id: string } | undefined>;
+    set(value: {
+      id: string;
+      token: string;
+      quoteToken: string;
+      creator: string;
+      registeredBlock: bigint;
     }): void;
   };
 };
@@ -121,7 +132,19 @@ indexer.onEvent({ contract: 'PonsV2Curve', event: 'CurveSell' }, capture('PonsV2
 indexer.onEvent({ contract: 'PonsV2Curve', event: 'FeesSwept' }, capture('PonsV2Curve', 'FeesSwept'));
 indexer.onEvent({ contract: 'PonsV2Curve', event: 'BuybackLocked' }, capture('PonsV2Curve', 'BuybackLocked'));
 indexer.onEvent({ contract: 'PonsV2Curve', event: 'CurveCompleted' }, capture('PonsV2Curve', 'CurveCompleted'));
-indexer.onEvent({ contract: 'PonsV2MemeHook', event: 'PoolRegistered' }, capture('PonsV2MemeHook', 'PoolRegistered'));
+indexer.onEvent(
+  { contract: 'PonsV2MemeHook', event: 'PoolRegistered' },
+  async ({ event, context }) => {
+    recordProtocolEvent(context, event, 'PonsV2MemeHook', 'PoolRegistered');
+    context.PonsPool.set({
+      id: event.params.poolId.toLowerCase(),
+      token: event.params.memecoin.toLowerCase(),
+      quoteToken: event.params.quoteToken.toLowerCase(),
+      creator: event.params.creator.toLowerCase(),
+      registeredBlock: BigInt(event.block.number),
+    });
+  },
+);
 indexer.onEvent({ contract: 'PonsV2MemeHook', event: 'ProtocolFeeRecipientUpdated' }, capture('PonsV2MemeHook', 'ProtocolFeeRecipientUpdated'));
 indexer.onEvent({ contract: 'PonsV2MemeHook', event: 'HookFeeCollected' }, capture('PonsV2MemeHook', 'HookFeeCollected'));
 indexer.onEvent({ contract: 'PonsV2MemeHook', event: 'PoolFeesSwept' }, capture('PonsV2MemeHook', 'PoolFeesSwept'));
@@ -133,5 +156,13 @@ indexer.onEvent({ contract: 'PonsV2FeeEscrow', event: 'ClaimedToken' }, capture(
 indexer.onEvent({ contract: 'PonsV2BuybackVault', event: 'Locked' }, capture('PonsV2BuybackVault', 'Locked'));
 indexer.onEvent({ contract: 'PonsV2BuybackVault', event: 'Released' }, capture('PonsV2BuybackVault', 'Released'));
 indexer.onEvent({ contract: 'PonsV2BuybackVault', event: 'CreatorRecipientUpdated' }, capture('PonsV2BuybackVault', 'CreatorRecipientUpdated'));
-indexer.onEvent({ contract: 'UniswapV4PoolManager', event: 'Initialize' }, capture('UniswapV4PoolManager', 'Initialize'));
-indexer.onEvent({ contract: 'UniswapV4PoolManager', event: 'Swap' }, capture('UniswapV4PoolManager', 'Swap'));
+indexer.onEvent(
+  { contract: 'UniswapV4PoolManager', event: 'Swap' },
+  async ({ event, context }) => {
+    await captureKnownPonsPoolEvent(
+      event.params.id,
+      id => context.PonsPool.get(id),
+      () => recordProtocolEvent(context, event, 'UniswapV4PoolManager', 'Swap'),
+    );
+  },
+);

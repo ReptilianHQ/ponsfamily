@@ -16,8 +16,8 @@ The example demonstrates the protocol invariants an indexer must preserve:
   `Transfer` mint event, never from launch configuration or an end-of-block
   `totalSupply()` read;
 - enable reorg rollback and retain a nonzero block lag;
-- capture every reviewed Pons event and the required Uniswap V4 PoolManager
-  `Swap` dependency in an append-only normalized event envelope.
+- capture every reviewed Pons event and retain the Uniswap V4 PoolManager
+  `Swap` dependency only after its pool ID was registered by the Pons hook.
 
 ## Use it
 

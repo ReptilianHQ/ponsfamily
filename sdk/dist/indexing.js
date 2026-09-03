@@ -51,7 +51,6 @@ export function getPonsIndexingManifest(chainId = 4663) {
         coverage: "pons-v2-public-events",
         chainId,
         startBlock,
-        hypersyncUrl: `https://${chainId}.hypersync.xyz`,
         contracts,
         sources: [
             fixed("PonsV2Factory", deployment.contracts.factory, startBlock, deployment.factoryRuntimeCodeHash),

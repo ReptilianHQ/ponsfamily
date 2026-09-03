@@ -12,6 +12,15 @@ type PonsLaunch {
   supplyMintBlock: BigInt
 }
 
+"""A PoolManager pool proven to belong to the deployed Pons hook."""
+type PonsPool {
+  id: ID!
+  token: String! @index
+  quoteToken: String! @index
+  creator: String! @index
+  registeredBlock: BigInt!
+}
+
 """Append-only normalized envelope for every reviewed Pons protocol event."""
 type PonsProtocolEvent {
   id: ID!

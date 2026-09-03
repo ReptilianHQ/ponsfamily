@@ -22,7 +22,7 @@ The example demonstrates the protocol invariants an indexer must preserve:
 ## Use it
 
 Install Envio and the SDK in an Envio project, then copy `config.yaml`,
-`schema.graphql`, and `src/EventHandlers.ts` from this directory into that
+`schema.graphql`, and the complete `src/` directory from this example into that
 project. The artifact paths in `config.yaml` assume the SDK is installed at
 `node_modules/@reptilianhq/pons-sdk`.
 

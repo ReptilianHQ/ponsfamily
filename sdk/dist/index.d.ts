@@ -2,6 +2,7 @@ export * from "./abis.js";
 export * from "./compatibility.js";
 export * from "./deployments.js";
 export * from "./errors.js";
+export * from "./indexing.js";
 export * from "./math.js";
 export * from "./pools.js";
 export * from "./projection.js";

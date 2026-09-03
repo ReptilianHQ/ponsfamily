@@ -2,7 +2,18 @@
 
 ## Unreleased
 
+No changes yet.
+
+## 0.3.0
+
 - Bound SDK CI and publishing runtimes while canceling superseded verification runs.
+- Add a typed, versioned Pons indexing manifest with reviewed events, fixed and
+  dynamic sources, runtime hashes, and the Uniswap V4 PoolManager dependency.
+- Export Envio artifacts for launched-token transfers and PoolManager swaps.
+- Add deterministic graduated-pool swap orientation and historical launch
+  indexing snapshot reads.
+- Expand the Envio example to capture every reviewed Pons event in a normalized,
+  bigint-safe envelope while retaining typed launch identity and supply.
 
 ## 0.2.0
 

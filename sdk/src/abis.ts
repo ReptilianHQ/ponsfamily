@@ -98,6 +98,7 @@ export const ponsTokenAbi = parseAbi([
   "function deployer() view returns (address)",
   "function launchFactory() view returns (address)",
   "function curve() view returns (address)",
+  "event Transfer(address indexed from, address indexed to, uint256 value)",
 ]);
 
 export const ponsFeeEscrowAbi = parseAbi([

@@ -55,9 +55,13 @@ contracts:
       - event: Released
       - event: CreatorRecipientUpdated
   - name: PonsLaunchToken
-    abi_file_path: ./abis/LaunchToken.json
+    abi_file_path: ./node_modules/@reptilianhq/pons-sdk/artifacts/PonsLaunchToken.json
     events:
       - event: Transfer
+  - name: UniswapV4PoolManager
+    abi_file_path: ./node_modules/@reptilianhq/pons-sdk/artifacts/UniswapV4PoolManager.json
+    events:
+      - event: Swap
 
 chains:
   - id: 4663
@@ -94,3 +98,7 @@ chains:
         start_block: 26841846
         address:
           - "0x42df2a798f82289e177311362e8f5ccc45c1219c"
+      - name: UniswapV4PoolManager
+        start_block: 26841846
+        address:
+          - "0x8366a39cc670b4001a1121b8f6a443a643e40951"

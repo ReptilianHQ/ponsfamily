@@ -24,6 +24,8 @@ const artifactContracts = [
   'PonsV2MemeHook',
   'PonsV2FeeEscrow',
   'PonsV2BuybackVault',
+  'PonsLaunchToken',
+  'UniswapV4PoolManager',
 ];
 
 for (const contract of artifactContracts) {
@@ -38,7 +40,8 @@ for (const contract of artifactContracts) {
     new RegExp(`abi_file_path: ./node_modules/@reptilianhq/pons-sdk/artifacts/${contract}\\.json`),
     `${contract} must use the published SDK artifact`,
   );
-  for (const event of events) {
+  const subscribedEvents = contract === 'UniswapV4PoolManager' ? ['Swap'] : events;
+  for (const event of subscribedEvents) {
     assert.match(section, new RegExp(`- event: ${event}(?:\\n|$)`), `${contract}.${event} is missing`);
   }
 }
@@ -50,6 +53,7 @@ const fixedAddresses = {
   memeHook: provenance.reviewedContracts.memeHook.address,
   feeEscrow: provenance.reviewedContracts.feeEscrow.address,
   buybackVault: provenance.reviewedContracts.buybackVault.address,
+  poolManager: '0x8366a39cc670b4001a1121b8f6a443a643e40951',
 };
 for (const [key, address] of Object.entries(fixedAddresses)) {
   assert.ok(
@@ -62,8 +66,19 @@ assert.match(handler, /context\.chain\.PonsV2Curve\.add\(event\.params\.curve\)/
 assert.match(handler, /context\.chain\.PonsLaunchToken\.add\(event\.params\.token\)/);
 assert.match(handler, /event\.params\.from\.toLowerCase\(\) !== ZERO_ADDRESS/);
 assert.match(handler, /canonicalSupply: event\.params\.value/);
+for (const event of [
+  'LaunchSwept', 'CurveBuy', 'CurveSell', 'PoolRegistered', 'HookFeeCollected',
+  'Credited', 'Claimed', 'Locked', 'Released', 'Swap',
+]) {
+  assert.ok(handler.includes(`'${event}'`), `Envio reference does not capture ${event}`);
+}
+assert.match(handler, /PonsProtocolEvent\.set/);
+assert.match(handler, /typeof item === 'bigint'/);
+assert.match(handler, /context\.PonsPool\.set/);
+assert.match(handler, /captureKnownPonsPoolEvent/);
 assert.match(readme, /full-supply ERC-20/);
 assert.match(readme, /reorg rollback/);
+assert.match(readme, /getPonsIndexingManifest/);
 
 const verificationRoot = mkdtempSync(resolve(tmpdir(), 'pons-envio-example-'));
 try {
@@ -87,6 +102,7 @@ try {
     '--skipLibCheck',
     resolve(verificationRoot, 'envio-env.d.ts'),
     resolve(verificationRoot, 'src/EventHandlers.ts'),
+    resolve(verificationRoot, 'src/ponsPoolEvents.ts'),
   ]);
 } finally {
   rmSync(verificationRoot, { recursive: true, force: true });

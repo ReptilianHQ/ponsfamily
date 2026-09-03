@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { derivePonsPoolId, memecoinIsCurrency0 } from "./pools.js";
+import { derivePonsPoolId, memecoinIsCurrency0, orientPonsV4Swap, PonsV4SwapShapeError } from "./pools.js";
 import { robinhoodMainnet } from "./deployments.js";
 import { PonsSdkError } from "./errors.js";
 
@@ -101,5 +101,21 @@ describe("memecoinIsCurrency0", () => {
   it("matches the hook for the live native-quote pool", () => {
     // The hook reports false for this pool: the memecoin sorts above 0x0.
     expect(memecoinIsCurrency0(MAINNET_POOL.token, MAINNET_POOL.pairToken)).toBe(false);
+  });
+});
+
+describe("orientPonsV4Swap", () => {
+  it("orients buys and sells for either currency order", () => {
+    expect(orientPonsV4Swap({ amount0: 12n, amount1: -7n }, true))
+      .toEqual({ side: "buy", tokenAmount: 12n, quoteAmount: 7n });
+    expect(orientPonsV4Swap({ amount0: 12n, amount1: -7n }, false))
+      .toEqual({ side: "sell", tokenAmount: 7n, quoteAmount: 12n });
+  });
+
+  it("rejects zero-leg and same-sign deltas", () => {
+    expect(() => orientPonsV4Swap({ amount0: 0n, amount1: -7n }, true))
+      .toThrow(PonsV4SwapShapeError);
+    expect(() => orientPonsV4Swap({ amount0: 12n, amount1: 7n }, true))
+      .toThrow(PonsV4SwapShapeError);
   });
 });

@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { ABI_REVISION, ponsBuybackVaultAbi, ponsCurveAbi, ponsFactoryAbi, ponsFeeEscrowAbi, ponsMemeHookAbi } from "../dist/abis.js";
+import { ABI_REVISION, ponsBuybackVaultAbi, ponsCurveAbi, ponsFactoryAbi, ponsFeeEscrowAbi, ponsMemeHookAbi, ponsTokenAbi } from "../dist/abis.js";
 import { robinhoodMainnet } from "../dist/deployments.js";
+import { getPonsIndexingManifest } from "../dist/indexing.js";
 
 const provenance = JSON.parse(await readFile(new URL("../provenance/mainnet.json", import.meta.url), "utf8"));
 const factoryEvents = JSON.parse(await readFile(new URL("../artifacts/PonsV2Factory.json", import.meta.url), "utf8"));
@@ -9,6 +10,8 @@ const curveEvents = JSON.parse(await readFile(new URL("../artifacts/PonsV2Curve.
 const hookEvents = JSON.parse(await readFile(new URL("../artifacts/PonsV2MemeHook.json", import.meta.url), "utf8"));
 const escrowEvents = JSON.parse(await readFile(new URL("../artifacts/PonsV2FeeEscrow.json", import.meta.url), "utf8"));
 const vaultEvents = JSON.parse(await readFile(new URL("../artifacts/PonsV2BuybackVault.json", import.meta.url), "utf8"));
+const tokenEvents = JSON.parse(await readFile(new URL("../artifacts/PonsLaunchToken.json", import.meta.url), "utf8"));
+const poolManagerEvents = JSON.parse(await readFile(new URL("../artifacts/UniswapV4PoolManager.json", import.meta.url), "utf8"));
 assert.equal(ABI_REVISION, "pons-v2-836f0f97");
 assert.equal(robinhoodMainnet.chainId, provenance.chainId);
 assert.equal(robinhoodMainnet.sourceCommit, provenance.sourceCommit);
@@ -42,6 +45,32 @@ assert.deepEqual(curveEvents.map(canonicalEvent), selectEvents(ponsCurveAbi, cur
 assert.deepEqual(hookEvents.map(canonicalEvent), selectEvents(ponsMemeHookAbi, ["PoolRegistered", "ProtocolFeeRecipientUpdated", "HookFeeCollected", "PoolFeesSwept", "PoolFeesRescued"]));
 assert.deepEqual(escrowEvents.map(canonicalEvent), selectEvents(ponsFeeEscrowAbi, ["Claimed", "ClaimedToken", "Credited", "CreditedToken"]));
 assert.deepEqual(vaultEvents.map(canonicalEvent), selectEvents(ponsBuybackVaultAbi, ["Locked", "Released", "CreatorRecipientUpdated"]));
+assert.deepEqual(tokenEvents.map(canonicalEvent), selectEvents(ponsTokenAbi, ["Transfer"]));
+assert.deepEqual(poolManagerEvents.map(canonicalEvent), [{
+  name: "Swap",
+  anonymous: false,
+  inputs: [
+    { name: "id", type: "bytes32", indexed: true },
+    { name: "sender", type: "address", indexed: true },
+    { name: "amount0", type: "int128", indexed: false },
+    { name: "amount1", type: "int128", indexed: false },
+    { name: "sqrtPriceX96", type: "uint160", indexed: false },
+    { name: "liquidity", type: "uint128", indexed: false },
+    { name: "tick", type: "int24", indexed: false },
+    { name: "fee", type: "uint24", indexed: false },
+  ],
+}]);
+
+const manifest = getPonsIndexingManifest(robinhoodMainnet.chainId);
+assert.equal(manifest.abiRevision, ABI_REVISION);
+for (const contract of manifest.contracts) {
+  const artifact = JSON.parse(await readFile(new URL(`../artifacts/${contract.name}.json`, import.meta.url), "utf8"));
+  assert.deepEqual(
+    artifact.map((event) => event.name),
+    [...contract.events],
+    `${contract.name} manifest events must match its artifact`,
+  );
+}
 
 function selectEvents(abi, names) {
   return names.map((name) => {

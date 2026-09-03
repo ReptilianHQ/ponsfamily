@@ -38,6 +38,12 @@ export declare function readLaunchTerms(client: PublicClient, deployment: PonsDe
 export interface ReadAtBlockOptions {
     blockNumber?: bigint;
 }
+export declare function readCurveIdentityAtBlock(client: PublicClient, curve: Address, options?: ReadAtBlockOptions): Promise<{
+    blockNumber: bigint;
+    curve: `0x${string}`;
+    token: `0x${string}`;
+    pairToken: `0x${string}`;
+}>;
 export declare function readLaunchedToken(client: PublicClient, deployment: PonsDeployment, token: Address, options?: ReadAtBlockOptions): Promise<{
     buybackEnabled: boolean;
     creatorFeeRecipient: `0x${string}`;
@@ -54,6 +60,55 @@ export declare function readLaunchedToken(client: PublicClient, deployment: Pons
     sweptTokens: bigint;
     tickSpacing: number;
     token: `0x${string}`;
+}>;
+/**
+ * Reads and cross-checks the factory, launch-config, fee-policy, and curve facts
+ * an indexer needs to initialize one launch at a single historical block.
+ */
+export declare function readLaunchIndexingSnapshotAtBlock(client: PublicClient, deployment: PonsDeployment, token: Address, launchConfigId: bigint, options?: ReadAtBlockOptions): Promise<{
+    blockNumber: bigint;
+    launchConfigId: bigint;
+    token: `0x${string}`;
+    curve: `0x${string}`;
+    pairToken: `0x${string}`;
+    launch: {
+        buybackEnabled: boolean;
+        creatorFeeRecipient: `0x${string}`;
+        creatorTaxBps: number;
+        curve: `0x${string}`;
+        deployer: `0x${string}`;
+        exists: boolean;
+        graduationThreshold: bigint;
+        pairToken: `0x${string}`;
+        phase: number;
+        poolFee: number;
+        sweptAt: bigint;
+        sweptQuote: bigint;
+        sweptTokens: bigint;
+        tickSpacing: number;
+        token: `0x${string}`;
+    };
+    config: {
+        curveFeeBps: bigint;
+        enabled: boolean;
+        graduationThreshold: bigint;
+        phantomQuote: bigint;
+        poolFee: number;
+        supply: bigint;
+        tickSpacing: number;
+    };
+    policy: {
+        buybackBurnBps: number;
+        hookFeeBps: number;
+        maxInternalPriceImpactBps: number;
+        protocolFeeRecipient: `0x${string}`;
+        protocolFeeShareBps: number;
+    };
+    curveEconomics: {
+        feeBps: bigint;
+        phantomQuote: bigint;
+        graduationThreshold: bigint;
+    };
 }>;
 export declare function readCurveSnapshot(client: PublicClient, curve: Address, options?: ReadAtBlockOptions): Promise<{
     blockNumber: bigint;

@@ -1093,6 +1093,21 @@ export declare const ponsTokenAbi: readonly [{
     readonly outputs: readonly [{
         readonly type: "address";
     }];
+}, {
+    readonly name: "Transfer";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "address";
+        readonly name: "from";
+        readonly indexed: true;
+    }, {
+        readonly type: "address";
+        readonly name: "to";
+        readonly indexed: true;
+    }, {
+        readonly type: "uint256";
+        readonly name: "value";
+    }];
 }];
 export declare const ponsFeeEscrowAbi: readonly [{
     readonly name: "claim";

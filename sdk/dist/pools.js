@@ -14,6 +14,12 @@ import { PonsSdkError } from "./errors.js";
 const UINT24_MAX = 0xffffffn;
 const INT24_MIN = -0x800000n;
 const INT24_MAX = 0x7fffffn;
+export class PonsV4SwapShapeError extends PonsSdkError {
+    constructor(amount0, amount1) {
+        super("SWAP_SHAPE", "Pons V4 swap deltas do not exchange token and quote", { path: "swap", expected: "opposite nonzero signs", actual: `${amount0},${amount1}` });
+        this.name = "PonsV4SwapShapeError";
+    }
+}
 function assertRange(value, min, max, path, expected) {
     if (value < min || value > max) {
         throw new PonsSdkError("INVALID_ARGUMENT", `${path} must be ${expected}`, {
@@ -30,6 +36,18 @@ function assertRange(value, min, max, path, expected) {
  */
 export function memecoinIsCurrency0(token, pairToken) {
     return getAddress(token).toLowerCase() < getAddress(pairToken).toLowerCase();
+}
+/** Splits PoolManager deltas into the launched token and quote asset. */
+export function orientPonsV4Swap(swap, tokenIsCurrency0) {
+    const tokenDelta = tokenIsCurrency0 ? swap.amount0 : swap.amount1;
+    const quoteDelta = tokenIsCurrency0 ? swap.amount1 : swap.amount0;
+    if (tokenDelta < 0n && quoteDelta > 0n) {
+        return { side: "sell", tokenAmount: -tokenDelta, quoteAmount: quoteDelta };
+    }
+    if (tokenDelta > 0n && quoteDelta < 0n) {
+        return { side: "buy", tokenAmount: tokenDelta, quoteAmount: -quoteDelta };
+    }
+    throw new PonsV4SwapShapeError(swap.amount0, swap.amount1);
 }
 /** Derives the V4 pool id for a Pons launch against a deployment's meme hook. */
 export function derivePonsPoolId(deployment, key) {

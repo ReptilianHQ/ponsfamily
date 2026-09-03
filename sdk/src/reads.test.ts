@@ -1,7 +1,7 @@
 import { getAddress, zeroAddress, type PublicClient } from "viem";
 import { describe, expect, it, vi } from "vitest";
 import { robinhoodMainnet } from "./deployments.js";
-import { GraduationPhase, derivePonsGraduatedPoolId, readBuybackVest, readFeeEscrowBalances, readLaunchConfigs, readLaunchLifecycle } from "./reads.js";
+import { GraduationPhase, derivePonsGraduatedPoolId, readBuybackVest, readFeeEscrowBalances, readLaunchConfigs, readLaunchIndexingSnapshotAtBlock, readLaunchLifecycle } from "./reads.js";
 
 const token = getAddress("0x1111111111111111111111111111111111111111");
 const curve = getAddress("0x2222222222222222222222222222222222222222");
@@ -64,6 +64,73 @@ describe("Pons reads", () => {
       poolPositionId: 77n,
     });
     expect(readContract).toHaveBeenCalledTimes(12);
+  });
+
+  it("reads and validates an indexing snapshot at one historical block", async () => {
+    const config = {
+      supply: 1_000n,
+      curveFeeBps: 100,
+      phantomQuote: 250n,
+      graduationThreshold: 500n,
+      poolFee: 10_000,
+      tickSpacing: 200,
+      enabled: true,
+    };
+    const policy = {
+      protocolFeeRecipient: token,
+      protocolFeeShareBps: 3_000,
+      buybackBurnBps: 2_000,
+      hookFeeBps: 100,
+      maxInternalPriceImpactBps: 500,
+    };
+    const launch = {
+      token,
+      curve,
+      deployer: token,
+      creatorFeeRecipient: token,
+      pairToken: zeroAddress,
+      graduationThreshold: 500n,
+      poolFee: 10_000,
+      tickSpacing: 200,
+      creatorTaxBps: 50,
+      buybackEnabled: true,
+      phase: GraduationPhase.NotGraduated,
+      sweptQuote: 0n,
+      sweptTokens: 0n,
+      sweptAt: 0n,
+      exists: true,
+    };
+    const readContract = vi.fn(async ({ functionName, blockNumber }: { functionName: string; blockNumber?: bigint }) => {
+      expect(blockNumber).toBe(123n);
+      if (functionName === "getLaunchedToken") return launch;
+      if (functionName === "getLaunchConfig") return config;
+      if (functionName === "getLaunchFeePolicy") return policy;
+      if (functionName === "token") return token;
+      if (functionName === "pairToken") return zeroAddress;
+      if (functionName === "feeBps") return 100n;
+      if (functionName === "phantomQuote") return 250n;
+      if (functionName === "graduationThreshold") return 500n;
+      throw new Error(`Unexpected read ${functionName}`);
+    });
+    const client = { getBlockNumber: vi.fn(), readContract } as unknown as PublicClient;
+
+    await expect(readLaunchIndexingSnapshotAtBlock(
+      client,
+      robinhoodMainnet,
+      token,
+      0n,
+      { blockNumber: 123n },
+    )).resolves.toMatchObject({
+      blockNumber: 123n,
+      launchConfigId: 0n,
+      token,
+      curve,
+      pairToken: zeroAddress,
+      launch,
+      config,
+      policy,
+    });
+    expect(readContract).toHaveBeenCalledTimes(8);
   });
 
   it("derives one token-order-independent graduated pool identity", () => {

@@ -62,6 +62,21 @@ export interface ReadAtBlockOptions {
   blockNumber?: bigint;
 }
 
+export async function readCurveIdentityAtBlock(
+  client: PublicClient,
+  curve: Address,
+  options: ReadAtBlockOptions = {},
+) {
+  const blockNumber = options.blockNumber ?? await client.getBlockNumber();
+  const address = getAddress(curve);
+  const read = { address, abi: ponsCurveAbi, blockNumber } as const;
+  const [token, pairToken] = await Promise.all([
+    client.readContract({ ...read, functionName: "token" }),
+    client.readContract({ ...read, functionName: "pairToken" }),
+  ]);
+  return { blockNumber, curve: address, token: getAddress(token), pairToken: getAddress(pairToken) };
+}
+
 export async function readLaunchedToken(
   client: PublicClient,
   deployment: PonsDeployment,
@@ -82,6 +97,93 @@ export async function readLaunchedToken(
     });
   }
   return launch;
+}
+
+/**
+ * Reads and cross-checks the factory, launch-config, fee-policy, and curve facts
+ * an indexer needs to initialize one launch at a single historical block.
+ */
+export async function readLaunchIndexingSnapshotAtBlock(
+  client: PublicClient,
+  deployment: PonsDeployment,
+  token: Address,
+  launchConfigId: bigint,
+  options: ReadAtBlockOptions = {},
+) {
+  const blockNumber = options.blockNumber ?? await client.getBlockNumber();
+  const canonicalToken = getAddress(token);
+  const launch = await readLaunchedToken(client, deployment, canonicalToken, { blockNumber });
+  const factory = deployment.contracts.factory;
+  const curve = getAddress(launch.curve);
+  const [config, policy, identity, feeBps, phantomQuote, graduationThreshold] = await Promise.all([
+    client.readContract({
+      address: factory, abi: ponsFactoryAbi, functionName: "getLaunchConfig",
+      args: [launchConfigId], blockNumber,
+    }),
+    client.readContract({
+      address: factory, abi: ponsFactoryAbi, functionName: "getLaunchFeePolicy",
+      args: [canonicalToken], blockNumber,
+    }),
+    readCurveIdentityAtBlock(client, curve, { blockNumber }),
+    client.readContract({ address: curve, abi: ponsCurveAbi, functionName: "feeBps", blockNumber }),
+    client.readContract({ address: curve, abi: ponsCurveAbi, functionName: "phantomQuote", blockNumber }),
+    client.readContract({ address: curve, abi: ponsCurveAbi, functionName: "graduationThreshold", blockNumber }),
+  ]);
+
+  const fail = (message: string, path: string, expected: unknown, actual: unknown): never => {
+    throw new PonsSdkError("POINTER_MISMATCH", message, {
+      path, expected: String(expected), actual: String(actual),
+    });
+  };
+  if (identity.token !== canonicalToken) {
+    fail("Pons curve token does not match its factory launch", "curve.token", canonicalToken, identity.token);
+  }
+  if (identity.pairToken !== getAddress(launch.pairToken)) {
+    fail("Pons curve pair token does not match its factory launch", "curve.pairToken", launch.pairToken, identity.pairToken);
+  }
+  if (BigInt(feeBps) !== BigInt(config.curveFeeBps)) {
+    fail("Pons curve fee does not match its launch configuration", "curve.feeBps", config.curveFeeBps, feeBps);
+  }
+  if (BigInt(graduationThreshold) !== BigInt(launch.graduationThreshold)) {
+    fail(
+      "Pons curve graduation threshold does not match its factory launch",
+      "curve.graduationThreshold",
+      launch.graduationThreshold,
+      graduationThreshold,
+    );
+  }
+  if (BigInt(launch.poolFee) !== BigInt(config.poolFee) || BigInt(launch.tickSpacing) !== BigInt(config.tickSpacing)) {
+    fail(
+      "Pons graduated pool parameters do not match the launch configuration",
+      "launch.poolKey",
+      `${config.poolFee}:${config.tickSpacing}`,
+      `${launch.poolFee}:${launch.tickSpacing}`,
+    );
+  }
+  if (
+    identity.pairToken === zeroAddress
+    && (BigInt(phantomQuote) !== BigInt(config.phantomQuote)
+      || BigInt(graduationThreshold) !== BigInt(config.graduationThreshold))
+  ) {
+    fail(
+      "Pons native curve economics do not match the launch configuration",
+      "curve.economics",
+      `${config.phantomQuote}:${config.graduationThreshold}`,
+      `${phantomQuote}:${graduationThreshold}`,
+    );
+  }
+
+  return {
+    blockNumber,
+    launchConfigId,
+    token: canonicalToken,
+    curve,
+    pairToken: identity.pairToken,
+    launch,
+    config,
+    policy,
+    curveEconomics: { feeBps, phantomQuote, graduationThreshold },
+  };
 }
 
 export async function readCurveSnapshot(

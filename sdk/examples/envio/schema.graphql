@@ -11,3 +11,15 @@ type PonsLaunch {
   createdBlock: BigInt
   supplyMintBlock: BigInt
 }
+
+"""Append-only normalized envelope for every reviewed Pons protocol event."""
+type PonsProtocolEvent {
+  id: ID!
+  kind: String! @index
+  contract: String! @index
+  sourceAddress: String! @index
+  transactionHash: String @index
+  blockNumber: BigInt! @index
+  logIndex: BigInt!
+  payload: String!
+}

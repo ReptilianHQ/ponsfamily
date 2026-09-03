@@ -168,6 +168,7 @@ The published provenance records the forwarder's creation transaction, block, ve
 - `@reptilianhq/pons-sdk/abis` — reviewed consumer ABIs
 - `@reptilianhq/pons-sdk/artifacts/*` — Envio-compatible event ABI JSON
 - `@reptilianhq/pons-sdk/examples/envio` — canonical Envio mainnet source and dynamic-registration example
+- `@reptilianhq/pons-sdk/indexing` — versioned event, artifact, address, start-block, and dynamic-source manifest
 - `@reptilianhq/pons-sdk/provenance/mainnet.json` — machine-readable reviewed deployment provenance
 - `@reptilianhq/pons-sdk/deployments` — pinned chain and contract metadata
 - `@reptilianhq/pons-sdk/math` — exact bigint curve quotes and slippage floors
@@ -186,7 +187,7 @@ Published source maps intentionally embed the TypeScript source so consumers can
 
 The SDK does not derive canonical launch-token supply. Indexers must derive exact supply from the token's full-supply ERC-20 `Transfer` mint event; launch configuration and end-of-block `totalSupply()` reads are not substitutes for that event evidence.
 
-See [`examples/envio`](./examples/envio/README.md) for a copyable Envio configuration that declares every reviewed Pons event, registers each launched curve and token dynamically, and projects that mint evidence.
+See [`examples/envio`](./examples/envio/README.md) for a copyable Envio configuration that declares and captures every reviewed Pons event plus PoolManager swaps, registers each launched curve and token dynamically, and projects that mint evidence. Consumers that compose a larger configuration should use `getPonsIndexingManifest()` as the machine-readable protocol boundary rather than parsing the example YAML.
 
 ## Provenance
 

@@ -1,6 +1,6 @@
 {
   "name": "@reptilianhq/pons-sdk",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Reptilian-maintained TypeScript integration SDK for Pons v2 on Robinhood Chain.",
   "license": "UNLICENSED",
   "keywords": [
@@ -54,6 +54,8 @@
     "./artifacts/PonsV2MemeHook.json": "./artifacts/PonsV2MemeHook.json",
     "./artifacts/PonsV2FeeEscrow.json": "./artifacts/PonsV2FeeEscrow.json",
     "./artifacts/PonsV2BuybackVault.json": "./artifacts/PonsV2BuybackVault.json",
+    "./artifacts/PonsLaunchToken.json": "./artifacts/PonsLaunchToken.json",
+    "./artifacts/UniswapV4PoolManager.json": "./artifacts/UniswapV4PoolManager.json",
     "./provenance/mainnet.json": "./provenance/mainnet.json",
     "./compatibility": {
       "types": "./dist/compatibility.d.ts",
@@ -66,6 +68,10 @@
     "./errors": {
       "types": "./dist/errors.d.ts",
       "import": "./dist/errors.js"
+    },
+    "./indexing": {
+      "types": "./dist/indexing.d.ts",
+      "import": "./dist/indexing.js"
     },
     "./math": {
       "types": "./dist/math.d.ts",

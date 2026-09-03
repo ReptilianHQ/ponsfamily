@@ -10,8 +10,10 @@ export type PonsIndexingContractName =
   | "PonsV2MemeHook"
   | "PonsV2FeeEscrow"
   | "PonsV2BuybackVault"
-  | "PonsLaunchToken"
-  | "UniswapV4PoolManager";
+  | "PonsLaunchToken";
+
+export type PonsIndexingDependencyName = "UniswapV4PoolManager";
+export type PonsIndexingSourceName = PonsIndexingContractName | PonsIndexingDependencyName;
 
 export interface PonsIndexingContract {
   name: PonsIndexingContractName;
@@ -19,9 +21,24 @@ export interface PonsIndexingContract {
   events: readonly string[];
 }
 
+export interface PonsIndexingDependency {
+  name: PonsIndexingDependencyName;
+  artifact: string;
+  events: readonly string[];
+  filters: readonly {
+    event: "Swap";
+    parameter: "id";
+    includeWhenRegisteredBy: {
+      contract: "PonsV2MemeHook";
+      event: "PoolRegistered";
+      parameter: "poolId";
+    };
+  }[];
+}
+
 export interface PonsFixedIndexingSource {
   kind: "fixed";
-  contract: PonsIndexingContractName;
+  contract: PonsIndexingSourceName;
   address: Address;
   startBlock: bigint;
   expectedRuntimeCodeHash?: Hex;
@@ -44,6 +61,7 @@ export interface PonsIndexingManifest {
   chainId: number;
   startBlock: bigint;
   contracts: readonly PonsIndexingContract[];
+  dependencies: readonly PonsIndexingDependency[];
   sources: readonly (PonsFixedIndexingSource | PonsDynamicIndexingSource)[];
 }
 
@@ -74,7 +92,6 @@ const EVENTS = {
   PonsV2FeeEscrow: ["Claimed", "ClaimedToken", "Credited", "CreditedToken"],
   PonsV2BuybackVault: ["Locked", "Released", "CreatorRecipientUpdated"],
   PonsLaunchToken: ["Transfer"],
-  UniswapV4PoolManager: ["Initialize", "Swap"],
 } as const satisfies Record<PonsIndexingContractName, readonly string[]>;
 
 const contracts = (Object.entries(EVENTS) as [PonsIndexingContractName, readonly string[]][])
@@ -83,6 +100,21 @@ const contracts = (Object.entries(EVENTS) as [PonsIndexingContractName, readonly
     artifact: `@reptilianhq/pons-sdk/artifacts/${name}.json`,
     events,
   }));
+
+const dependencies: readonly PonsIndexingDependency[] = [{
+  name: "UniswapV4PoolManager",
+  artifact: "@reptilianhq/pons-sdk/artifacts/UniswapV4PoolManager.json",
+  events: ["Swap"],
+  filters: [{
+    event: "Swap",
+    parameter: "id",
+    includeWhenRegisteredBy: {
+      contract: "PonsV2MemeHook",
+      event: "PoolRegistered",
+      parameter: "poolId",
+    },
+  }],
+}];
 
 /**
  * Returns the versioned public-event topology for a Pons deployment.
@@ -100,6 +132,7 @@ export function getPonsIndexingManifest(chainId = 4663): PonsIndexingManifest {
     chainId,
     startBlock,
     contracts,
+    dependencies,
     sources: [
       fixed("PonsV2Factory", deployment.contracts.factory, startBlock, deployment.factoryRuntimeCodeHash),
       fixed("PonsV2MemeHook", deployment.contracts.memeHook, startBlock, deployment.memeHookRuntimeCodeHash),
@@ -113,7 +146,7 @@ export function getPonsIndexingManifest(chainId = 4663): PonsIndexingManifest {
 }
 
 function fixed(
-  contract: PonsIndexingContractName,
+  contract: PonsIndexingSourceName,
   address: Address,
   startBlock: bigint,
   expectedRuntimeCodeHash?: Hex,

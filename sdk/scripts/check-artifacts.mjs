@@ -76,13 +76,12 @@ assert.deepEqual(poolManagerEvents.map(canonicalEvent), [{
 
 const manifest = getPonsIndexingManifest(robinhoodMainnet.chainId);
 assert.equal(manifest.abiRevision, ABI_REVISION);
-for (const contract of manifest.contracts) {
+for (const contract of [...manifest.contracts, ...manifest.dependencies]) {
   const artifact = JSON.parse(await readFile(new URL(`../artifacts/${contract.name}.json`, import.meta.url), "utf8"));
-  assert.deepEqual(
-    artifact.map((event) => event.name),
-    [...contract.events],
-    `${contract.name} manifest events must match its artifact`,
-  );
+  const artifactEvents = artifact.map((event) => event.name);
+  for (const event of contract.events) {
+    assert.ok(artifactEvents.includes(event), `${contract.name}.${event} must exist in its artifact`);
+  }
 }
 
 function selectEvents(abi, names) {

@@ -28,7 +28,6 @@ const EVENTS = {
     PonsV2FeeEscrow: ["Claimed", "ClaimedToken", "Credited", "CreditedToken"],
     PonsV2BuybackVault: ["Locked", "Released", "CreatorRecipientUpdated"],
     PonsLaunchToken: ["Transfer"],
-    UniswapV4PoolManager: ["Initialize", "Swap"],
 };
 const contracts = Object.entries(EVENTS)
     .map(([name, events]) => ({
@@ -36,6 +35,20 @@ const contracts = Object.entries(EVENTS)
     artifact: `@reptilianhq/pons-sdk/artifacts/${name}.json`,
     events,
 }));
+const dependencies = [{
+        name: "UniswapV4PoolManager",
+        artifact: "@reptilianhq/pons-sdk/artifacts/UniswapV4PoolManager.json",
+        events: ["Swap"],
+        filters: [{
+                event: "Swap",
+                parameter: "id",
+                includeWhenRegisteredBy: {
+                    contract: "PonsV2MemeHook",
+                    event: "PoolRegistered",
+                    parameter: "poolId",
+                },
+            }],
+    }];
 /**
  * Returns the versioned public-event topology for a Pons deployment.
  *
@@ -52,6 +65,7 @@ export function getPonsIndexingManifest(chainId = 4663) {
         chainId,
         startBlock,
         contracts,
+        dependencies,
         sources: [
             fixed("PonsV2Factory", deployment.contracts.factory, startBlock, deployment.factoryRuntimeCodeHash),
             fixed("PonsV2MemeHook", deployment.contracts.memeHook, startBlock, deployment.memeHookRuntimeCodeHash),

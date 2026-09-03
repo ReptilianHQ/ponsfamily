@@ -187,7 +187,7 @@ Published source maps intentionally embed the TypeScript source so consumers can
 
 The SDK does not derive canonical launch-token supply. Indexers must derive exact supply from the token's full-supply ERC-20 `Transfer` mint event; launch configuration and end-of-block `totalSupply()` reads are not substitutes for that event evidence.
 
-See [`examples/envio`](./examples/envio/README.md) for a copyable Envio configuration that declares and captures every reviewed Pons event, filters PoolManager swaps to Pons-registered pools, registers each launched curve and token dynamically, and projects that mint evidence. Consumers that compose a larger configuration should use `getPonsIndexingManifest()` as the machine-readable protocol boundary rather than parsing the example YAML.
+See [`examples/envio`](./examples/envio/README.md) for a copyable Envio configuration that declares and captures every reviewed Pons event, filters PoolManager swaps to Pons-registered pools, registers each launched curve and token dynamically, and projects that mint evidence. Consumers that compose a larger configuration should use `getPonsIndexingManifest()` as the machine-readable protocol boundary rather than parsing the example YAML; its PoolManager dependency includes the required `PoolRegistered.poolId` membership filter.
 
 ## Provenance
 

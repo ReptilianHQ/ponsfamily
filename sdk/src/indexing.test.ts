@@ -20,8 +20,21 @@ describe("Pons indexing manifest", () => {
       "PonsV2FeeEscrow",
       "PonsV2BuybackVault",
       "PonsLaunchToken",
-      "UniswapV4PoolManager",
     ]);
+    expect(manifest.dependencies).toEqual([{
+      name: "UniswapV4PoolManager",
+      artifact: "@reptilianhq/pons-sdk/artifacts/UniswapV4PoolManager.json",
+      events: ["Swap"],
+      filters: [{
+        event: "Swap",
+        parameter: "id",
+        includeWhenRegisteredBy: {
+          contract: "PonsV2MemeHook",
+          event: "PoolRegistered",
+          parameter: "poolId",
+        },
+      }],
+    }]);
     expect(manifest.sources).toContainEqual(expect.objectContaining({
       kind: "fixed",
       contract: "UniswapV4PoolManager",
@@ -38,6 +51,7 @@ describe("Pons indexing manifest", () => {
     const manifest = getPonsIndexingManifest();
     expect(Object.isFrozen(manifest)).toBe(true);
     expect(Object.isFrozen(manifest.contracts)).toBe(true);
+    expect(Object.isFrozen(manifest.dependencies[0]?.filters[0]?.includeWhenRegisteredBy)).toBe(true);
     expect(Object.isFrozen(manifest.sources[0])).toBe(true);
   });
 });

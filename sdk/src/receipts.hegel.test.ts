@@ -112,6 +112,15 @@ function drawVerifier(tc: hegel.TestCase): VerifierCase {
   return singleEventVerifiers[tc.draw(gs.integers({ minValue: 0, maxValue: singleEventVerifiers.length - 1 }))]!;
 }
 
+/**
+ * The single place the verifier binding is invoked with generated material.
+ * Bindings keep their precise signatures (so a swapped parameter fails to
+ * compile); only this call erases the expected-shape type.
+ */
+function runVerify(v: VerifierCase, receipt: ReceiptLike, emitter: Address, expected: Record<string, unknown>): unknown {
+  return v.verify(receipt, emitter, expected as never);
+}
+
 function caught(run: () => unknown): unknown {
   try {
     run();
@@ -135,7 +144,7 @@ describe("Pons receipt verifier properties", () => {
       // Unrelated logs from the same emitter and from strangers must not interfere.
       const stranger = encodeLog(ponsFeeEscrowAbi, "Claimed", drawOtherAddress(tc, emitter), { recipient: drawAddress(tc), amount: 1n });
       const receipt = receiptWith([stranger, encodeLog(v.abi, v.eventName, emitter, args)]);
-      const evidence = v.verify(receipt, emitter, args);
+      const evidence = runVerify(v, receipt, emitter, args);
       expect(evidence).toEqual(args);
     }, HEGEL_SETTINGS);
   });
@@ -148,7 +157,7 @@ describe("Pons receipt verifier properties", () => {
       const inputs = eventInputs(v.abi, v.eventName);
       const target = inputs[tc.draw(gs.integers({ minValue: 0, maxValue: inputs.length - 1 }))]!;
       const expected = { ...args, [target.name!]: perturbArg(tc, target.type, args[target.name!]) };
-      const error = caught(() => v.verify(receiptWith([encodeLog(v.abi, v.eventName, emitter, args)]), emitter, expected));
+      const error = caught(() => runVerify(v, receiptWith([encodeLog(v.abi, v.eventName, emitter, args)]), emitter, expected));
       expect(isPonsSdkError(error)).toBe(true);
       if (isPonsSdkError(error)) {
         expect(error.code).toBe("RECEIPT_FIELD_MISMATCH");
@@ -163,7 +172,7 @@ describe("Pons receipt verifier properties", () => {
       const emitter = drawAddress(tc);
       const args = drawEventArgs(tc, v.abi, v.eventName);
       const receipt = receiptWith([encodeLog(v.abi, v.eventName, drawOtherAddress(tc, emitter), args)]);
-      const error = caught(() => v.verify(receipt, emitter, {}));
+      const error = caught(() => runVerify(v, receipt, emitter, {}));
       expect(isPonsSdkError(error) && error.code).toBe("EVENT_NOT_FOUND");
     }, HEGEL_SETTINGS);
   });
@@ -174,7 +183,7 @@ describe("Pons receipt verifier properties", () => {
       const emitter = drawAddress(tc);
       const args = drawEventArgs(tc, v.abi, v.eventName);
       const status = tc.draw(gs.sampledFrom(["reverted", 0, "0x0"] as const));
-      const error = caught(() => v.verify(receiptWith([encodeLog(v.abi, v.eventName, emitter, args)], status), emitter, args));
+      const error = caught(() => runVerify(v, receiptWith([encodeLog(v.abi, v.eventName, emitter, args)], status), emitter, args));
       expect(isPonsSdkError(error) && error.code).toBe("RECEIPT_REVERTED");
     }, HEGEL_SETTINGS);
   });

@@ -320,17 +320,37 @@ describe("Pons launch construction rejections", () => {
   });
 });
 
+/** Draws a reviewed request from any of the thirteen builders. */
+function drawBuiltRequest(tc: hegel.TestCase): TransactionRequest {
+  const builders: (() => TransactionRequest)[] = [
+    () => buildCurveBuyTransaction({ curve: drawAddress(tc), pairToken: zeroAddress, quoteIn: drawAmount(tc, 1n), minTokensOut: drawAmount(tc), recipient: drawAddress(tc) }),
+    () => buildCurveBuyTransaction({ curve: drawAddress(tc), pairToken: drawAddress(tc), quoteIn: drawAmount(tc, 1n), minTokensOut: drawAmount(tc), recipient: drawAddress(tc) }),
+    () => buildCurveSellTransaction({ curve: drawAddress(tc), tokensIn: drawAmount(tc, 1n), minQuoteOut: drawAmount(tc), recipient: drawAddress(tc) }),
+    () => buildApprovalTransaction(drawAddress(tc), drawAddress(tc), drawAmount(tc, 1n)),
+    () => buildGraduateTransaction(drawAddress(tc), drawAddress(tc)),
+    () => buildCreateGraduatedPoolTransaction(drawAddress(tc), drawAddress(tc)),
+    () => buildTransferCreatorFeeRecipientTransaction(drawAddress(tc), drawAddress(tc), drawAddress(tc)),
+    () => buildSetBuybackEnabledTransaction(drawAddress(tc), drawAddress(tc), tc.draw(gs.booleans())),
+    () => buildSweepCurveFeesTransaction(drawAddress(tc), drawAmount(tc)),
+    () => buildSweepPoolFeesTransaction(drawAddress(tc), drawBytes32(tc), drawAmount(tc), drawAmount(tc)),
+    () => buildClaimNativeFeesTransaction(drawAddress(tc), tc.draw(gs.booleans()) ? drawAmount(tc, 1n) : undefined),
+    () => buildClaimTokenFeesTransaction(drawAddress(tc), drawAddress(tc), tc.draw(gs.booleans()) ? drawAmount(tc, 1n) : undefined),
+    () => buildReleaseBuybackTransaction(drawAddress(tc), drawAddress(tc)),
+    () => buildLaunchTransaction(robinhoodMainnet, {
+      token: { name: "Pons", symbol: "PONS", salt: drawBytes32(tc), expectedEconomics: drawBytes32(tc) },
+      launchConfigId: 0n,
+      launchFee: drawAmount(tc),
+      openingBuy: tc.draw(gs.booleans()) ? { quoteIn: drawAmount(tc, 1n), minTokensOut: drawAmount(tc), recipient: drawAddress(tc) } : undefined,
+    }),
+  ];
+  return builders[tc.draw(gs.integers({ minValue: 0, maxValue: builders.length - 1 }))]!();
+}
+
 describe("Pons calldata verification properties", () => {
-  it("accepts a transaction mined exactly as the reviewed request, as a node would report it", () => {
+  it("accepts any builder's transaction mined exactly as reviewed, as a node would report it", () => {
     hegel.test((tc) => {
       const sender = drawAddress(tc);
-      const request = buildCurveBuyTransaction({
-        curve: drawAddress(tc),
-        pairToken: zeroAddress,
-        quoteIn: drawAmount(tc, 1n),
-        minTokensOut: drawAmount(tc),
-        recipient: drawAddress(tc),
-      });
+      const request = drawBuiltRequest(tc);
       expect(() => assertConfirmedTransaction(minedAsRequested(request, sender), request, sender)).not.toThrow();
     }, HEGEL_SETTINGS);
   });
@@ -338,17 +358,10 @@ describe("Pons calldata verification properties", () => {
   // assertConfirmedTransaction checks from, then to, then value, then input;
   // each perturbation below changes exactly one field, so the order does not
   // affect which code is expected.
-  it("classifies any single perturbation of the mined transaction as a mismatch by code", () => {
+  it("classifies any single perturbation of any builder's mined transaction as a mismatch by code", () => {
     hegel.test((tc) => {
       const sender = drawAddress(tc);
-      const quoteIn = drawAmount(tc, 1n);
-      const request = buildCurveBuyTransaction({
-        curve: drawAddress(tc),
-        pairToken: zeroAddress,
-        quoteIn,
-        minTokensOut: drawAmount(tc),
-        recipient: drawAddress(tc),
-      });
+      const request = drawBuiltRequest(tc);
       const mined = minedAsRequested(request, sender);
       const field = tc.draw(gs.sampledFrom(["input", "value", "to", "from"] as const));
 
@@ -364,9 +377,9 @@ describe("Pons calldata verification properties", () => {
           break;
         }
         case "value": {
-          // Reviewed value is quoteIn > 0, so both directions are reachable.
-          const down = tc.draw(gs.booleans());
-          const delta = tc.draw(gs.bigIntegers({ minValue: 1n, maxValue: down ? quoteIn : MAX_AMOUNT }));
+          // Perturb downward only when the reviewed value leaves room for it.
+          const down = mined.value > 0n && tc.draw(gs.booleans());
+          const delta = tc.draw(gs.bigIntegers({ minValue: 1n, maxValue: down ? mined.value : MAX_AMOUNT }));
           perturbed = { ...mined, value: down ? mined.value - delta : mined.value + delta };
           expectedCode = "UNEXPECTED_VALUE";
           break;

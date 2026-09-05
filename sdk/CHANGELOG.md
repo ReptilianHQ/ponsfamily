@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Pin one finalized Robinhood Chain receipt per verifier as deployment-bound integration evidence.
+- Extend Hegel properties to every receipt verifier (acceptance, per-field mismatch, wrong emitter, reverted, floors) and to every builder's calldata verification.
 - Add Hegel construction round-trip and calldata perturbation properties for transaction builders.
 
 ## 0.3.1

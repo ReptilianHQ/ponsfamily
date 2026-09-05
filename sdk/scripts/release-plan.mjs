@@ -31,7 +31,23 @@ export function nextReleaseCandidateVersion(packageVersion, publishedVersions) {
   return `${packageVersion}-rc.${highest + 1}`;
 }
 
-export function createReleasePlan({ refType, refName, packageVersion, publishedVersions = [] }) {
+export function existingReleaseCandidateVersion(packageVersion, publishedCandidates, sourceSha) {
+  const escapedVersion = packageVersion.replaceAll(".", "\\.");
+  const candidateRegex = new RegExp(`^${escapedVersion}-rc\\.(${numericIdentifier})$`);
+  return publishedCandidates
+    .filter(({ version, gitHead }) => gitHead === sourceSha && candidateRegex.test(version))
+    .sort((left, right) => Number(candidateRegex.exec(right.version)[1]) - Number(candidateRegex.exec(left.version)[1]))
+    .at(0)?.version;
+}
+
+export function createReleasePlan({
+  refType,
+  refName,
+  packageVersion,
+  publishedVersions = [],
+  publishedCandidates = [],
+  sourceSha,
+}) {
   if (!coreVersionRegex.test(packageVersion)) {
     throw new Error(`sdk/package.json must contain a stable semantic version; received ${packageVersion}`);
   }
@@ -44,7 +60,14 @@ export function createReleasePlan({ refType, refName, packageVersion, publishedV
     if (match[1] !== packageVersion) {
       throw new Error(`RC branch version ${match[1]} does not match package version ${packageVersion}`);
     }
-    return { version: nextReleaseCandidateVersion(packageVersion, publishedVersions), distTag: "rc" };
+    if (publishedVersions.includes(packageVersion)) {
+      throw new Error(`Stable version ${packageVersion} is already published; prepare a new release line`);
+    }
+    const existingVersion = existingReleaseCandidateVersion(packageVersion, publishedCandidates, sourceSha);
+    return {
+      version: existingVersion ?? nextReleaseCandidateVersion(packageVersion, publishedVersions),
+      distTag: "rc",
+    };
   }
 
   if (refType === "tag") {
@@ -63,11 +86,21 @@ async function main() {
   const publishedVersions = process.env.GITHUB_REF_TYPE === "branch"
     ? JSON.parse(execFileSync("npm", ["view", packageJson.name, "versions", "--json"], { encoding: "utf8" }))
     : [];
+  const versions = Array.isArray(publishedVersions) ? publishedVersions : [publishedVersions];
+  const candidatePrefix = `${packageJson.version}-rc.`;
+  const publishedCandidates = process.env.GITHUB_REF_TYPE === "branch"
+    ? versions.filter((version) => version.startsWith(candidatePrefix)).map((version) => ({
+        version,
+        gitHead: execFileSync("npm", ["view", `${packageJson.name}@${version}`, "gitHead"], { encoding: "utf8" }).trim(),
+      }))
+    : [];
   const plan = createReleasePlan({
     refType: process.env.GITHUB_REF_TYPE,
     refName: process.env.GITHUB_REF_NAME,
     packageVersion: packageJson.version,
-    publishedVersions: Array.isArray(publishedVersions) ? publishedVersions : [publishedVersions],
+    publishedVersions: versions,
+    publishedCandidates,
+    sourceSha: process.env.RELEASE_SOURCE_SHA,
   });
   const output = `version=${plan.version}\ndist_tag=${plan.distTag}\n`;
 

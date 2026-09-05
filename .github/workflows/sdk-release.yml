@@ -58,7 +58,20 @@ jobs:
           else
             exit 1
           fi
-          remote_sha="$(gh api --method GET "repos/${GITHUB_REPOSITORY}/commits" -f sha="$ref_name" -f per_page=1 --jq '.[0].sha')"
+          if [ "$ref_type" = branch ]; then
+            ref_path="heads/${ref_name}"
+          else
+            ref_path="tags/${ref_name}"
+          fi
+          ref_object="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/${ref_path}")"
+          object_type="$(jq -r .object.type <<<"$ref_object")"
+          remote_sha="$(jq -r .object.sha <<<"$ref_object")"
+          while [ "$object_type" = tag ]; do
+            tag_object="$(gh api "repos/${GITHUB_REPOSITORY}/git/tags/${remote_sha}")"
+            object_type="$(jq -r .object.type <<<"$tag_object")"
+            remote_sha="$(jq -r .object.sha <<<"$tag_object")"
+          done
+          test "$object_type" = commit
           test "$remote_sha" = "$source_sha"
           main_sha="$(gh api --method GET "repos/${GITHUB_REPOSITORY}/commits" -f sha=main -f per_page=1 --jq '.[0].sha')"
           main_status="$(gh api "repos/${GITHUB_REPOSITORY}/compare/${source_sha}...${main_sha}" --jq .status)"
@@ -100,6 +113,7 @@ jobs:
         env:
           GITHUB_REF_NAME: ${{ needs.authorize.outputs.ref_name }}
           GITHUB_REF_TYPE: ${{ needs.authorize.outputs.ref_type }}
+          RELEASE_SOURCE_SHA: ${{ needs.authorize.outputs.source_sha }}
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify release candidate is contained in main
         if: needs.authorize.outputs.ref_type == 'branch'

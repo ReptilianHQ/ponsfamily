@@ -21,9 +21,10 @@ package read access when running the verification commands below.
    section.
 3. Run `npm ci` and `npm test` from `sdk/`.
 4. Merge the release preparation into `main`.
-5. Create `release/vX.Y.Z` at that reviewed `main` commit. Every push selects
-   one greater than the highest published `X.Y.Z-rc.N`, then publishes that
-   immutable candidate. The commit must already be contained in `main`.
+5. Create `release/vX.Y.Z` at that reviewed `main` commit. A retry for the same
+   source commit repairs its existing candidate's `rc` dist-tag; a new source
+   commit selects one greater than the highest published `X.Y.Z-rc.N`, then
+   publishes that immutable candidate. The commit must already be in `main`.
 6. Verify the public RC channel:
 
    ```bash

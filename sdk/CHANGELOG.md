@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add Hegel construction round-trip and calldata perturbation properties for transaction builders.
+
 ## 0.3.1
 
 - Standardize immutable numbered candidates and provenance-bound stable promotion.

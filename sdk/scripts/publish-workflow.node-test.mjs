@@ -56,4 +56,8 @@ test("validates provenance and immutable targets before publishing", () => {
   assert.ok(stepIndex(publish, "Publish to GitHub Packages") < stepIndex(publish, "Publish or repair the selected install channel"));
   const releaseStep = publish.steps.find((step) => step.id === "release");
   assert.equal(releaseStep.env.RELEASE_SOURCE_SHA, "${{ needs.authorize.outputs.source_sha }}");
+  assert.equal(releaseStep.env.RELEASE_REF_NAME, "${{ needs.authorize.outputs.ref_name }}");
+  assert.equal(releaseStep.env.RELEASE_REF_TYPE, "${{ needs.authorize.outputs.ref_type }}");
+  assert.equal(releaseStep.env.GITHUB_REF_NAME, undefined);
+  assert.equal(releaseStep.env.GITHUB_REF_TYPE, undefined);
 });

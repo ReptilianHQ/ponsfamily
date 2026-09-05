@@ -83,20 +83,20 @@ export function createReleasePlan({
 
 async function main() {
   const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
-  const publishedVersions = process.env.GITHUB_REF_TYPE === "branch"
+  const publishedVersions = process.env.RELEASE_REF_TYPE === "branch"
     ? JSON.parse(execFileSync("npm", ["view", packageJson.name, "versions", "--json"], { encoding: "utf8" }))
     : [];
   const versions = Array.isArray(publishedVersions) ? publishedVersions : [publishedVersions];
   const candidatePrefix = `${packageJson.version}-rc.`;
-  const publishedCandidates = process.env.GITHUB_REF_TYPE === "branch"
+  const publishedCandidates = process.env.RELEASE_REF_TYPE === "branch"
     ? versions.filter((version) => version.startsWith(candidatePrefix)).map((version) => ({
         version,
         gitHead: execFileSync("npm", ["view", `${packageJson.name}@${version}`, "gitHead"], { encoding: "utf8" }).trim(),
       }))
     : [];
   const plan = createReleasePlan({
-    refType: process.env.GITHUB_REF_TYPE,
-    refName: process.env.GITHUB_REF_NAME,
+    refType: process.env.RELEASE_REF_TYPE,
+    refName: process.env.RELEASE_REF_NAME,
     packageVersion: packageJson.version,
     publishedVersions: versions,
     publishedCandidates,

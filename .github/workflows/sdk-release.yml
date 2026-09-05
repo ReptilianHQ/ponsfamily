@@ -111,8 +111,8 @@ jobs:
         id: release
         run: node scripts/release-plan.mjs
         env:
-          GITHUB_REF_NAME: ${{ needs.authorize.outputs.ref_name }}
-          GITHUB_REF_TYPE: ${{ needs.authorize.outputs.ref_type }}
+          RELEASE_REF_NAME: ${{ needs.authorize.outputs.ref_name }}
+          RELEASE_REF_TYPE: ${{ needs.authorize.outputs.ref_type }}
           RELEASE_SOURCE_SHA: ${{ needs.authorize.outputs.source_sha }}
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify release candidate is contained in main

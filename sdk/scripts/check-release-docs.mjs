@@ -10,9 +10,9 @@ const workflow = await readFile(new URL("../.github/workflows/sdk-release.yml", 
 const releaseProvenanceScript = "scripts/release-provenance.mjs";
 
 export function stableVersionFromManifest(version) {
-  const match = /^((?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))(?:-rc)?$/.exec(version);
+  const match = /^((?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))(?:-rc\.(?:0|[1-9]\d*))?$/.exec(version);
   if (!match) {
-    throw new Error(`SDK release docs require a stable or workflow-generated -rc version; received ${version}`);
+    throw new Error(`SDK release docs require a stable or workflow-generated -rc.N version; received ${version}`);
   }
   return match[1];
 }
@@ -41,9 +41,9 @@ assert.ok(
 );
 assert.ok(packageJson.files.includes("RELEASING.md"), "Published packages must include the release guide linked from README");
 assert.ok(
-  workflow.includes('rc_package="@reptilianhq/pons-sdk@${{ steps.release.outputs.version }}-rc"')
-    && workflow.includes('npm view "$rc_package" gitHead')
-    && workflow.includes(`${releaseProvenanceScript} "$GITHUB_SHA" "$rc_version" "$rc_git_head"`),
+  workflow.includes(`${releaseProvenanceScript} "$GITHUB_SHA"`)
+    && workflow.includes("github.ref_type == 'branch'")
+    && workflow.includes('npm publish --access public --tag "${{ steps.release.outputs.dist_tag }}"'),
   "Stable releases must verify the immutable RC package provenance",
 );
 await access(new URL(releaseProvenanceScript, root));

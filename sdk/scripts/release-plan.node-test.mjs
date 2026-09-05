@@ -10,8 +10,29 @@ test("plans an RC from the matching release branch", () => {
       refName: "release/v0.1.0",
       packageVersion: "0.1.0",
     }),
-    { version: "0.1.0-rc", distTag: "rc" },
+    { version: "0.1.0-rc.1", distTag: "rc" },
   );
+});
+
+test("increments only numbered RCs from the matching release line", () => {
+  assert.deepEqual(
+    createReleasePlan({
+      refType: "branch",
+      refName: "release/v0.1.0",
+      packageVersion: "0.1.0",
+      publishedVersions: ["0.1.0-rc", "0.1.0-rc.2", "0.1.1-rc.9"],
+    }),
+    { version: "0.1.0-rc.3", distTag: "rc" },
+  );
+});
+
+test("refuses candidates after the stable version is published", () => {
+  assert.throws(() => createReleasePlan({
+    refType: "branch",
+    refName: "release/v0.1.0",
+    packageVersion: "0.1.0",
+    publishedVersions: ["0.1.0-rc.2", "0.1.0"],
+  }), /already published/);
 });
 
 test("plans a final release from the matching stable tag", () => {

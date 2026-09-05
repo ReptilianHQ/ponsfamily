@@ -11,9 +11,12 @@ permissions:
   contents: read
   packages: write
 
+concurrency:
+  group: pons-sdk-publish
+  cancel-in-progress: false
+
 jobs:
   publish:
-    if: github.ref_type == 'tag' || github.event.created
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -34,18 +37,15 @@ jobs:
       - name: Validate release identity
         id: release
         run: node scripts/release-plan.mjs
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify release candidate is contained in main
         if: github.ref_type == 'branch'
         run: git merge-base --is-ancestor HEAD origin/main
         working-directory: .
       - name: Verify final release matches the published release candidate
         if: github.ref_type == 'tag'
-        run: |
-          rc_package="@reptilianhq/pons-sdk@${{ steps.release.outputs.version }}-rc"
-          rc_version="$(npm view "$rc_package" version)"
-          rc_git_head="$(npm view "$rc_package" gitHead)"
-          node scripts/release-provenance.mjs "$GITHUB_SHA" "$rc_version" "$rc_git_head"
-          git merge-base --is-ancestor HEAD origin/main
+        run: node scripts/release-provenance.mjs "$GITHUB_SHA" && git merge-base --is-ancestor HEAD origin/main
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm ci

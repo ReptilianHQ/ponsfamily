@@ -41,8 +41,8 @@ assert.ok(
 );
 assert.ok(packageJson.files.includes("RELEASING.md"), "Published packages must include the release guide linked from README");
 assert.ok(
-  workflow.includes(`${releaseProvenanceScript} "$GITHUB_SHA"`)
-    && workflow.includes("github.ref_type == 'branch'")
+  workflow.includes(`${releaseProvenanceScript} "\${{ needs.authorize.outputs.source_sha }}"`)
+    && workflow.includes("needs.authorize.outputs.ref_type == 'branch'")
     && workflow.includes('npm publish --access public --tag "${{ steps.release.outputs.dist_tag }}"'),
   "Stable releases must verify the immutable RC package provenance",
 );

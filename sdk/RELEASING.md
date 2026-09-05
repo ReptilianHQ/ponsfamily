@@ -55,3 +55,15 @@ numbers from immutable registry versions under one serialized publisher,
 requires the stable tag to identify the `gitHead` of a published numbered RC,
 verifies the selected dist-tag resolves to the newly published version, and
 fails if the GitHub package is not public.
+
+## Authority boundary
+
+Release-branch and tag pushes run an unprivileged request workflow. A separate
+publisher loaded from the default branch validates the remote ref, exact source
+SHA, and `main` ancestry before any job receives package-write authority. The
+publisher executes only source already contained in `main`; repository writers
+who can land changes on `main` remain trusted release authorities.
+
+Publication is retry-safe. An existing target version is accepted only when its
+immutable `gitHead` matches the authorized source, after which the workflow
+repairs and verifies the selected dist-tag without replacing package bytes.

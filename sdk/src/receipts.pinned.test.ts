@@ -44,8 +44,6 @@ const fixture = JSON.parse(
 
 const FINALITY_DEPTH = 5_000;
 
-type Verifier = (receipt: receipts.ReceiptLike, emitter: Address, ...rest: never[]) => unknown;
-
 const verifiers: Record<string, (pinned: PinnedReceipt) => unknown> = {
   verifyLaunchReceipt: (p) => receipts.verifyLaunchReceipt(p.receipt, p.emitter, {
     forwarder: robinhoodMainnet.contracts.forwarder,
@@ -97,7 +95,7 @@ describe("pinned Robinhood Chain receipts", () => {
     describe(name, () => {
       it("is a finalized transaction after the deployment start block", () => {
         expect(pinned.blockNumber).toBeGreaterThanOrEqual(Number(robinhoodMainnet.startBlock));
-        expect(pinned.blockNumber + FINALITY_DEPTH).toBeLessThanOrEqual(fixture.pinnedAtBlock);
+        expect(pinned.blockNumber + FINALITY_DEPTH).toBeLessThan(fixture.pinnedAtBlock);
         expect(pinned.receipt.status).toBe("0x1");
       });
 
@@ -116,7 +114,6 @@ describe("pinned Robinhood Chain receipts", () => {
         } catch (error) {
           caught = error;
         }
-        expect(receipts.assertSuccessfulReceipt).toBeDefined();
         expect(caught).toMatchObject({ code: "EVENT_NOT_FOUND" });
       });
     });
@@ -130,6 +127,3 @@ describe("pinned Robinhood Chain receipts", () => {
     expect(BigInt(launch.transaction.value)).toBeGreaterThan(0n);
   });
 });
-
-// Keep the Verifier alias referenced so the shape is documented for future bindings.
-export type { Verifier };

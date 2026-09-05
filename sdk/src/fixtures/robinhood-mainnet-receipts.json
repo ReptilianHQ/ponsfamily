@@ -1172,7 +1172,7 @@
       }
     },
     "verifyBuybackLockedReceipt": {
-      "emitter": "0x5406d7c435f90da732a7be6b76af0ec5ee3a70f3",
+      "emitter": "0x5406d7C435F90dA732A7BE6b76aF0Ec5ee3a70F3",
       "transactionHash": "0x5fc9f3d9cdfc5c70c4e6a9a9eeb4adcf99c7c75752606d973872e1b879c14e5d",
       "blockNumber": 27837099,
       "evidence": {

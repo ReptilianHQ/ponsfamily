@@ -80,24 +80,24 @@ interface VerifierCase {
   name: string;
   abi: Abi;
   eventName: string;
-  verify: (receipt: ReceiptLike, emitter: Address, expected: Record<string, unknown>) => unknown;
+  verify: (receipt: ReceiptLike, emitter: Address, expected: never) => unknown;
 }
 
 // Every exported single-event verifier. verifyLaunchReceipt is covered
 // separately because it consumes two events across two emitters.
 const singleEventVerifiers: VerifierCase[] = [
-  { name: "verifyCurveBuyReceipt", abi: ponsCurveAbi, eventName: "CurveBuy", verify: receipts.verifyCurveBuyReceipt as never },
-  { name: "verifyCurveSellReceipt", abi: ponsCurveAbi, eventName: "CurveSell", verify: receipts.verifyCurveSellReceipt as never },
-  { name: "verifyPoolGraduatedReceipt", abi: ponsFactoryAbi, eventName: "PoolGraduated", verify: receipts.verifyPoolGraduatedReceipt as never },
-  { name: "verifyFeesSweptReceipt", abi: ponsCurveAbi, eventName: "FeesSwept", verify: receipts.verifyFeesSweptReceipt as never },
-  { name: "verifyBuybackLockedReceipt", abi: ponsCurveAbi, eventName: "BuybackLocked", verify: receipts.verifyBuybackLockedReceipt as never },
-  { name: "verifyLaunchSweptReceipt", abi: ponsFactoryAbi, eventName: "LaunchSwept", verify: receipts.verifyLaunchSweptReceipt as never },
-  { name: "verifyCreatorFeeRecipientUpdatedReceipt", abi: ponsFactoryAbi, eventName: "CreatorFeeRecipientUpdated", verify: receipts.verifyCreatorFeeRecipientUpdatedReceipt as never },
-  { name: "verifyBuybackEnabledUpdatedReceipt", abi: ponsFactoryAbi, eventName: "BuybackEnabledUpdated", verify: receipts.verifyBuybackEnabledUpdatedReceipt as never },
-  { name: "verifyPoolFeesSweptReceipt", abi: ponsMemeHookAbi, eventName: "PoolFeesSwept", verify: receipts.verifyPoolFeesSweptReceipt as never },
-  { name: "verifyNativeFeesClaimedReceipt", abi: ponsFeeEscrowAbi, eventName: "Claimed", verify: receipts.verifyNativeFeesClaimedReceipt as never },
-  { name: "verifyTokenFeesClaimedReceipt", abi: ponsFeeEscrowAbi, eventName: "ClaimedToken", verify: receipts.verifyTokenFeesClaimedReceipt as never },
-  { name: "verifyBuybackReleasedReceipt", abi: ponsBuybackVaultAbi, eventName: "Released", verify: receipts.verifyBuybackReleasedReceipt as never },
+  { name: "verifyCurveBuyReceipt", abi: ponsCurveAbi, eventName: "CurveBuy", verify: receipts.verifyCurveBuyReceipt },
+  { name: "verifyCurveSellReceipt", abi: ponsCurveAbi, eventName: "CurveSell", verify: receipts.verifyCurveSellReceipt },
+  { name: "verifyPoolGraduatedReceipt", abi: ponsFactoryAbi, eventName: "PoolGraduated", verify: receipts.verifyPoolGraduatedReceipt },
+  { name: "verifyFeesSweptReceipt", abi: ponsCurveAbi, eventName: "FeesSwept", verify: receipts.verifyFeesSweptReceipt },
+  { name: "verifyBuybackLockedReceipt", abi: ponsCurveAbi, eventName: "BuybackLocked", verify: receipts.verifyBuybackLockedReceipt },
+  { name: "verifyLaunchSweptReceipt", abi: ponsFactoryAbi, eventName: "LaunchSwept", verify: receipts.verifyLaunchSweptReceipt },
+  { name: "verifyCreatorFeeRecipientUpdatedReceipt", abi: ponsFactoryAbi, eventName: "CreatorFeeRecipientUpdated", verify: receipts.verifyCreatorFeeRecipientUpdatedReceipt },
+  { name: "verifyBuybackEnabledUpdatedReceipt", abi: ponsFactoryAbi, eventName: "BuybackEnabledUpdated", verify: receipts.verifyBuybackEnabledUpdatedReceipt },
+  { name: "verifyPoolFeesSweptReceipt", abi: ponsMemeHookAbi, eventName: "PoolFeesSwept", verify: receipts.verifyPoolFeesSweptReceipt },
+  { name: "verifyNativeFeesClaimedReceipt", abi: ponsFeeEscrowAbi, eventName: "Claimed", verify: receipts.verifyNativeFeesClaimedReceipt },
+  { name: "verifyTokenFeesClaimedReceipt", abi: ponsFeeEscrowAbi, eventName: "ClaimedToken", verify: receipts.verifyTokenFeesClaimedReceipt },
+  { name: "verifyBuybackReleasedReceipt", abi: ponsBuybackVaultAbi, eventName: "Released", verify: receipts.verifyBuybackReleasedReceipt },
 ];
 
 function eventInputs(abi: Abi, eventName: string) {

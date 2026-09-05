@@ -361,9 +361,13 @@ describe("Pons calldata verification properties", () => {
   it("classifies any single perturbation of any builder's mined transaction as a mismatch by code", () => {
     hegel.test((tc) => {
       const sender = drawAddress(tc);
-      const request = drawBuiltRequest(tc);
-      const mined = minedAsRequested(request, sender);
       const field = tc.draw(gs.sampledFrom(["input", "value", "to", "from"] as const));
+      // Most builders carry no native value; when perturbing value, draw a
+      // native buy half the time so the downward direction is exercised.
+      const request = field === "value" && tc.draw(gs.booleans())
+        ? buildCurveBuyTransaction({ curve: drawAddress(tc), pairToken: zeroAddress, quoteIn: drawAmount(tc, 1n), minTokensOut: drawAmount(tc), recipient: drawAddress(tc) })
+        : drawBuiltRequest(tc);
+      const mined = minedAsRequested(request, sender);
 
       let perturbed: ConfirmedTransactionLike;
       let expectedCode: string;

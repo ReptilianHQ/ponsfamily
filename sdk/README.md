@@ -200,17 +200,18 @@ The SDK source is publicly visible, but no additional license or permission to u
 ## Release
 
 Keep `package.json` at the intended stable version. Creating a branch named
-`release/vX.Y.Z` from the exact reviewed `main` commit publishes `X.Y.Z-rc` to
-GitHub Packages with the `rc` dist-tag. After the RC is accepted, tagging that
-same commit `vX.Y.Z` publishes the stable `X.Y.Z` package with the `latest`
-dist-tag. Branches and tags whose version does not exactly match `package.json`
-fail closed.
+`release/vX.Y.Z` from the exact reviewed `main` commit publishes the next
+immutable `X.Y.Z-rc.N` to GitHub Packages with the `rc` dist-tag. After the RC
+is accepted, tagging that same commit `vX.Y.Z` publishes the stable `X.Y.Z`
+package with the `latest` dist-tag. Branches and tags whose version does not
+exactly match `package.json` fail closed.
 
 RC and stable package versions are immutable. Do not commit an `-rc` version to
 `package.json`, reuse an already published version, or create an RC Git tag. If
-an RC is rejected, update the intended stable version and create its matching
-release branch. See [`RELEASING.md`](./RELEASING.md) for the exact checklist and
-verification commands.
+an RC is rejected, merge the fix to `main` and advance the same release branch
+to publish the next numbered candidate. See
+[`RELEASING.md`](./RELEASING.md) for the exact checklist and verification
+commands.
 
 The package is intentionally public and contains only the runtime-neutral SDK,
 public deployment provenance, ABI artifacts, and the canonical Envio example.

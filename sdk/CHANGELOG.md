@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.3.1
+
 - Standardize immutable numbered candidates and provenance-bound stable promotion.
 
 ## 0.3.0

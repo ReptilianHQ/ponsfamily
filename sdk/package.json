@@ -104,7 +104,7 @@
     "check:envio-example": "node scripts/check-envio-example.mjs",
     "check:release-docs": "node scripts/check-release-docs.mjs",
     "test": "npm run check",
-    "test:release": "node --test scripts/check-release-docs.node-test.mjs scripts/release-plan.node-test.mjs scripts/release-provenance.node-test.mjs",
+    "test:release": "node --test scripts/check-release-docs.node-test.mjs scripts/publish-workflow.node-test.mjs scripts/release-plan.node-test.mjs scripts/release-provenance.node-test.mjs",
     "test:unit": "vitest run",
     "test:pack": "npm pack --dry-run",
     "check:package": "publint && attw --pack . --profile esm-only"
@@ -119,6 +119,7 @@
     "publint": "^0.3.23",
     "typescript": "^7.0.2",
     "viem": "^2.55.10",
-    "vitest": "4.1.10"
+    "vitest": "4.1.10",
+    "yaml": "^2.9.0"
   }
 }

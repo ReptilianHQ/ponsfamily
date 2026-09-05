@@ -75,8 +75,8 @@ function drawAmount(tc: hegel.TestCase, minValue = 0n): bigint {
 }
 
 /** Padded text so normalization (trim) is exercised, not restated. */
-function drawPaddedText(tc: hegel.TestCase, prefix: string, maxBytes: number): { raw: string; trimmed: string } {
-  const body = `${prefix}${tc.draw(gs.integers({ minValue: 0, maxValue: 99_999 }))}`.slice(0, maxBytes);
+function drawPaddedText(tc: hegel.TestCase, prefix: string): { raw: string; trimmed: string } {
+  const body = `${prefix}${tc.draw(gs.integers({ minValue: 0, maxValue: 99_999 }))}`;
   const leading = " ".repeat(tc.draw(gs.integers({ minValue: 0, maxValue: 2 })));
   const trailing = " ".repeat(tc.draw(gs.integers({ minValue: 0, maxValue: 2 })));
   return { raw: `${leading}${body}${trailing}`, trimmed: body };
@@ -89,15 +89,17 @@ function drawAddresses(tc: hegel.TestCase, maxCount: number): Address[] {
 
 /**
  * The transaction a node reports after the reviewed request was mined
- * unchanged. JSON-RPC returns lower-case hex, so the verifier's own
- * normalization is part of what acceptance proves.
+ * unchanged. Nodes return lower-case hex addresses, and calldata hex case is
+ * not significant, so the fixture lower-cases addresses and upper-cases the
+ * calldata digits. Acceptance then proves the verifier normalizes both
+ * rather than comparing bytes-as-strings.
  */
 function minedAsRequested(request: TransactionRequest, from: Address): ConfirmedTransactionLike {
   return {
     from: from.toLowerCase() as Address,
     to: request.to.toLowerCase() as Address,
     value: request.value,
-    input: request.data.toLowerCase() as Hex,
+    input: `0x${request.data.slice(2).toUpperCase()}` as Hex,
   };
 }
 
@@ -231,11 +233,11 @@ describe("Pons transaction construction properties", () => {
       const creatorTaxBps = tc.draw(gs.integers({ minValue: 0, maxValue: 1_000 }));
       const buybackEnabled = tc.draw(gs.booleans());
       const creatorFeeRecipient = drawAddress(tc, 0n);
-      const name = drawPaddedText(tc, "Pons ", 64);
-      const symbol = drawPaddedText(tc, "P", 16);
-      const logo = drawPaddedText(tc, "https://logo/", 512);
-      const description = drawPaddedText(tc, "desc ", 2_048);
-      const twitter = drawPaddedText(tc, "@p", 256);
+      const name = drawPaddedText(tc, "Pons ");
+      const symbol = drawPaddedText(tc, "P");
+      const logo = drawPaddedText(tc, "https://logo/");
+      const description = drawPaddedText(tc, "desc ");
+      const twitter = drawPaddedText(tc, "@p");
       const withOpeningBuy = tc.draw(gs.booleans());
       const pairToken = withOpeningBuy ? zeroAddress : drawAddress(tc, 0n);
       const snipeTaxExemptions = drawAddresses(tc, withOpeningBuy ? 31 : 32);
@@ -293,6 +295,27 @@ describe("Pons transaction construction properties", () => {
         expect(decoded.functionName).toBe("launchToken");
         expect(decoded.args).toEqual([expectedParams, launchConfigId, pairToken, snipeTaxExemptions]);
       }
+    }, HEGEL_SETTINGS);
+  });
+});
+
+describe("Pons launch construction rejections", () => {
+  it("refuses an atomic opening buy against a non-native pair token", () => {
+    hegel.test((tc) => {
+      let caught: unknown;
+      try {
+        buildLaunchTransaction(robinhoodMainnet, {
+          token: { name: "Pons", symbol: "PONS", salt: drawBytes32(tc), expectedEconomics: drawBytes32(tc) },
+          launchConfigId: 0n,
+          pairToken: drawAddress(tc),
+          launchFee: drawAmount(tc),
+          openingBuy: { quoteIn: drawAmount(tc, 1n), minTokensOut: drawAmount(tc), recipient: drawAddress(tc) },
+        });
+      } catch (error) {
+        caught = error;
+      }
+      expect(isPonsSdkError(caught)).toBe(true);
+      if (isPonsSdkError(caught)) expect(caught).toMatchObject({ code: "INVALID_ARGUMENT", path: "pairToken" });
     }, HEGEL_SETTINGS);
   });
 });

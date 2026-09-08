@@ -509,7 +509,7 @@
           "indexed": false,
           "semantic": {
             "unit": "raw-amount",
-            "description": "Snipe tax",
+            "description": "Creator trade tax",
             "asset": "launch pairToken (pool quoteToken for hook events)",
             "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
           }
@@ -654,7 +654,7 @@
           "indexed": false,
           "semantic": {
             "unit": "raw-amount",
-            "description": "Snipe tax",
+            "description": "Creator trade tax",
             "asset": "launch pairToken (pool quoteToken for hook events)",
             "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
           }

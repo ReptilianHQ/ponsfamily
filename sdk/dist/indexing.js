@@ -37,9 +37,9 @@ const metadata = {
         LaunchGraduationRescued: { description: "Graduation assets rescued to a recipient.", parameters: { token: address("Launch token"), recipient: address("Rescue recipient"), quoteAmount: quote("Quote rescued"), tokenAmount: token("Tokens rescued") } },
     },
     PonsV2Curve: {
-        CurveBuy: { description: "Bonding curve purchase.", parameters: { buyer: address("Buyer"), recipient: address("Token recipient"), quoteIn: quote("Quote input"), tokensOut: token("Tokens output"), fee: quote("Curve fee"), tax: quote("Snipe tax") } },
+        CurveBuy: { description: "Bonding curve purchase.", parameters: { buyer: address("Buyer"), recipient: address("Token recipient"), quoteIn: quote("Quote input"), tokensOut: token("Tokens output"), fee: quote("Curve fee"), tax: quote("Creator trade tax") } },
         CurveBuyRefunded: { description: "Unused buy quote refunded.", parameters: { buyer: address("Refund recipient"), refund: quote("Quote refunded") } },
-        CurveSell: { description: "Bonding curve sale.", parameters: { seller: address("Seller"), recipient: address("Quote recipient"), tokensIn: token("Tokens input"), quoteOut: quote("Quote output"), fee: quote("Curve fee"), tax: quote("Snipe tax") } },
+        CurveSell: { description: "Bonding curve sale.", parameters: { seller: address("Seller"), recipient: address("Quote recipient"), tokensIn: token("Tokens input"), quoteOut: quote("Quote output"), fee: quote("Curve fee"), tax: quote("Creator trade tax") } },
         FeesSwept: { description: "Curve quote fees distributed.", parameters: { protocolAmount: quote("Protocol fees"), buybackAmount: quote("Buyback budget"), creatorAmount: quote("Creator fees") } },
         BuybackLocked: { description: "Buyback tokens locked from curve quote spending.", parameters: { quoteSpent: quote("Quote spent"), tokensLocked: token("Tokens locked") } },
         CurveCompleted: { description: "Completed curve assets transferred.", parameters: { recipient: address("Asset recipient"), quoteOut: quote("Quote output"), tokenOut: token("Tokens output") } },

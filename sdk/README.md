@@ -234,3 +234,32 @@ topology includes fixed sources, dynamic discovery, and shared-pool filtering.
 The [Envio starter](examples/envio/README.md) is repo-local, generated, and
 lockfile-pinned. `npm run generate:indexing` updates it and `npm run
 check:indexing` rejects drift. It is excluded from the package API.
+
+## Graduated position custody
+
+`readGraduatedPosition` (root or `./reads` export) reads a Pons launch's Uniswap
+V4 position at an explicit block. Establish deployment trust with
+`assertCompatibleDeployment` separately; the reader checks chain identity,
+locker registration and pointers, NFT ownership, pool key, packed pool ID, and ticks.
+
+```ts
+await assertCompatibleDeployment(client, deployment, { blockNumber });
+const observation = await readGraduatedPosition(client, deployment, token, { blockNumber });
+if (observation.status === "observed") {
+  const { tokenId, owner, liquidity, poolKey } = observation.position;
+  // tokenId and liquidity remain bigint; serialization belongs to the caller.
+}
+```
+
+A valid pre-pool or rescued phase returns `no_graduated_position` and a null
+position. Custody/pool inconsistencies throw `POSITION_OBSERVATION_MISMATCH`;
+missing or changing checkpoint hashes throw `CHECKPOINT_UNAVAILABLE` or
+`CHECKPOINT_CHANGED`. RPC failures propagate. Reads use one block number and
+compare its hash before and after; this does not guarantee an atomic snapshot
+or future finality. Deployment compatibility does not independently attest the
+locker's runtime bytecode.
+
+The reader returns contract facts, without wallet discovery, token valuation,
+fee entitlement, withdrawal policy, or portfolio display decisions. It uses a
+reviewed minimal V4 read ABI; Uniswap SDK math and transaction builders remain
+separate concerns.

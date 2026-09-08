@@ -233,3 +233,48 @@ export declare function readBuybackVest(client: PublicClient, deployment: PonsDe
     protocolRecipient: `0x${string}`;
     protocolFeeShareBps: number;
 }>;
+/** Read Pons launch NFT custody and pool facts at a caller-selected block.
+ * Call assertCompatibleDeployment separately when establishing deployment trust.
+ * Number-pinned reads bracketed by hash checks detect observed reorgs, but are
+ * not an atomic snapshot or a guarantee against a future reorganization.
+ */
+export declare function readGraduatedPosition(client: PublicClient, deployment: PonsDeployment, token: Address, { blockNumber }: {
+    blockNumber: bigint;
+}): Promise<({
+    chainId: number;
+    token: `0x${string}`;
+    blockNumber: bigint;
+    blockHash: `0x${string}`;
+    abiRevision: string;
+} & {
+    status: 'no_graduated_position';
+    lifecyclePhase: number;
+    position: null;
+}) | ({
+    chainId: number;
+    token: `0x${string}`;
+    blockNumber: bigint;
+    blockHash: `0x${string}`;
+    abiRevision: string;
+} & {
+    status: 'observed';
+    lifecyclePhase: GraduationPhase.PoolCreated;
+    position: {
+        positionManager: `0x${string}`;
+        tokenId: bigint;
+        poolId: `0x${string}`;
+        owner: `0x${string}`;
+        locker: `0x${string}`;
+        locked: true;
+        liquidity: bigint;
+        tickLower: number;
+        tickUpper: number;
+        poolKey: {
+            currency0: `0x${string}`;
+            currency1: `0x${string}`;
+            fee: number;
+            hooks: `0x${string}`;
+            tickSpacing: number;
+        };
+    };
+})>;

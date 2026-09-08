@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- Add `readGraduatedPosition` for checkpoint-pinned Pons V4 NFT custody, pool identity, ticks, and exact liquidity; expose minimal read ABI and stable observation errors.
+## 0.4.0
+
+- Read graduated V4 custody and pool facts without embedding portfolio policy.
 
 - Verify published tarball bytes and prevent stale retries from moving channels backwards.
 

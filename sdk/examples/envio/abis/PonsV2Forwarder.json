@@ -1,0 +1,39 @@
+[
+  {
+    "name": "Launched",
+    "type": "event",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "token",
+        "indexed": true
+      },
+      {
+        "type": "address",
+        "name": "curve",
+        "indexed": true
+      },
+      {
+        "type": "address",
+        "name": "recipient",
+        "indexed": true
+      },
+      {
+        "type": "address",
+        "name": "launcher",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "quoteSpent",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "tokensReceived",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  }
+]

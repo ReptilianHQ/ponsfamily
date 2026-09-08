@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### 2026-09-08
+
+- Generate indexing artifacts from one reviewed protocol catalog to prevent drift.
+- Preserve canonical event provenance and reusable launch and pool evidence.
+- Keep the pinned Envio starter outside the published SDK surface.
+
 - Pin one finalized Robinhood Chain receipt per verifier as deployment-bound integration evidence.
 - Extend Hegel properties to every receipt verifier (acceptance, per-field mismatch, wrong emitter, reverted, floors) and to every builder's calldata verification.
 - Add Hegel construction round-trip and calldata perturbation properties for transaction builders.

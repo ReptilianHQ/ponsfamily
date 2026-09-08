@@ -167,7 +167,6 @@ The published provenance records the forwarder's creation transaction, block, ve
 
 - `@reptilianhq/pons-sdk/abis` — reviewed consumer ABIs
 - `@reptilianhq/pons-sdk/artifacts/*` — Envio-compatible event ABI JSON
-- `@reptilianhq/pons-sdk/examples/envio` — canonical Envio mainnet source and dynamic-registration example
 - `@reptilianhq/pons-sdk/indexing` — versioned event, artifact, address, start-block, and dynamic-source manifest
 - `@reptilianhq/pons-sdk/provenance/mainnet.json` — machine-readable reviewed deployment provenance
 - `@reptilianhq/pons-sdk/deployments` — pinned chain and contract metadata
@@ -214,9 +213,20 @@ to publish the next numbered candidate. See
 commands.
 
 The package is intentionally public and contains only the runtime-neutral SDK,
-public deployment provenance, ABI artifacts, and the canonical Envio example.
+public deployment provenance, ABI artifacts, and the vendor-neutral indexing
+manifest. The generated Envio starter stays in the repository.
 GitHub's npm registry still requires an access token to install public packages.
 The workflow publishes with `--access public` and verifies that GitHub continues
 to report public visibility after every release.
 
 Run `npm test` before release.
+
+### Generated indexing reference
+
+`./indexing` exposes the typed event catalog and `getPonsIndexingManifest()`.
+`./indexing/mainnet.json` publishes its vendor-neutral JSON form (bigints are
+decimal strings). Event parameters include descriptions and unit semantics;
+topology includes fixed sources, dynamic discovery, and shared-pool filtering.
+The [Envio starter](examples/envio/README.md) is repo-local, generated, and
+lockfile-pinned. `npm run generate:indexing` updates it and `npm run
+check:indexing` rejects drift. It is excluded from the package API.

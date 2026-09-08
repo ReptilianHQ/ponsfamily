@@ -68,3 +68,14 @@ who can land changes on `main` remain trusted release authorities.
 Publication is retry-safe. An existing target version is accepted only when its
 immutable `gitHead` matches the authorized source, after which the workflow
 repairs and verifies the selected dist-tag without replacing package bytes.
+
+## Indexing reference verification
+
+`npm test` builds the catalog, checks generated output with `check:indexing`,
+installs the Envio starter's frozen lockfile and runs codegen/type-checking,
+exercises generated handler fixtures, and verifies the actual packed manifest
+and event ABI exports. `prepublishOnly` also checks drift and the starter.
+After changing catalog inputs, run `npm run generate:indexing` and include all
+generated artifacts and `dist` in review. Never regenerate during a release
+check to hide stale committed output. See [the starter runbook](examples/envio/README.md)
+for local startup, replay requirements, and the live reorg smoke boundary.

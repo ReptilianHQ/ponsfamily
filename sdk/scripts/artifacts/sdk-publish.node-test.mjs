@@ -4,7 +4,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'no
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { compareVersions, integrity, prepare, publishVerified } from './sdk-publish.mjs';
+import { compareVersions, integrity, lookup, prepare, publishVerified } from './sdk-publish.mjs';
 
 const sourceSha = 'a'.repeat(40);
 const bytes = Buffer.from('immutable registry archive');
@@ -140,5 +140,22 @@ test('prepare packs repeatable source-bound bytes, restores the manifest, and ig
     if (previousCache === undefined) delete process.env.npm_config_cache;
     else process.env.npm_config_cache = previousCache;
     rmSync(root, { recursive: true, force: true });
+  }
+});
+
+// npm 11.5.2 emits structured --json errors to stdout and diagnostics to stderr.
+test('registry lookup accepts only structured E404 and fails closed on auth or transport errors', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'sdk-npm-response-'));
+  const previousPath = process.env.PATH;
+  try {
+    process.env.PATH = `${directory}:${previousPath}`;
+    for (const code of ['E404', 'E401', 'ECONNRESET']) {
+      writeFileSync(join(directory, 'npm'), `#!/bin/sh\nprintf '%s' '{"error":{"code":"${code}"}}'\nprintf '%s' 'diagnostic mentions E404' >&2\nexit 1\n`, { mode: 0o755 });
+      if (code === 'E404') assert.equal(lookup('@reptilianhq/sdk@99.0.0'), null);
+      else assert.throws(() => lookup('@reptilianhq/sdk@99.0.0'), /refusing publication/);
+    }
+  } finally {
+    process.env.PATH = previousPath;
+    rmSync(directory, { recursive: true, force: true });
   }
 });

@@ -20,6 +20,7 @@ describe("Pons indexing manifest", () => {
       "PonsV2FeeEscrow",
       "PonsV2BuybackVault",
       "PonsLaunchToken",
+      "PonsV2Forwarder",
     ]);
     expect(manifest.dependencies).toEqual([{
       name: "UniswapV4PoolManager",
@@ -42,6 +43,7 @@ describe("Pons indexing manifest", () => {
     }));
     expect(manifest.sources).toContainEqual({
       kind: "dynamic",
+      startFrom: "discovery-block",
       contract: "PonsV2Curve",
       registeredBy: { contract: "PonsV2Factory", event: "TokenLaunched", addressParameter: "curve" },
     });

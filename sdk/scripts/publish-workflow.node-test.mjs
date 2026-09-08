@@ -51,9 +51,17 @@ test("validates provenance and immutable targets before publishing", () => {
     queue: "max",
     "cancel-in-progress": false,
   });
-  assert.ok(stepIndex(publish, "Verify final release matches the published release candidate") < stepIndex(publish, "Publish to GitHub Packages"));
-  assert.ok(stepIndex(publish, "Check for an existing immutable target version") < stepIndex(publish, "Publish to GitHub Packages"));
-  assert.ok(stepIndex(publish, "Publish to GitHub Packages") < stepIndex(publish, "Publish or repair the selected install channel"));
+  const order = ["Verify final release matches the published release candidate", "Set published version", "Run package publication checks for the selected version", "Prepare immutable SDK publication evidence", "Publish the prepared immutable SDK tarball", "Verify package remains public", "Archive SDK publication evidence"].map(name => {
+    const index = stepIndex(publish, name);
+    assert.ok(index >= 0, `missing step: ${name}`);
+    return index;
+  });
+  assert.deepEqual(order, [...order].sort((a, b) => a - b));
+  assert.equal(publish.steps[order[2]].run, "npm run prepublishOnly");
+  assert.equal(publish.steps[order[6]].if, "always()");
+  const tooling = publish.steps.find(step => step.with?.path === ".release-tools");
+  assert.equal(tooling.with.ref, "main");
+  for (const index of [order[3], order[4]]) assert.ok(publish.steps[index].run.includes('${GITHUB_WORKSPACE}/.release-tools/sdk/scripts/artifacts/sdk-publish.mjs'));
   const releaseStep = publish.steps.find((step) => step.id === "release");
   assert.equal(releaseStep.env.RELEASE_SOURCE_SHA, "${{ needs.authorize.outputs.source_sha }}");
   assert.equal(releaseStep.env.RELEASE_REF_NAME, "${{ needs.authorize.outputs.ref_name }}");

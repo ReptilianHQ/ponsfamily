@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Verify published tarball bytes and prevent stale retries from moving channels backwards.
+
 ### 2026-09-08
 
 - Generate indexing artifacts from one reviewed protocol catalog to prevent drift.

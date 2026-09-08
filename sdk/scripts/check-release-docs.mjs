@@ -8,6 +8,7 @@ const releasing = await readFile(new URL("RELEASING.md", root), "utf8");
 const changelog = await readFile(new URL("CHANGELOG.md", root), "utf8");
 const workflow = await readFile(new URL("../.github/workflows/sdk-release.yml", root), "utf8");
 const releaseProvenanceScript = "scripts/release-provenance.mjs";
+const trustedPublisher = "${GITHUB_WORKSPACE}/.release-tools/sdk/scripts/artifacts/sdk-publish.mjs";
 
 export function stableVersionFromManifest(version) {
   const match = /^((?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))(?:-rc\.(?:0|[1-9]\d*))?$/.exec(version);
@@ -43,9 +44,22 @@ assert.ok(packageJson.files.includes("RELEASING.md"), "Published packages must i
 assert.ok(
   workflow.includes(`${releaseProvenanceScript} "\${{ needs.authorize.outputs.source_sha }}"`)
     && workflow.includes("needs.authorize.outputs.ref_type == 'branch'")
-    && workflow.includes('npm publish --access public --tag "${{ steps.release.outputs.dist_tag }}"'),
+    && workflow.includes('ref: main')
+    && workflow.includes('path: .release-tools')
+    && workflow.includes('sdk/scripts/artifacts')
+    && workflow.includes(trustedPublisher)
+    && workflow.includes('npm install --global npm@11.5.2')
+    && workflow.includes('prepare "${RUNNER_TEMP}/sdk-release"')
+    && workflow.includes('publish "${RUNNER_TEMP}/sdk-release"')
+    && workflow.includes('RELEASE_SOURCE_SHA: ${{ needs.authorize.outputs.source_sha }}')
+    && workflow.includes('RELEASE_DIST_TAG: ${{ steps.release.outputs.dist_tag }}')
+    && workflow.includes('pons-sdk-publish-${{ github.run_id }}-${{ github.run_attempt }}')
+    && workflow.includes('path: ${{ runner.temp }}/sdk-release')
+    && workflow.includes('actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f'),
   "Stable releases must verify the immutable RC package provenance",
 );
+assert.ok(!workflow.includes('npm publish --access public --tag'), "The trusted publisher must publish the prepared tarball");
+assert.ok(!workflow.includes('npm dist-tag add'), "The trusted publisher must guard channel repair");
 await access(new URL(releaseProvenanceScript, root));
 
 console.log(`Release docs describe ${packageJson.version} through the rc and latest channels.`);

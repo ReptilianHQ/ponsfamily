@@ -207,8 +207,12 @@ exactly match `package.json` fail closed.
 
 RC and stable package versions are immutable. Do not commit an `-rc` version to
 `package.json`, reuse an already published version, or create an RC Git tag. If
-an RC is rejected, merge the fix to `main` and advance the same release branch
-to publish the next numbered candidate. See
+an existing version has different package bytes, its release fails closed: merge
+a fresh source commit and publish a fresh version rather than attempting to
+replace the legacy package. An RC and its eventual stable release intentionally
+have different versions and are not required to have identical tarballs. If an
+RC is rejected, merge the fix to `main` and advance the same release branch to
+publish the next numbered candidate. See
 [`RELEASING.md`](./RELEASING.md) for the exact checklist and verification
 commands.
 

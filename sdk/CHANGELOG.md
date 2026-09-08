@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.4.0
+
+- Read graduated V4 custody and pool facts without embedding portfolio policy.
+
 - Verify published tarball bytes and prevent stale retries from moving channels backwards.
 
 ### 2026-09-08

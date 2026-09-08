@@ -119,6 +119,8 @@ export const ponsMemeHookAbi = parseAbi([
     "event PoolFeesRescued(bytes32 indexed poolId, address indexed quoteToken, uint256 protocolAmount, uint256 creatorAmount)",
 ]);
 export const ponsLockerAbi = parseAbi([
+    "function positionManager() view returns (address)",
+    "function factory() view returns (address)",
     "function lockedPositions(address token) view returns (uint256)",
     "function lockedTokenSupply(address token) view returns (uint256)",
     "function isLocked(address token) view returns (bool)",
@@ -133,5 +135,10 @@ export const ponsBuybackVaultAbi = parseAbi([
     "event Locked(address indexed token, address indexed depositor, uint256 amount, uint256 newVestingStart)",
     "event Released(address indexed token, uint256 creatorAmount, uint256 protocolAmount)",
     "event CreatorRecipientUpdated(address indexed token, address indexed previousRecipient, address indexed newRecipient)",
+]);
+export const uniswapV4PositionReadAbi = parseAbi([
+    'function ownerOf(uint256 tokenId) view returns (address)',
+    'function getPositionLiquidity(uint256 tokenId) view returns (uint128)',
+    'function getPoolAndPositionInfo(uint256 tokenId) view returns ((address currency0, address currency1, uint24 fee, int24 tickSpacing, address hooks), uint256)',
 ]);
 //# sourceMappingURL=abis.js.map

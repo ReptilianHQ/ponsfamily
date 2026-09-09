@@ -17,6 +17,7 @@ contracts:
   - name: PonsV2Factory
     abi_file_path: ./abis/PonsV2Factory.json
     events:
+      - event: LaunchConfigUpdated
       - event: TokenLaunched
       - event: LaunchSwept
       - event: CreatorFeeRecipientUpdated

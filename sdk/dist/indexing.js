@@ -29,6 +29,7 @@ const quote = (description) => amount("launch pairToken (pool quoteToken for hoo
 const token = (description) => amount("launch token (emitter for Transfer; token parameter for vault)", description);
 const metadata = {
     PonsV2Factory: {
+        LaunchConfigUpdated: { description: "Factory configuration replaced; read the configuration at this block for its final values.", parameters: { id: identifier("Factory launch configuration ID") } },
         TokenLaunched: { description: "Launch identity and dynamic curve/token discovery.", parameters: { token: address("Launched token"), curve: address("Bonding curve"), deployer: address("Launch deployer"), pairToken: address("Quote asset"), launchConfigId: identifier("Factory launch configuration ID"), graduationThreshold: quote("Graduation threshold") } },
         LaunchSwept: { description: "Assets swept from a completed curve.", parameters: { token: address("Launch token"), quoteOut: quote("Quote swept"), tokenOut: token("Tokens swept") } },
         CreatorFeeRecipientUpdated: { description: "Creator fee recipient changed.", parameters: { token: address("Launch token"), previousRecipient: address("Previous recipient"), newRecipient: address("New recipient") } },

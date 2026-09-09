@@ -42,6 +42,7 @@ export const ponsFactoryAbi = parseAbi([
   "function createGraduatedPool(address token) returns (uint256 positionId)",
   "function transferCreatorFeeRecipient(address token, address newRecipient)",
   "function setBuybackEnabled(address token, bool enabled)",
+  "event LaunchConfigUpdated(uint256 indexed id)",
   "event TokenLaunched(address indexed token, address indexed curve, address indexed deployer, address pairToken, uint256 launchConfigId, uint256 graduationThreshold)",
   "event LaunchSwept(address indexed token, uint256 quoteOut, uint256 tokenOut)",
   "event CreatorFeeRecipientUpdated(address indexed token, address indexed previousRecipient, address indexed newRecipient)",

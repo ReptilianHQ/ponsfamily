@@ -7,6 +7,10 @@ indexer.contractRegister({"contract":"PonsV2Factory","event":"TokenLaunched"}, a
     context.chain.PonsLaunchToken.add(event.params.token);
 });
 
+indexer.onEvent({"contract":"PonsV2Factory","event":"LaunchConfigUpdated"}, async ({ event, context }) => {
+    context.PonsProtocolEvent.set(normalizedEvent(event, "PonsV2Factory", "LaunchConfigUpdated", "LaunchConfigUpdated(uint256)"));
+});
+
 indexer.onEvent({"contract":"PonsV2Factory","event":"TokenLaunched"}, async ({ event, context }) => {
     context.PonsProtocolEvent.set(normalizedEvent(event, "PonsV2Factory", "TokenLaunched", "TokenLaunched(address,address,address,address,uint256,uint256)"));
     {

@@ -1,5 +1,17 @@
 [
   {
+    "name": "LaunchConfigUpdated",
+    "type": "event",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "id",
+        "indexed": true
+      }
+    ],
+    "anonymous": false
+  },
+  {
     "name": "TokenLaunched",
     "type": "event",
     "inputs": [

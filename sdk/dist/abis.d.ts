@@ -474,6 +474,14 @@ export declare const ponsFactoryAbi: readonly [{
     }];
     readonly outputs: readonly [];
 }, {
+    readonly name: "LaunchConfigUpdated";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "uint256";
+        readonly name: "id";
+        readonly indexed: true;
+    }];
+}, {
     readonly name: "TokenLaunched";
     readonly type: 'event';
     readonly inputs: readonly [{

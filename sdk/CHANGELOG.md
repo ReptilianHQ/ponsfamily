@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.4.1
+
+### 2026-09-09
+
+- Index configuration updates so consumers can preserve launch-block economics without repeated RPC reads.
+
 ## 0.4.0
 
 - Read graduated V4 custody and pool facts without embedding portfolio policy.

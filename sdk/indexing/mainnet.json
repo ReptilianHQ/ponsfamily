@@ -7,6 +7,34 @@
   "catalog": [
     {
       "contract": "PonsV2Factory",
+      "name": "LaunchConfigUpdated",
+      "signature": "LaunchConfigUpdated(uint256)",
+      "description": "Factory configuration replaced; read the configuration at this block for its final values.",
+      "abi": {
+        "name": "LaunchConfigUpdated",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "uint256",
+            "name": "id",
+            "indexed": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "type": "uint256",
+          "indexed": true,
+          "semantic": {
+            "unit": "identifier",
+            "description": "Factory launch configuration ID"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Factory",
       "name": "TokenLaunched",
       "signature": "TokenLaunched(address,address,address,address,uint256,uint256)",
       "description": "Launch identity and dynamic curve/token discovery.",
@@ -2002,6 +2030,7 @@
       "name": "PonsV2Factory",
       "artifact": "@reptilianhq/pons-sdk/artifacts/PonsV2Factory.json",
       "events": [
+        "LaunchConfigUpdated",
         "TokenLaunched",
         "LaunchSwept",
         "CreatorFeeRecipientUpdated",

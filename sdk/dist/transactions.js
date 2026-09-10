@@ -70,7 +70,7 @@ export function buildCurveSellTransaction(parameters) {
 export function buildApprovalTransaction(token, spender, amount) {
     token = normalizeAddress(token, "token");
     spender = normalizeAddress(spender, "spender");
-    assertPositive(amount, "amount");
+    assertNonNegative(amount, "amount");
     return {
         to: token,
         data: encodeFunctionData({ abi: ponsTokenAbi, functionName: "approve", args: [spender, amount] }),

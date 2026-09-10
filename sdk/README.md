@@ -101,6 +101,25 @@ reviewed launch cannot silently execute under changed economics. Infrastructure
 that intentionally accepts the live terms may omit the digest only by passing
 `unsafeAllowUnpinnedEconomics: true` in the token parameters.
 
+## ERC-20 launch terms
+
+Use `readLaunchTermsForPair(client, deployment, { launchConfigId, pairToken, launcher },
+{ blockNumber })` before reviewing a stock-token or other ERC-20 quote launch.
+`blockNumber` and `launcher` are optional. The reader returns the selected config,
+quote approval, live quote decimals, effective `phantomQuote` and
+`graduationThreshold`, and `expectedEconomics` at one block. For native ETH it uses
+the selected launch config; for ERC-20 pairs it uses the factory's
+`pairTokenEconomics`. A mismatch between live and configured decimals fails closed.
+It reads only the selected config, without enumerating every launch config.
+
+Check `approved`, `launchEnabled`, `config.enabled`, and (when a launcher was
+supplied) `canLaunch` before building a launch. These are observations, not a
+promise of execution: simulate and verify the exact transaction as usual.
+Use the **top-level effective economics** to quote an ERC-20 launch; the nested
+`config` retains its native-denominated reserve and threshold. `launchFee` is still
+paid in native ETH. Quote inputs use the quote asset's raw units. ERC-20
+opening buys require allowance to the reviewed forwarder (see below).
+
 ## Approved pairs and ERC-20 opening buys
 
 `readPairTokenCandidates` scans approval events over explicit block bounds;
@@ -147,12 +166,37 @@ const buy = buildCurveBuyTransaction({
 });
 ```
 
-ERC-20 quote buys and all sells require the normal ERC-20 allowance first; use `buildApprovalTransaction` with the curve as spender.
+ERC-20 quote buys and all sells require the normal ERC-20 allowance first; use `buildApprovalTransaction` with the curve as spender. An amount of `0n` builds an allowance revocation or the first step of a zero-first allowance change; negative amounts are rejected.
 
 For the final curve buy, use `quoteCurveBuyExecution` to review the actual
 quote spend and refund. Use `quoteCurveBuyExactTokensOut` when an application
 needs the minimum live quote input for a target token quantity. Both helpers
 mirror the contract's separate fee rounding and final-fill repricing.
+
+### Read raw state without metadata
+
+`readCurveState` returns raw reserves and curve facts without querying the quote
+token's metadata. `readLaunchLifecycleState` composes that raw state with factory
+lifecycle and locker observations at the same block. Their snapshots deliberately
+have **no `quoteDecimals` field**: amounts are raw integers, not display amounts.
+The launched token's protocol-defined `tokenDecimals` remains 18.
+
+Existing `readCurveSnapshot` and `readLaunchLifecycle` stay strict: ERC-20 decimal
+lookup failures propagate, and successful snapshots include `quoteDecimals`.
+Use the raw readers when metadata is optional; obtain verified quote decimals
+separately before displaying scaled amounts or prices. Raw contract-read failures
+still propagate. The SDK does not silently assume 18 decimals for ERC-20 quotes.
+
+### Verify receipts containing multiple actions
+
+Receipt verifiers select the unique event from the expected emitter that matches
+all supplied exact fields, independent of log order. Supply identifiers such as
+`token`, `recipient`, or `poolId` when a transaction contains multiple actions.
+No matching fields produces `RECEIPT_FIELD_MISMATCH`; missing decodable events
+produce `EVENT_NOT_FOUND`. Multiple matching events, including identical duplicate
+evidence, produce `AMBIGUOUS_EVENT`. Bounds such as `minTokensOut` remain checks on
+the uniquely selected event, not a way to choose between otherwise ambiguous trades.
+Atomic opening-buy evidence must also match the selected launch's token and curve.
 
 ## Manage fees after graduation
 

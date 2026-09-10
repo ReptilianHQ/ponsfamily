@@ -184,16 +184,16 @@ describe("Pons receipt verifier properties", () => {
       }, HEGEL_SETTINGS);
     });
 
-    it.each(eventInputs(v.abi, v.eventName))("uses the first expected event when $name conflicts", (target) => {
+    it.each(eventInputs(v.abi, v.eventName))("selects the unique expected event when $name conflicts", (target) => {
       hegel.test((tc) => {
         const emitter = drawAddress(tc);
         const args = drawEventArgs(tc, v.abi, v.eventName);
         const good = encodeLog(v.abi, v.eventName, emitter, args);
         const bad = encodeLog(v.abi, v.eventName, emitter, { ...args, [target.name!]: perturbArg(tc, target.type, args[target.name!]) });
         const noise = drawNoise(tc, v.abi, v.eventName, good, "mixed");
-        expectCode(() => runVerify(v, receiptWith([...noise, bad, good]), emitter, args), "RECEIPT_FIELD_MISMATCH", target.name);
+        expect(runVerify(v, receiptWith([...noise, bad, good]), emitter, args)).toEqual(args);
         expect(runVerify(v, receiptWith([...noise, good, bad]), emitter, args)).toEqual(args);
-        expect(runVerify(v, receiptWith([good, ...noise, good]), emitter, args)).toEqual(args);
+        expectCode(() => runVerify(v, receiptWith([good, ...noise, good]), emitter, args), "AMBIGUOUS_EVENT");
       }, HEGEL_SETTINGS);
     });
 
@@ -302,7 +302,7 @@ describe("Pons launch receipt properties", () => {
     const eventName = part === "launch" ? "TokenLaunched" : "Launched";
     const emitter = part === "launch" ? factory : forwarder;
     describe(part, () => {
-      it.each(eventInputs(abi, eventName))("rejects the $name expectation and preserves first-event conflict ordering", (target) => {
+      it.each(eventInputs(abi, eventName))("rejects the $name expectation and selects unique matching launch evidence", (target) => {
         hegel.test((tc) => {
           const pair = drawLaunch(tc);
           const args = pair[part];
@@ -313,9 +313,9 @@ describe("Pons launch receipt properties", () => {
           const options = { expected: pair.launch, forwarder, openingBuy: pair.openingBuy };
           const wrongOptions = part === "launch" ? { ...options, expected: changed } : { ...options, openingBuy: changed };
           expectCode(() => receipts.verifyLaunchReceipt(receiptWith([first, second]), factory, wrongOptions), "RECEIPT_FIELD_MISMATCH", target.name);
-          expectCode(() => receipts.verifyLaunchReceipt(receiptWith([bad, first, second]), factory, options), "RECEIPT_FIELD_MISMATCH", target.name);
+          expect(receipts.verifyLaunchReceipt(receiptWith([bad, first, second]), factory, options)).toEqual(pair);
           expect(receipts.verifyLaunchReceipt(receiptWith([first, second, bad]), factory, options)).toEqual(pair);
-          expect(receipts.verifyLaunchReceipt(receiptWith([first, second, first, second]), factory, options)).toEqual(pair);
+          expectCode(() => receipts.verifyLaunchReceipt(receiptWith([first, second, first, second]), factory, options), "AMBIGUOUS_EVENT");
         }, HEGEL_SETTINGS);
       });
     });

@@ -165,7 +165,7 @@ export function buildCurveSellTransaction(parameters: BuildSellParameters): Tran
 export function buildApprovalTransaction(token: Address, spender: Address, amount: bigint): TransactionRequest {
   token = normalizeAddress(token, "token");
   spender = normalizeAddress(spender, "spender");
-  assertPositive(amount, "amount");
+  assertNonNegative(amount, "amount");
   return {
     to: token,
     data: encodeFunctionData({ abi: ponsTokenAbi, functionName: "approve", args: [spender, amount] }),

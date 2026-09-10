@@ -188,6 +188,24 @@ export declare const ponsFactoryAbi: readonly [{
         readonly type: "bool";
     }];
 }, {
+    readonly name: "pairTokenEconomics";
+    readonly type: 'function';
+    readonly stateMutability: "view";
+    readonly inputs: readonly [{
+        readonly type: "address";
+        readonly name: "pairToken";
+    }];
+    readonly outputs: readonly [{
+        readonly type: "uint256";
+        readonly name: "phantomQuote";
+    }, {
+        readonly type: "uint256";
+        readonly name: "graduationThreshold";
+    }, {
+        readonly type: "uint8";
+        readonly name: "decimals";
+    }];
+}, {
     readonly name: "previewLaunchEconomics";
     readonly type: 'function';
     readonly stateMutability: "view";

@@ -105,11 +105,12 @@ where available, so a missing event-name check cannot silently accept them.
 The launch verifier additionally checks both event expectation sets, token/curve
 cross-binding, missing factory or forwarder evidence, and equality/one-unit
 boundaries for the opening-buy output floor, plus absolute and partial-fill
-curve-buy floor boundaries. The current selection policy is
-first decodable event of the expected name and emitter: an earlier mismatch is
-not rescued by later matching evidence, later conflicts do not replace the
-first result, and duplicates do not aggregate amounts. These tests preserve
-current semantics rather than declaring every conflicting receipt invalid.
+curve-buy floor boundaries. Selection requires exactly one decodable event of
+the expected name and emitter matching every supplied exact field. Earlier or
+later nonmatching events do not affect selection. Multiple matches, including
+identical duplicates, fail with `AMBIGUOUS_EVENT`; they never aggregate amounts.
+Floor checks apply only after unique selection. The property suite tests these
+rules for every verifier and field, including paired atomic-launch evidence.
 
 This extends the Aerodrome pilot using the generator-distribution, swarm-testing,
 and shrinking ideas collected at https://tybug.dev/property-testing/.
@@ -140,3 +141,21 @@ release-document/workflow, pack, `publint`, and ESM package checks. The edited
 receipt suite passed a focused TypeScript check with tests included. Root SDK
 conformance and workflow-registry checks also passed. A writable temporary npm
 cache was used; package versions and lockfiles were unchanged.
+
+
+### Quote and receipt boundary evidence (2026-09-10)
+
+The first-event behavior described in the historical pilot above is superseded
+by unique expectation-based selection. Local verification passed 353 unit tests
+in 17 files, including six pair/state regressions, five batched-receipt cases,
+and zero-allowance coverage. Property cases now accept later exact matches and
+reject duplicate evidence for every single-event verifier and atomic launch.
+The pair terms ABI getter was checked against the pinned protocol source
+`836f0f97f9a9569855876570d6778501c163c883`.
+
+Build, three indexing-generator tests, artifact checks, 35 release tests,
+release-doc checks, packed exports, publint, ESM type resolution, root SDK
+conformance and 112 workflow declarations passed locally. Generated `dist`
+changes belong in the SDK commit. No funded transaction or package publication
+was performed. Before publishing, run the complete `npm test` on the committed
+release candidate, then follow the immutable version/RC procedure above.

@@ -3,6 +3,9 @@
 
 ## Unreleased
 
+- Read pair-specific launch terms and preserve raw state during metadata outages.
+- Support allowance revocation and verify unique matching events in batched receipts.
+
 - Fix generated Envio handler discovery so selected pool indexing starts and reorgs recover.
 
 ## 0.5.0

@@ -142,12 +142,13 @@ export function verifyLaunchReceipt(
     openingBuy?: Partial<AtomicOpeningBuyResult> & { minTokensOut?: bigint };
   } = {},
 ): LaunchReceiptResult {
-  const launch = requireEvent<TokenLaunchedResult>(receipt, factory, ponsFactoryAbi, "TokenLaunched");
-  assertFields(launch, options.expected ?? {}, new Set(["token", "curve", "deployer", "pairToken"]));
+  const launch = requireEvent<TokenLaunchedResult>(receipt, factory, ponsFactoryAbi, "TokenLaunched",
+    options.expected ?? {}, new Set(["token", "curve", "deployer", "pairToken"]));
   if (options.forwarder === undefined && options.openingBuy === undefined) return { launch };
   if (options.forwarder === undefined) invalid("forwarder is required when openingBuy expectations are supplied");
-  const openingBuy = requireEvent<AtomicOpeningBuyResult>(receipt, options.forwarder, ponsForwarderAbi, "Launched");
   const { minTokensOut, ...expected } = options.openingBuy ?? {};
+  const openingBuy = requireEvent<AtomicOpeningBuyResult>(receipt, options.forwarder, ponsForwarderAbi, "Launched",
+    { ...expected, token: launch.token, curve: launch.curve }, new Set(["token", "curve", "recipient", "launcher"]));
   assertFields(openingBuy, expected, new Set(["token", "curve", "recipient", "launcher"]));
   if (!sameAddress(openingBuy.token, launch.token) || !sameAddress(openingBuy.curve, launch.curve)) {
     mismatch("RECEIPT_FIELD_MISMATCH", "openingBuy.token/curve", `${launch.token}/${launch.curve}`, `${openingBuy.token}/${openingBuy.curve}`);
@@ -163,9 +164,8 @@ export function verifyCurveBuyReceipt(
   curve: Address,
   expected: Partial<CurveBuyResult> & { minTokensOut?: bigint; quoteOffered?: bigint } = {},
 ): CurveBuyResult {
-  const result = requireEvent<CurveBuyResult>(receipt, curve, ponsCurveAbi, "CurveBuy");
   const { minTokensOut, quoteOffered, ...exact } = expected;
-  assertFields(result, exact, new Set(["buyer", "recipient"]));
+  const result = requireEvent<CurveBuyResult>(receipt, curve, ponsCurveAbi, "CurveBuy", exact, new Set(["buyer", "recipient"]));
   if (quoteOffered !== undefined && result.quoteIn > quoteOffered) {
     mismatch("RECEIPT_FIELD_MISMATCH", "quoteIn", `<= ${quoteOffered}`, String(result.quoteIn));
   }
@@ -190,9 +190,8 @@ export function verifyCurveSellReceipt(
   curve: Address,
   expected: Partial<CurveSellResult> & { minQuoteOut?: bigint } = {},
 ): CurveSellResult {
-  const result = requireEvent<CurveSellResult>(receipt, curve, ponsCurveAbi, "CurveSell");
   const { minQuoteOut, ...exact } = expected;
-  assertFields(result, exact, new Set(["seller", "recipient"]));
+  const result = requireEvent<CurveSellResult>(receipt, curve, ponsCurveAbi, "CurveSell", exact, new Set(["seller", "recipient"]));
   if (minQuoteOut !== undefined && result.quoteOut < minQuoteOut) {
     mismatch("OUTPUT_BELOW_MINIMUM", "quoteOut", `>= ${minQuoteOut}`, String(result.quoteOut));
   }
@@ -204,8 +203,7 @@ export function verifyPoolGraduatedReceipt(
   factory: Address,
   expected: Partial<PoolGraduatedResult> = {},
 ): PoolGraduatedResult {
-  const result = requireEvent<PoolGraduatedResult>(receipt, factory, ponsFactoryAbi, "PoolGraduated");
-  assertFields(result, expected, new Set(["token"]));
+  const result = requireEvent<PoolGraduatedResult>(receipt, factory, ponsFactoryAbi, "PoolGraduated", expected, new Set(["token"]));
   return result;
 }
 
@@ -214,8 +212,7 @@ export function verifyFeesSweptReceipt(
   curve: Address,
   expected: Partial<FeesSweptResult> = {},
 ): FeesSweptResult {
-  const result = requireEvent<FeesSweptResult>(receipt, curve, ponsCurveAbi, "FeesSwept");
-  assertFields(result, expected, new Set());
+  const result = requireEvent<FeesSweptResult>(receipt, curve, ponsCurveAbi, "FeesSwept", expected);
   return result;
 }
 
@@ -224,8 +221,7 @@ export function verifyBuybackLockedReceipt(
   curve: Address,
   expected: Partial<BuybackLockedResult> = {},
 ): BuybackLockedResult {
-  const result = requireEvent<BuybackLockedResult>(receipt, curve, ponsCurveAbi, "BuybackLocked");
-  assertFields(result, expected, new Set());
+  const result = requireEvent<BuybackLockedResult>(receipt, curve, ponsCurveAbi, "BuybackLocked", expected);
   return result;
 }
 
@@ -234,8 +230,7 @@ export function verifyLaunchSweptReceipt(
   factory: Address,
   expected: Partial<LaunchSweptResult> = {},
 ): LaunchSweptResult {
-  const result = requireEvent<LaunchSweptResult>(receipt, factory, ponsFactoryAbi, "LaunchSwept");
-  assertFields(result, expected, new Set(["token"]));
+  const result = requireEvent<LaunchSweptResult>(receipt, factory, ponsFactoryAbi, "LaunchSwept", expected, new Set(["token"]));
   return result;
 }
 
@@ -244,8 +239,7 @@ export function verifyCreatorFeeRecipientUpdatedReceipt(
   factory: Address,
   expected: Partial<CreatorFeeRecipientUpdatedResult> = {},
 ): CreatorFeeRecipientUpdatedResult {
-  const result = requireEvent<CreatorFeeRecipientUpdatedResult>(receipt, factory, ponsFactoryAbi, "CreatorFeeRecipientUpdated");
-  assertFields(result, expected, new Set(["token", "previousRecipient", "newRecipient"]));
+  const result = requireEvent<CreatorFeeRecipientUpdatedResult>(receipt, factory, ponsFactoryAbi, "CreatorFeeRecipientUpdated", expected, new Set(["token", "previousRecipient", "newRecipient"]));
   return result;
 }
 
@@ -254,8 +248,7 @@ export function verifyBuybackEnabledUpdatedReceipt(
   factory: Address,
   expected: Partial<BuybackEnabledUpdatedResult> = {},
 ): BuybackEnabledUpdatedResult {
-  const result = requireEvent<BuybackEnabledUpdatedResult>(receipt, factory, ponsFactoryAbi, "BuybackEnabledUpdated");
-  assertFields(result, expected, new Set(["token", "controller"]));
+  const result = requireEvent<BuybackEnabledUpdatedResult>(receipt, factory, ponsFactoryAbi, "BuybackEnabledUpdated", expected, new Set(["token", "controller"]));
   return result;
 }
 
@@ -264,8 +257,7 @@ export function verifyPoolFeesSweptReceipt(
   memeHook: Address,
   expected: Partial<PoolFeesSweptResult> = {},
 ): PoolFeesSweptResult {
-  const result = requireEvent<PoolFeesSweptResult>(receipt, memeHook, ponsMemeHookAbi, "PoolFeesSwept");
-  assertFields(result, expected, new Set());
+  const result = requireEvent<PoolFeesSweptResult>(receipt, memeHook, ponsMemeHookAbi, "PoolFeesSwept", expected);
   return result;
 }
 
@@ -274,8 +266,7 @@ export function verifyNativeFeesClaimedReceipt(
   feeEscrow: Address,
   expected: Partial<NativeFeesClaimedResult> = {},
 ): NativeFeesClaimedResult {
-  const result = requireEvent<NativeFeesClaimedResult>(receipt, feeEscrow, ponsFeeEscrowAbi, "Claimed");
-  assertFields(result, expected, new Set(["recipient"]));
+  const result = requireEvent<NativeFeesClaimedResult>(receipt, feeEscrow, ponsFeeEscrowAbi, "Claimed", expected, new Set(["recipient"]));
   return result;
 }
 
@@ -284,8 +275,7 @@ export function verifyTokenFeesClaimedReceipt(
   feeEscrow: Address,
   expected: Partial<TokenFeesClaimedResult> = {},
 ): TokenFeesClaimedResult {
-  const result = requireEvent<TokenFeesClaimedResult>(receipt, feeEscrow, ponsFeeEscrowAbi, "ClaimedToken");
-  assertFields(result, expected, new Set(["recipient", "token"]));
+  const result = requireEvent<TokenFeesClaimedResult>(receipt, feeEscrow, ponsFeeEscrowAbi, "ClaimedToken", expected, new Set(["recipient", "token"]));
   return result;
 }
 
@@ -294,22 +284,47 @@ export function verifyBuybackReleasedReceipt(
   buybackVault: Address,
   expected: Partial<BuybackReleasedResult> = {},
 ): BuybackReleasedResult {
-  const result = requireEvent<BuybackReleasedResult>(receipt, buybackVault, ponsBuybackVaultAbi, "Released");
-  assertFields(result, expected, new Set(["token"]));
+  const result = requireEvent<BuybackReleasedResult>(receipt, buybackVault, ponsBuybackVaultAbi, "Released", expected, new Set(["token"]));
   return result;
 }
 
-function requireEvent<T>(receipt: ReceiptLike, emitter: Address, abi: readonly unknown[], eventName: string): T {
+function requireEvent<T extends object>(
+  receipt: ReceiptLike,
+  emitter: Address,
+  abi: readonly unknown[],
+  eventName: string,
+  expected: Partial<T> = {},
+  addressFields: ReadonlySet<string> = new Set(),
+): T {
   assertSuccessfulReceipt(receipt);
+  const matches: T[] = [];
+  let firstMismatch: PonsSdkError | undefined;
   for (const log of receipt.logs) {
     if (!sameAddress(log.address, emitter)) continue;
+    let result: T;
     try {
       const decoded = decodeEventLog({ abi, eventName, data: log.data, topics: log.topics, strict: true } as never) as unknown as { eventName: string; args: T };
-      if (decoded.eventName === eventName) return normalizeAddresses(decoded.args);
+      if (decoded.eventName !== eventName) continue;
+      result = normalizeAddresses(decoded.args);
     } catch {
-      // The expected emitter can produce unrelated events in the same receipt.
+      // The expected emitter can produce unrelated or malformed logs.
+      continue;
+    }
+    try {
+      assertFields(result, expected, addressFields);
+      matches.push(result);
+    } catch (error) {
+      if (!(error instanceof PonsSdkError) || error.code !== "RECEIPT_FIELD_MISMATCH") throw error;
+      firstMismatch ??= error;
     }
   }
+  if (matches.length === 1) return matches[0];
+  if (matches.length > 1) {
+    throw new PonsSdkError("AMBIGUOUS_EVENT", `Multiple ${eventName} events match the supplied expectations`, {
+      path: "logs", expected: "one matching event", actual: String(matches.length),
+    });
+  }
+  if (firstMismatch) throw firstMismatch;
   throw new PonsSdkError("EVENT_NOT_FOUND", `Expected ${eventName} event from ${emitter}`, {
     path: "logs",
     expected: `${eventName} from ${emitter}`,

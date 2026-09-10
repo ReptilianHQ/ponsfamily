@@ -58,6 +58,64 @@ export async function readLaunchTerms(client: PublicClient, deployment: PonsDepl
   return { blockNumber, launchFee, launchEnabled, maxCreatorTaxBps, snipeTaxStartBps, snipeTaxSeconds, configs, canLaunch };
 }
 
+export interface PairLaunchTermsParameters {
+  launchConfigId: bigint;
+  /** Zero address selects native ETH; ERC-20 terms come from pairTokenEconomics. */
+  pairToken: Address;
+  launcher?: Address;
+}
+
+/** Reads the selected pair's effective launch economics at one block. */
+export async function readLaunchTermsForPair(
+  client: PublicClient,
+  deployment: PonsDeployment,
+  parameters: PairLaunchTermsParameters,
+  options: ReadAtBlockOptions = {},
+) {
+  const { launchConfigId, launcher } = parameters;
+  if (launchConfigId < 0n) {
+    throw new PonsSdkError("INVALID_ARGUMENT", "launchConfigId must be zero or greater", { path: "launchConfigId" });
+  }
+  const pairToken = getAddress(parameters.pairToken);
+  const blockNumber = options.blockNumber ?? await client.getBlockNumber();
+  const read = { address: deployment.contracts.factory, abi: ponsFactoryAbi, blockNumber } as const;
+  const [config, launchFee, launchEnabled, maxCreatorTaxBps, snipeTaxStartBps, snipeTaxSeconds,
+    canLaunch, approved, pairEconomics, quoteDecimals, expectedEconomics] = await Promise.all([
+    client.readContract({ ...read, functionName: "getLaunchConfig", args: [launchConfigId] }),
+    client.readContract({ ...read, functionName: "launchFee" }),
+    client.readContract({ ...read, functionName: "launchEnabled" }),
+    client.readContract({ ...read, functionName: "maxCreatorTaxBps" }),
+    client.readContract({ ...read, functionName: "snipeTaxStartBps" }),
+    client.readContract({ ...read, functionName: "snipeTaxSeconds" }),
+    launcher === undefined ? Promise.resolve(undefined) : client.readContract({
+      ...read, functionName: "canLaunch", args: [getAddress(launcher)],
+    }),
+    pairToken === zeroAddress ? Promise.resolve(true) : client.readContract({
+      ...read, functionName: "approvedPairTokens", args: [pairToken],
+    }),
+    pairToken === zeroAddress ? Promise.resolve(null) : client.readContract({
+      ...read, functionName: "pairTokenEconomics", args: [pairToken],
+    }),
+    pairToken === zeroAddress ? Promise.resolve(18) : client.readContract({
+      address: pairToken, abi: ponsTokenAbi, functionName: "decimals", blockNumber,
+    }),
+    client.readContract({ ...read, functionName: "previewLaunchEconomics", args: [launchConfigId, pairToken] }),
+  ]);
+  if (pairEconomics !== null && Number(pairEconomics[2]) !== Number(quoteDecimals)) {
+    throw new PonsSdkError("POINTER_MISMATCH", "Pair token decimals differ from its configured economics", {
+      path: "pairTokenEconomics.decimals", expected: String(pairEconomics[2]), actual: String(quoteDecimals),
+    });
+  }
+  return {
+    blockNumber, launchConfigId, pairToken, launchFee, launchEnabled, maxCreatorTaxBps,
+    snipeTaxStartBps, snipeTaxSeconds, canLaunch, approved, config,
+    quoteDecimals: Number(quoteDecimals),
+    phantomQuote: pairEconomics === null ? config.phantomQuote : pairEconomics[0],
+    graduationThreshold: pairEconomics === null ? config.graduationThreshold : pairEconomics[1],
+    expectedEconomics,
+  };
+}
+
 export interface ReadAtBlockOptions {
   blockNumber?: bigint;
 }
@@ -186,7 +244,8 @@ export async function readLaunchIndexingSnapshotAtBlock(
   };
 }
 
-export async function readCurveSnapshot(
+/** Raw protocol state; does not depend on quote-token metadata. */
+export async function readCurveState(
   client: PublicClient,
   curve: Address,
   options: ReadAtBlockOptions = {},
@@ -207,18 +266,11 @@ export async function readCurveSnapshot(
       client.readContract({ ...readOptions, functionName: "readyToGraduate" }),
       client.readContract({ ...readOptions, functionName: "graduated" }),
     ]);
-  const quoteDecimals = pairToken === zeroAddress ? 18 : await client.readContract({
-    address: pairToken,
-    abi: ponsTokenAbi,
-    functionName: "decimals",
-    blockNumber,
-  });
   return {
     blockNumber,
     curve,
     token,
     pairToken,
-    quoteDecimals: Number(quoteDecimals),
     tokenDecimals: 18,
     feeBps,
     creatorTaxBps,
@@ -232,6 +284,19 @@ export async function readCurveSnapshot(
   };
 }
 
+/** Strict metadata-bearing snapshot. Use readCurveState when metadata is optional. */
+export async function readCurveSnapshot(
+  client: PublicClient,
+  curve: Address,
+  options: ReadAtBlockOptions = {},
+) {
+  const state = await readCurveState(client, curve, options);
+  const quoteDecimals = state.pairToken === zeroAddress ? 18 : await client.readContract({
+    address: state.pairToken, abi: ponsTokenAbi, functionName: "decimals", blockNumber: state.blockNumber,
+  });
+  return { ...state, quoteDecimals: Number(quoteDecimals) };
+}
+
 /** Reads one internally consistent launch lifecycle snapshot at a single block. */
 export async function readLaunchLifecycle(
   client: PublicClient,
@@ -239,9 +304,29 @@ export async function readLaunchLifecycle(
   token: Address,
   options: ReadAtBlockOptions = {},
 ) {
+  return readLaunchLifecycleWithSnapshot(client, deployment, token, options, readCurveSnapshot);
+}
+
+/** Lifecycle and raw reserves remain available without quote-token metadata. */
+export async function readLaunchLifecycleState(
+  client: PublicClient,
+  deployment: PonsDeployment,
+  token: Address,
+  options: ReadAtBlockOptions = {},
+) {
+  return readLaunchLifecycleWithSnapshot(client, deployment, token, options, readCurveState);
+}
+
+async function readLaunchLifecycleWithSnapshot<Snapshot extends Awaited<ReturnType<typeof readCurveState>>>(
+  client: PublicClient,
+  deployment: PonsDeployment,
+  token: Address,
+  options: ReadAtBlockOptions,
+  readSnapshot: (client: PublicClient, curve: Address, options: ReadAtBlockOptions) => Promise<Snapshot>,
+) {
   const blockNumber = options.blockNumber ?? await client.getBlockNumber();
   const launch = await readLaunchedToken(client, deployment, token, { blockNumber });
-  const snapshot = await readCurveSnapshot(client, launch.curve, { blockNumber });
+  const snapshot = await readSnapshot(client, launch.curve, { blockNumber });
   const phase = graduationPhase(launch.phase);
   const poolPositionId = phase === GraduationPhase.PoolCreated
     ? await client.readContract({

@@ -55,6 +55,15 @@ describe("transaction builders", () => {
     expect(decodeFunctionData({ abi: ponsCurveAbi, data: native.data }).functionName).toBe("buy");
   });
 
+  it("builds zero approvals for revocation and zero-first allowance changes", () => {
+    const request = buildApprovalTransaction(account, curve, 0n);
+    expect(decodeFunctionData({ abi: ponsTokenAbi, data: request.data })).toMatchObject({
+      functionName: "approve", args: [curve, 0n],
+    });
+    expect(request.value).toBe(0n);
+    expect(() => buildApprovalTransaction(account, curve, -1n)).toThrow(/amount/);
+  });
+
   it("builds sells without native value", () => {
     const request = buildCurveSellTransaction({ curve, tokensIn: 20n, minQuoteOut: 1n, recipient: account });
     expect(request.value).toBe(0n);

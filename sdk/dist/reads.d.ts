@@ -35,6 +35,38 @@ export declare function readLaunchTerms(client: PublicClient, deployment: PonsDe
     }[];
     canLaunch: boolean | undefined;
 }>;
+export interface PairLaunchTermsParameters {
+    launchConfigId: bigint;
+    /** Zero address selects native ETH; ERC-20 terms come from pairTokenEconomics. */
+    pairToken: Address;
+    launcher?: Address;
+}
+/** Reads the selected pair's effective launch economics at one block. */
+export declare function readLaunchTermsForPair(client: PublicClient, deployment: PonsDeployment, parameters: PairLaunchTermsParameters, options?: ReadAtBlockOptions): Promise<{
+    blockNumber: bigint;
+    launchConfigId: bigint;
+    pairToken: `0x${string}`;
+    launchFee: bigint;
+    launchEnabled: boolean;
+    maxCreatorTaxBps: bigint;
+    snipeTaxStartBps: bigint;
+    snipeTaxSeconds: bigint;
+    canLaunch: boolean | undefined;
+    approved: boolean;
+    config: {
+        curveFeeBps: bigint;
+        enabled: boolean;
+        graduationThreshold: bigint;
+        phantomQuote: bigint;
+        poolFee: number;
+        supply: bigint;
+        tickSpacing: number;
+    };
+    quoteDecimals: number;
+    phantomQuote: bigint;
+    graduationThreshold: bigint;
+    expectedEconomics: `0x${string}`;
+}>;
 export interface ReadAtBlockOptions {
     blockNumber?: bigint;
 }
@@ -110,12 +142,12 @@ export declare function readLaunchIndexingSnapshotAtBlock(client: PublicClient, 
         graduationThreshold: bigint;
     };
 }>;
-export declare function readCurveSnapshot(client: PublicClient, curve: Address, options?: ReadAtBlockOptions): Promise<{
+/** Raw protocol state; does not depend on quote-token metadata. */
+export declare function readCurveState(client: PublicClient, curve: Address, options?: ReadAtBlockOptions): Promise<{
     blockNumber: bigint;
     curve: `0x${string}`;
     token: `0x${string}`;
     pairToken: `0x${string}`;
-    quoteDecimals: number;
     tokenDecimals: number;
     feeBps: bigint;
     creatorTaxBps: bigint;
@@ -126,6 +158,24 @@ export declare function readCurveSnapshot(client: PublicClient, curve: Address, 
     tokenReserve: bigint;
     readyToGraduate: boolean;
     graduated: boolean;
+}>;
+/** Strict metadata-bearing snapshot. Use readCurveState when metadata is optional. */
+export declare function readCurveSnapshot(client: PublicClient, curve: Address, options?: ReadAtBlockOptions): Promise<{
+    blockNumber: bigint;
+    curve: `0x${string}`;
+    token: `0x${string}`;
+    pairToken: `0x${string}`;
+    tokenDecimals: number;
+    feeBps: bigint;
+    creatorTaxBps: bigint;
+    graduationThreshold: bigint;
+    sellableTokens: bigint;
+    quoteReserve: bigint;
+    realQuoteReserve: bigint;
+    tokenReserve: bigint;
+    readyToGraduate: boolean;
+    graduated: boolean;
+    quoteDecimals: number;
 }>;
 /** Reads one internally consistent launch lifecycle snapshot at a single block. */
 export declare function readLaunchLifecycle(client: PublicClient, deployment: PonsDeployment, token: Address, options?: ReadAtBlockOptions): Promise<{
@@ -142,7 +192,51 @@ export declare function readLaunchLifecycle(client: PublicClient, deployment: Po
         curve: `0x${string}`;
         token: `0x${string}`;
         pairToken: `0x${string}`;
+        tokenDecimals: number;
+        feeBps: bigint;
+        creatorTaxBps: bigint;
+        graduationThreshold: bigint;
+        sellableTokens: bigint;
+        quoteReserve: bigint;
+        realQuoteReserve: bigint;
+        tokenReserve: bigint;
+        readyToGraduate: boolean;
+        graduated: boolean;
         quoteDecimals: number;
+    };
+    launch: {
+        buybackEnabled: boolean;
+        creatorFeeRecipient: `0x${string}`;
+        creatorTaxBps: number;
+        curve: `0x${string}`;
+        deployer: `0x${string}`;
+        exists: boolean;
+        graduationThreshold: bigint;
+        pairToken: `0x${string}`;
+        phase: number;
+        poolFee: number;
+        sweptAt: bigint;
+        sweptQuote: bigint;
+        sweptTokens: bigint;
+        tickSpacing: number;
+        token: `0x${string}`;
+    };
+}>;
+/** Lifecycle and raw reserves remain available without quote-token metadata. */
+export declare function readLaunchLifecycleState(client: PublicClient, deployment: PonsDeployment, token: Address, options?: ReadAtBlockOptions): Promise<{
+    blockNumber: bigint;
+    token: `0x${string}`;
+    curve: `0x${string}`;
+    pairToken: `0x${string}`;
+    phase: GraduationPhase;
+    graduationThreshold: bigint;
+    graduationProgressBps: bigint | undefined;
+    poolPositionId: bigint;
+    snapshot: {
+        blockNumber: bigint;
+        curve: `0x${string}`;
+        token: `0x${string}`;
+        pairToken: `0x${string}`;
         tokenDecimals: number;
         feeBps: bigint;
         creatorTaxBps: bigint;

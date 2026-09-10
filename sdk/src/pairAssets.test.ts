@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { PublicClient } from 'viem';
 import { readPairAsset, readPairTokenCandidates } from './pairAssets.js';
 import { robinhoodMainnet } from './deployments.js';
-import { quoteOpeningBuy, quoteCurveBuyExecution } from './math.js';
+import { MAX_UINT256, quoteOpeningBuy, quoteCurveBuyExecution } from './math.js';
 const asset = '0x0000000000000000000000000000000000000005';
 
 describe('live pair assets', () => {
@@ -15,6 +15,16 @@ describe('live pair assets', () => {
     const getLogs = vi.fn().mockRejectedValue(new Error('connection unavailable'));
     await expect(readPairTokenCandidates({ getLogs } as unknown as PublicClient, robinhoodMainnet, 0n, 1_000_000n)).rejects.toThrow('connection unavailable');
     expect(getLogs).toHaveBeenCalledTimes(1);
+  });
+  it('does not split rate limits into more requests', async () => {
+    const getLogs = vi.fn().mockRejectedValue(new Error('429 Too many requests: rate limit exceeded'));
+    await expect(readPairTokenCandidates({ getLogs } as unknown as PublicClient, robinhoodMainnet, 0n, 1_000_000n)).rejects.toThrow('429');
+    expect(getLogs).toHaveBeenCalledTimes(1);
+  });
+  it('rejects launch economics with zero reserved tokens or overflowing denominator', () => {
+    const input = { amountIn: 1n, supply: 100n, phantomQuote: 1n, graduationThreshold: 1000n, feeBps: 0n, creatorTaxBps: 0n };
+    expect(() => quoteOpeningBuy(input)).toThrow('reservedTokens');
+    expect(() => quoteOpeningBuy({ ...input, phantomQuote: MAX_UINT256 })).toThrow();
   });
   it('removes revoked assets without trusting historical approvals', async () => {
     const readContract = vi.fn().mockResolvedValue(false);

@@ -18,21 +18,24 @@ export async function readPairTokenCandidates(client: PublicClient, deployment: 
   let requests = 0;
   const addresses = new Set<Address>();
   async function scan(from: bigint, to: bigint): Promise<void> {
-    if (++requests > 2048) throw new Error('Pons approval history exceeds the scan budget.');
+    if (++requests > 2048) throw new PonsSdkError('CHECKPOINT_UNAVAILABLE', 'Pons approval history exceeds the scan budget.');
     let logs;
     try {
       logs = await client.getLogs({ address: deployment.contracts.factory,
         event: parseAbiItem('event PairTokenApprovalUpdated(address indexed pairToken, bool approved)'),
         fromBlock: from, toBlock: to, strict: true });
     } catch (error) {
-      if (to - from < 1_000n || !/range|limit|too many|response size|block.*exceed/i.test(String(error))) throw error;
+      const message = String(error);
+      const throttled = /rate.?limit|too many requests|429/i.test(message);
+      const rangeLimited = /block.?range|range.*(?:limit|large|exceed)|response size|too many (?:results|logs)|block.*exceed/i.test(message);
+      if (to - from < 1_000n || throttled || !rangeLimited) throw error;
       const middle = (from + to) / 2n;
       await scan(from, middle);
       await scan(middle + 1n, to);
       return;
     }
     for (const log of logs) addresses.add(getAddress(log.args.pairToken));
-    if (addresses.size > 10_000) throw new Error('Pons approval catalog exceeds the asset budget.');
+    if (addresses.size > 10_000) throw new PonsSdkError('CHECKPOINT_UNAVAILABLE', 'Pons approval catalog exceeds the asset budget.');
   }
   for (let from = fromBlock; from <= toBlock; from += 1_000_000n) {
     await scan(from, from + 999_999n < toBlock ? from + 999_999n : toBlock);

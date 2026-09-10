@@ -231,7 +231,9 @@ export function quoteOpeningBuy(parameters: {
   assertPositive(parameters.supply, "supply");
   assertPositive(parameters.phantomQuote, "phantomQuote");
   assertPositive(parameters.graduationThreshold, "graduationThreshold");
-  const reserved = parameters.supply * parameters.phantomQuote / (parameters.phantomQuote + parameters.graduationThreshold);
+  const denominator = checkedAdd(parameters.phantomQuote, parameters.graduationThreshold, "openingBuy.denominator");
+  const reserved = parameters.supply * parameters.phantomQuote / denominator;
+  assertPositive(reserved, "openingBuy.reservedTokens");
   return quoteCurveBuyExecution({ ...parameters, quoteReserve: parameters.phantomQuote,
     tokenReserve: parameters.supply, sellableTokens: parameters.supply - reserved });
 }

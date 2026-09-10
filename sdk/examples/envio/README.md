@@ -116,3 +116,23 @@ This verifies the starter's persisted membership/event rollback. It does not
 verify the host indexer's trade, wallet, balance or aggregate projections,
 a production-scale membership lifecycle, or a live cutover. Those remain in
 [Reptilian #2245](https://github.com/ReptilianHQ/reptilian/issues/2245).
+
+Repeat the fixture rehearsal after `npm ci` in the SDK and installing local
+Postgres binaries (`initdb`, `pg_ctl`, `psql`). Supply a disposable runtime
+directory whose npm dependencies are `envio@npm:@reptilianhq/envio@3.9.0-reptilian.2`,
+`pg@8.19.0` and `yaml@2.9.0`:
+
+```sh
+node examples/envio/reorg-rehearsal.mjs --runtime /tmp/pons-reorg-runtime --output /tmp/pons-reorg-result.json
+```
+
+The runtime is version-checked. The harness creates only a loopback fixture RPC
+server and disposable local Postgres, excludes inherited provider credentials
+from the Envio worker, and cleans up the worker/database. The bundled public
+event payloads run on synthetic branch hashes. Restart must fetch fresh source
+data and advance beyond the prior persisted checkpoint before passing.
+
+When disk space prevents another SDK installation, `--sdk-dependencies DIR` may
+point to an existing consumer package directory. It reads installed dependencies
+without modifying them and rejects versions that differ from the SDK manifest.
+The generator still comes from this SDK checkout.

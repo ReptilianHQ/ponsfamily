@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-09-10T14:59:21.506Z",
+  "verifiedAt": "2026-09-10T15:06:25.394Z",
   "runtime": "3.9.0-reptilian.2",
   "scope": "Actual Envio/Postgres, SDK-generated selected starter, synthetic competing RPC branches using captured public event payloads; not production aggregate projections",
   "branchA": {
@@ -47,10 +47,10 @@
         "n": 23
       }
     ],
-    "progress": 59479478
+    "progress": 59479488
   },
-  "requests": 166,
-  "managerRequests": 10,
+  "requests": 176,
+  "managerRequests": 11,
   "unfiltered": 0,
   "chainId": 4663,
   "registrationBlock": 59479350,
@@ -63,7 +63,8 @@
     "competing branch removed membership and all event rows",
     "replacement branch replayed without stale hashes",
     "restart preserved exact event counts",
-    "all PoolManager queries included selected indexed pool ID"
+    "all PoolManager queries included selected indexed pool ID",
+    "restart advances beyond the pre-restart checkpoint with fresh source requests"
   ],
   "productionCutover": false,
   "cleanup": "worker stopped; disposable Postgres cluster removed"

@@ -108,10 +108,6 @@ function drawEventArgs(tc: hegel.TestCase, abi: Abi, eventName: string): Record<
   return Object.fromEntries(eventInputs(abi, eventName).map((input) => [input.name!, drawArg(tc, input.type)]));
 }
 
-function drawVerifier(tc: hegel.TestCase): VerifierCase {
-  return singleEventVerifiers[tc.draw(gs.integers({ minValue: 0, maxValue: singleEventVerifiers.length - 1 }))]!;
-}
-
 /**
  * The single place the verifier binding is invoked with generated material.
  * Bindings keep their precise signatures (so a swapped parameter fails to
@@ -130,61 +126,98 @@ function caught(run: () => unknown): unknown {
   }
 }
 
+// Enumerate finite categories with Vitest; Hegel explores values within each.
+const NOISE_KINDS = ["wrongEmitter", "siblingEvent", "malformedEvent"] as const;
+const NOISE_PROFILES = [...NOISE_KINDS, "mixed"] as const;
+type NoiseProfile = typeof NOISE_PROFILES[number];
+
+function drawNoise(tc: hegel.TestCase, abi: Abi, eventName: string, good: ReturnType<typeof encodeLog>, profile: NoiseProfile) {
+  const count = tc.draw(gs.integers({ minValue: 0, maxValue: 8 }));
+  // Prefer a sibling in the decoder's own ABI to exercise event-name binding.
+  const sibling = abi.find((item): item is AbiEvent => item.type === "event" && item.name !== eventName);
+  return Array.from({ length: count }, () => {
+    const kind = profile === "mixed" ? tc.draw(gs.sampledFrom(NOISE_KINDS)) : profile;
+    if (kind === "wrongEmitter") return { ...good, address: drawOtherAddress(tc, good.address) };
+    if (kind === "malformedEvent") return { ...good, topics: [] as [], data: "0x" as Hex };
+    const siblingAbi = sibling ? abi : ponsFeeEscrowAbi;
+    const siblingName = sibling?.name ?? "Claimed";
+    return encodeLog(siblingAbi, siblingName, good.address, drawEventArgs(tc, siblingAbi, siblingName));
+  });
+}
+
+function expectCode(action: () => unknown, code: string, path?: string) {
+  const error = caught(action);
+  expect(isPonsSdkError(error)).toBe(true);
+  if (isPonsSdkError(error)) {
+    expect(error.code).toBe(code);
+    if (path !== undefined) expect(error.path).toBe(path);
+  }
+}
+
 describe("Pons receipt verifier properties", () => {
   it("covers every exported single-event verifier", () => {
     const exported = Object.keys(receipts).filter((name) => /^verify\w+Receipt$/.test(name) && name !== "verifyLaunchReceipt").sort();
     expect(singleEventVerifiers.map((v) => v.name).sort()).toEqual(exported);
   });
 
-  it("accepts a receipt whose event matches every expected field and returns it as evidence", () => {
-    hegel.test((tc) => {
-      const v = drawVerifier(tc);
-      const emitter = drawAddress(tc);
-      const args = drawEventArgs(tc, v.abi, v.eventName);
-      // Unrelated logs from the same emitter and from strangers must not interfere.
-      const stranger = encodeLog(ponsFeeEscrowAbi, "Claimed", drawOtherAddress(tc, emitter), { recipient: drawAddress(tc), amount: 1n });
-      const receipt = receiptWith([stranger, encodeLog(v.abi, v.eventName, emitter, args)]);
-      const evidence = runVerify(v, receipt, emitter, args);
-      expect(evidence).toEqual(args);
-    }, HEGEL_SETTINGS);
+  describe.each(singleEventVerifiers)("$name", (v) => {
+    it.each(NOISE_PROFILES)("preserves evidence and rejects evidence-free %s mixtures", (profile) => {
+      hegel.test((tc) => {
+        const emitter = drawAddress(tc);
+        const args = drawEventArgs(tc, v.abi, v.eventName);
+        const good = encodeLog(v.abi, v.eventName, emitter, args);
+        const noise = drawNoise(tc, v.abi, v.eventName, good, profile);
+        expectCode(() => runVerify(v, receiptWith(noise), emitter, args), "EVENT_NOT_FOUND");
+        const at = tc.draw(gs.integers({ minValue: 0, maxValue: noise.length }));
+        const logs = [...noise.slice(0, at), good, ...noise.slice(at)];
+        expect(runVerify(v, receiptWith(logs), emitter, args)).toEqual(args);
+        expect(runVerify(v, receiptWith([...logs].reverse()), emitter, args)).toEqual(args);
+      }, HEGEL_SETTINGS);
+    });
+
+    it.each(eventInputs(v.abi, v.eventName))("rejects a perturbed $name expectation", (target) => {
+      hegel.test((tc) => {
+        const emitter = drawAddress(tc);
+        const args = drawEventArgs(tc, v.abi, v.eventName);
+        const expected = { ...args, [target.name!]: perturbArg(tc, target.type, args[target.name!]) };
+        expectCode(() => runVerify(v, receiptWith([encodeLog(v.abi, v.eventName, emitter, args)]), emitter, expected), "RECEIPT_FIELD_MISMATCH", target.name);
+      }, HEGEL_SETTINGS);
+    });
+
+    it.each(eventInputs(v.abi, v.eventName))("uses the first expected event when $name conflicts", (target) => {
+      hegel.test((tc) => {
+        const emitter = drawAddress(tc);
+        const args = drawEventArgs(tc, v.abi, v.eventName);
+        const good = encodeLog(v.abi, v.eventName, emitter, args);
+        const bad = encodeLog(v.abi, v.eventName, emitter, { ...args, [target.name!]: perturbArg(tc, target.type, args[target.name!]) });
+        const noise = drawNoise(tc, v.abi, v.eventName, good, "mixed");
+        expectCode(() => runVerify(v, receiptWith([...noise, bad, good]), emitter, args), "RECEIPT_FIELD_MISMATCH", target.name);
+        expect(runVerify(v, receiptWith([...noise, good, bad]), emitter, args)).toEqual(args);
+        expect(runVerify(v, receiptWith([good, ...noise, good]), emitter, args)).toEqual(args);
+      }, HEGEL_SETTINGS);
+    });
+
+    it.each(["reverted", 0, "0x0"] as const)("rejects status %s before reading logs", (status) => {
+      hegel.test((tc) => {
+        const emitter = drawAddress(tc);
+        const args = drawEventArgs(tc, v.abi, v.eventName);
+        const good = encodeLog(v.abi, v.eventName, emitter, args);
+        expectCode(() => runVerify(v, receiptWith([good], status), emitter, args), "RECEIPT_REVERTED");
+        expectCode(() => runVerify(v, receiptWith([], status), emitter, args), "RECEIPT_REVERTED");
+      }, HEGEL_SETTINGS);
+    });
   });
 
-  it("classifies any single perturbed expected field as RECEIPT_FIELD_MISMATCH", () => {
+  it.each(["absolute", "partial-fill"] as const)("enforces the curve-buy %s floor at equality and one unit beyond", (mode) => {
     hegel.test((tc) => {
-      const v = drawVerifier(tc);
-      const emitter = drawAddress(tc);
-      const args = drawEventArgs(tc, v.abi, v.eventName);
-      const inputs = eventInputs(v.abi, v.eventName);
-      const target = inputs[tc.draw(gs.integers({ minValue: 0, maxValue: inputs.length - 1 }))]!;
-      const expected = { ...args, [target.name!]: perturbArg(tc, target.type, args[target.name!]) };
-      const error = caught(() => runVerify(v, receiptWith([encodeLog(v.abi, v.eventName, emitter, args)]), emitter, expected));
-      expect(isPonsSdkError(error)).toBe(true);
-      if (isPonsSdkError(error)) {
-        expect(error.code).toBe("RECEIPT_FIELD_MISMATCH");
-        expect(error.path).toBe(target.name);
-      }
-    }, HEGEL_SETTINGS);
-  });
-
-  it("classifies a matching event from any other emitter as EVENT_NOT_FOUND", () => {
-    hegel.test((tc) => {
-      const v = drawVerifier(tc);
-      const emitter = drawAddress(tc);
-      const args = drawEventArgs(tc, v.abi, v.eventName);
-      const receipt = receiptWith([encodeLog(v.abi, v.eventName, drawOtherAddress(tc, emitter), args)]);
-      const error = caught(() => runVerify(v, receipt, emitter, {}));
-      expect(isPonsSdkError(error) && error.code).toBe("EVENT_NOT_FOUND");
-    }, HEGEL_SETTINGS);
-  });
-
-  it("classifies a reverted receipt as RECEIPT_REVERTED before reading any log", () => {
-    hegel.test((tc) => {
-      const v = drawVerifier(tc);
-      const emitter = drawAddress(tc);
-      const args = drawEventArgs(tc, v.abi, v.eventName);
-      const status = tc.draw(gs.sampledFrom(["reverted", 0, "0x0"] as const));
-      const error = caught(() => runVerify(v, receiptWith([encodeLog(v.abi, v.eventName, emitter, args)], status), emitter, args));
-      expect(isPonsSdkError(error) && error.code).toBe("RECEIPT_REVERTED");
+      const curve = drawAddress(tc);
+      const args = { ...drawEventArgs(tc, ponsCurveAbi, "CurveBuy"), quoteIn: tc.draw(gs.bigIntegers({ minValue: 1n, maxValue: MAX_AMOUNT })) } as Record<string, unknown> & { quoteIn: bigint; tokensOut: bigint };
+      const quoteOffered = args.quoteIn + tc.draw(gs.bigIntegers({ minValue: 0n, maxValue: MAX_AMOUNT }));
+      const minimum = mode === "absolute" ? args.tokensOut : quoteOffered * args.tokensOut / args.quoteIn;
+      const expected = mode === "absolute" ? {} : { quoteOffered };
+      const receipt = receiptWith([encodeLog(ponsCurveAbi, "CurveBuy", curve, args)]);
+      expect(receipts.verifyCurveBuyReceipt(receipt, curve, { ...expected, minTokensOut: minimum })).toEqual(args);
+      expectCode(() => receipts.verifyCurveBuyReceipt(receipt, curve, { ...expected, minTokensOut: minimum + 1n }), "OUTPUT_BELOW_MINIMUM", "tokensOut");
     }, HEGEL_SETTINGS);
   });
 
@@ -232,10 +265,9 @@ describe("Pons launch receipt properties", () => {
     }, HEGEL_SETTINGS);
   });
 
-  it("rejects an opening buy whose token or curve disagrees with the launch", () => {
+  it.each(["token", "curve"] as const)("rejects an opening buy whose %s disagrees with the launch", (field) => {
     hegel.test((tc) => {
       const { launch, openingBuy } = drawLaunch(tc);
-      const field = tc.draw(gs.sampledFrom(["token", "curve"] as const));
       const inconsistent = { ...openingBuy, [field]: drawOtherAddress(tc, openingBuy[field]) };
       const receipt = receiptWith([
         encodeLog(ponsFactoryAbi, "TokenLaunched", factory, launch),
@@ -243,6 +275,67 @@ describe("Pons launch receipt properties", () => {
       ]);
       const error = caught(() => receipts.verifyLaunchReceipt(receipt, factory, { forwarder, openingBuy: {} }));
       expect(isPonsSdkError(error) && error.code).toBe("RECEIPT_FIELD_MISMATCH");
+    }, HEGEL_SETTINGS);
+  });
+
+  it.each(NOISE_PROFILES)("preserves both launch events through %s mixtures", (profile) => {
+    hegel.test((tc) => {
+      const { launch, openingBuy } = drawLaunch(tc);
+      const first = encodeLog(ponsFactoryAbi, "TokenLaunched", factory, launch);
+      const second = encodeLog(ponsForwarderAbi, "Launched", forwarder, openingBuy);
+      // Wrong-emitter decoys must not accidentally become the other evidence
+      // event: the two event signatures are distinct.
+      const noise = [...drawNoise(tc, ponsFactoryAbi, "TokenLaunched", first, profile), ...drawNoise(tc, ponsForwarderAbi, "Launched", second, profile)];
+      const at = tc.draw(gs.integers({ minValue: 0, maxValue: noise.length }));
+      const logs = [...noise.slice(0, at), first, ...noise.slice(at), second];
+      const options = { expected: launch, forwarder, openingBuy };
+      expect(receipts.verifyLaunchReceipt(receiptWith(logs), factory, options)).toEqual({ launch, openingBuy });
+      expect(receipts.verifyLaunchReceipt(receiptWith([...logs].reverse()), factory, options)).toEqual({ launch, openingBuy });
+      expectCode(() => receipts.verifyLaunchReceipt(receiptWith(noise), factory, options), "EVENT_NOT_FOUND");
+      expectCode(() => receipts.verifyLaunchReceipt(receiptWith([...noise, first]), factory, options), "EVENT_NOT_FOUND");
+      expectCode(() => receipts.verifyLaunchReceipt(receiptWith([...noise, second]), factory, options), "EVENT_NOT_FOUND");
+    }, HEGEL_SETTINGS);
+  });
+
+  for (const part of ["launch", "openingBuy"] as const) {
+    const abi = part === "launch" ? ponsFactoryAbi : ponsForwarderAbi;
+    const eventName = part === "launch" ? "TokenLaunched" : "Launched";
+    const emitter = part === "launch" ? factory : forwarder;
+    describe(part, () => {
+      it.each(eventInputs(abi, eventName))("rejects the $name expectation and preserves first-event conflict ordering", (target) => {
+        hegel.test((tc) => {
+          const pair = drawLaunch(tc);
+          const args = pair[part];
+          const changed = { ...args, [target.name!]: perturbArg(tc, target.type, args[target.name!]) };
+          const first = encodeLog(ponsFactoryAbi, "TokenLaunched", factory, pair.launch);
+          const second = encodeLog(ponsForwarderAbi, "Launched", forwarder, pair.openingBuy);
+          const bad = encodeLog(abi, eventName, emitter, changed);
+          const options = { expected: pair.launch, forwarder, openingBuy: pair.openingBuy };
+          const wrongOptions = part === "launch" ? { ...options, expected: changed } : { ...options, openingBuy: changed };
+          expectCode(() => receipts.verifyLaunchReceipt(receiptWith([first, second]), factory, wrongOptions), "RECEIPT_FIELD_MISMATCH", target.name);
+          expectCode(() => receipts.verifyLaunchReceipt(receiptWith([bad, first, second]), factory, options), "RECEIPT_FIELD_MISMATCH", target.name);
+          expect(receipts.verifyLaunchReceipt(receiptWith([first, second, bad]), factory, options)).toEqual(pair);
+          expect(receipts.verifyLaunchReceipt(receiptWith([first, second, first, second]), factory, options)).toEqual(pair);
+        }, HEGEL_SETTINGS);
+      });
+    });
+  }
+
+  it.each(["reverted", 0, "0x0"] as const)("rejects launch status %s before reading either event", (status) => {
+    hegel.test((tc) => {
+      const { launch, openingBuy } = drawLaunch(tc);
+      const logs = [encodeLog(ponsFactoryAbi, "TokenLaunched", factory, launch), encodeLog(ponsForwarderAbi, "Launched", forwarder, openingBuy)];
+      expectCode(() => receipts.verifyLaunchReceipt(receiptWith(logs, status), factory, { forwarder }), "RECEIPT_REVERTED");
+      expectCode(() => receipts.verifyLaunchReceipt(receiptWith([], status), factory, { forwarder }), "RECEIPT_REVERTED");
+    }, HEGEL_SETTINGS);
+  });
+
+  it("enforces the opening-buy floor at equality and one unit below", () => {
+    hegel.test((tc) => {
+      const { launch, openingBuy } = drawLaunch(tc);
+      const receipt = receiptWith([encodeLog(ponsFactoryAbi, "TokenLaunched", factory, launch), encodeLog(ponsForwarderAbi, "Launched", forwarder, openingBuy)]);
+      expect(receipts.verifyLaunchReceipt(receipt, factory, { forwarder, openingBuy: { minTokensOut: openingBuy.tokensReceived } })).toEqual({ launch, openingBuy });
+      expectCode(() => receipts.verifyLaunchReceipt(receipt, factory, { forwarder, openingBuy: { minTokensOut: openingBuy.tokensReceived + 1n } }), "OUTPUT_BELOW_MINIMUM", "openingBuy.tokensReceived");
     }, HEGEL_SETTINGS);
   });
 

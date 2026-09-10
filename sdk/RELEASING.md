@@ -85,3 +85,55 @@ After changing catalog inputs, run `npm run generate:indexing` and include all
 generated artifacts and `dist` in review. Never regenerate during a release
 check to hide stale committed output. See [the starter runbook](examples/envio/README.md)
 for local startup, replay requirements, and the live reorg smoke boundary.
+
+## Receipt property coverage
+
+Run `npm run test:unit -- src/receipts.hegel.test.ts` for focused receipt checks;
+`npm test` includes them in the complete SDK check. Each named property uses
+500 derandomized Hegel cases with the example database disabled.
+
+The suite enumerates all 12 single-event verifiers, every expected ABI field,
+and each reverted-status representation. Restricted wrong-emitter, sibling-event,
+and malformed-event profiles plus mixed profiles generate zero to eight noise
+logs. Evidence-free receipts must fail; insertion and reversal of irrelevant
+logs must preserve matching evidence. Sibling events use the decoder's own ABI
+where available, so a missing event-name check cannot silently accept them.
+
+The launch verifier additionally checks both event expectation sets, token/curve
+cross-binding, missing factory or forwarder evidence, and equality/one-unit
+boundaries for the opening-buy output floor, plus absolute and partial-fill
+curve-buy floor boundaries. The current selection policy is
+first decodable event of the expected name and emitter: an earlier mismatch is
+not rescued by later matching evidence, later conflicts do not replace the
+first result, and duplicates do not aggregate amounts. These tests preserve
+current semantics rather than declaring every conflicting receipt invalid.
+
+This extends the Aerodrome pilot using the generator-distribution, swarm-testing,
+and shrinking ideas collected at https://tybug.dev/property-testing/.
+
+
+### Pilot evidence (2026-09-09)
+
+Against Pons baseline `9de781c3d44432b17bad61e460386a1700f6d88f`, the first
+193 named receipt cases passed in about 16 seconds locally. Two temporary source
+mutations then demonstrated additional detection compared with the baseline's
+nine receipt tests:
+
+| Injected fault | Baseline receipt tests | New targeted properties |
+| --- | --- | --- |
+| Remove the decoded event-name equality guard | All passed | All 12 single-event sibling-noise cases failed |
+| Reverse the receipt log scan | All passed | All 43 single-event conflict-field cases failed |
+
+Both faults were restored before final validation. These are injected-fault
+experiments, not discoveries of production defects. Five further named cases
+cover launch reverted statuses and curve-buy absolute/partial-fill floor
+boundaries, bringing the receipt suite to 198 cases. The first-event policy is
+unchanged; no runtime SDK source or generated distribution was modified.
+
+After synchronizing main at `c08939a`, `npm test` passed with 335 tests across
+14 files, including
+198 receipt cases, plus build/distribution drift, artifact, Envio example,
+release-document/workflow, pack, `publint`, and ESM package checks. The edited
+receipt suite passed a focused TypeScript check with tests included. Root SDK
+conformance and workflow-registry checks also passed. A writable temporary npm
+cache was used; package versions and lockfiles were unchanged.

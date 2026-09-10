@@ -16,10 +16,13 @@ try {
   const scoped = resolve(temp, 'node_modules/@reptilianhq'); mkdirSync(scoped, { recursive: true });
   run('tar', ['-xzf', resolve(temp, pack.filename), '-C', scoped]);
   run('mv', ['package', 'pons-sdk'], scoped);
+  symlinkSync(resolve(root, 'node_modules/@reptilianhq/uniswap-sdk'), resolve(scoped, 'uniswap-sdk'), 'dir');
   symlinkSync(resolve(root, 'node_modules/viem'), resolve(temp, 'node_modules/viem'), 'dir');
   run('node', ['--input-type=module', '-e', `
     import assert from 'node:assert/strict';
     import manifest from '@reptilianhq/pons-sdk/indexing/mainnet.json' with { type: 'json' };
+    import { getPonsV4Provider } from '@reptilianhq/pons-sdk/v4-provider';
+    assert.equal(getPonsV4Provider().providerId, 'pons');
     import { getPonsIndexingManifest } from '@reptilianhq/pons-sdk/indexing';
     assert.deepEqual(manifest, JSON.parse(JSON.stringify(getPonsIndexingManifest(), (_, v) => typeof v === 'bigint' ? String(v) : v)));
     for (const contract of [...manifest.contracts, ...manifest.dependencies]) {

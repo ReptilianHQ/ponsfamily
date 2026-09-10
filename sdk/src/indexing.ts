@@ -1,10 +1,11 @@
+import { getPonsV4Provider } from './v4-provider.js';
 import { parseAbi, toEventSignature, type Abi, type AbiEvent, type Address, type Hex } from "viem";
 import { ponsFactoryAbi, ponsForwarderAbi, ponsCurveAbi, ponsMemeHookAbi, ponsFeeEscrowAbi, ponsBuybackVaultAbi, ponsTokenAbi } from "./abis.js";
 import { PonsSdkError } from "./errors.js";
 import { ABI_REVISION } from "./abis.js";
 import { getPonsDeployment } from "./deployments.js";
 
-export const PONS_INDEXING_MANIFEST_VERSION = 1 as const;
+export const PONS_INDEXING_MANIFEST_VERSION = 2 as const;
 
 export type PonsIndexingContractName =
   | "PonsV2Forwarder"
@@ -58,8 +59,19 @@ export interface PonsDynamicIndexingSource {
   };
 }
 
+export interface PonsSharedIndexingSource {
+  kind: 'shared';
+  contract: 'UniswapV4PoolManager';
+  address: Address;
+  startBlock: bigint;
+  selection: 'verified-pool-ids';
+  filterAt: 'ingestion';
+  emptySelection: 'no-subscription';
+}
+
 export interface PonsIndexingManifest {
   schemaVersion: typeof PONS_INDEXING_MANIFEST_VERSION;
+  composition: ReturnType<typeof getPonsV4Provider>;
   abiRevision: string;
   coverage: "pons-v2-public-events";
   chainId: number;
@@ -68,7 +80,7 @@ export interface PonsIndexingManifest {
   materializations: readonly PonsMaterialization[];
   contracts: readonly PonsIndexingContract[];
   dependencies: readonly PonsIndexingDependency[];
-  sources: readonly (PonsFixedIndexingSource | PonsDynamicIndexingSource)[];
+  sources: readonly (PonsFixedIndexingSource | PonsDynamicIndexingSource | PonsSharedIndexingSource)[];
 }
 
 /** Each supported ABI is checked in full; dependency selection is deliberately narrower. */
@@ -263,6 +275,7 @@ export function getPonsIndexingManifest(chainId = 4663): PonsIndexingManifest {
   const { startBlock } = deployment;
   return deepFreeze({
     schemaVersion: PONS_INDEXING_MANIFEST_VERSION,
+    composition: getPonsV4Provider(chainId),
     abiRevision: ABI_REVISION,
     coverage: "pons-v2-public-events",
     chainId,
@@ -277,7 +290,10 @@ export function getPonsIndexingManifest(chainId = 4663): PonsIndexingManifest {
       fixed("PonsV2MemeHook", deployment.contracts.memeHook, startBlock, deployment.memeHookRuntimeCodeHash),
       fixed("PonsV2FeeEscrow", deployment.contracts.feeEscrow, startBlock, deployment.feeEscrowRuntimeCodeHash),
       fixed("PonsV2BuybackVault", deployment.contracts.buybackVault, startBlock, deployment.buybackVaultRuntimeCodeHash),
-      fixed("UniswapV4PoolManager", deployment.contracts.poolManager, startBlock),
+      { kind: 'shared' as const, contract: 'UniswapV4PoolManager' as const,
+        address: deployment.contracts.poolManager, startBlock,
+        selection: 'verified-pool-ids' as const, filterAt: 'ingestion' as const,
+        emptySelection: 'no-subscription' as const },
       dynamic("PonsV2Curve", "curve"),
       dynamic("PonsLaunchToken", "token"),
     ],

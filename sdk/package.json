@@ -1,6 +1,6 @@
 {
   "name": "@reptilianhq/pons-sdk",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Reptilian-maintained TypeScript integration SDK for Pons v2 on Robinhood Chain.",
   "license": "UNLICENSED",
   "keywords": [
@@ -22,7 +22,7 @@
     "url": "https://github.com/ReptilianHQ/ponsfamily/issues"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=24"
   },
   "packageManager": "npm@11.5.2",
   "publishConfig": {
@@ -94,7 +94,11 @@
       "import": "./dist/transactions.js"
     },
     "./artifacts/PonsV2Forwarder.json": "./artifacts/PonsV2Forwarder.json",
-    "./indexing/mainnet.json": "./indexing/mainnet.json"
+    "./indexing/mainnet.json": "./indexing/mainnet.json",
+    "./v4-provider": {
+      "types": "./dist/v4-provider.d.ts",
+      "import": "./dist/v4-provider.js"
+    }
   },
   "scripts": {
     "clean": "rm -rf dist",
@@ -114,7 +118,7 @@
     "check:indexing": "node scripts/generate-indexing.mjs --check && node --test scripts/generate-indexing.node-test.mjs"
   },
   "peerDependencies": {
-    "viem": ">=2.21.0 <3"
+    "viem": ">=2.55.0 <3"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
@@ -125,5 +129,8 @@
     "viem": "^2.55.10",
     "vitest": "4.1.10",
     "yaml": "^2.9.0"
+  },
+  "dependencies": {
+    "@reptilianhq/uniswap-sdk": "0.1.0-rc.4"
   }
 }

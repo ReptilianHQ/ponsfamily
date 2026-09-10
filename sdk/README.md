@@ -27,7 +27,13 @@ Install the stable channel with:
 pnpm add @reptilianhq/pons-sdk@latest viem
 ```
 
-Node.js 22 or newer is supported. `viem` 2.x is a peer dependency.
+Version 0.5 also requires read access to the private
+`@reptilianhq/uniswap-sdk` dependency. A `read:packages` token alone is not
+sufficient without access to that package. This release targets authorized
+Reptilian integrations; the public Pons package does not grant dependency access.
+GitHub Actions consumers should receive package read access for their repository.
+
+Node.js 24 or newer is supported. `viem` >=2.55.0 <3 is a peer dependency.
 
 ## Launch a token
 
@@ -186,7 +192,7 @@ Published source maps intentionally embed the TypeScript source so consumers can
 
 The SDK does not derive canonical launch-token supply. Indexers must derive exact supply from the token's full-supply ERC-20 `Transfer` mint event; launch configuration and end-of-block `totalSupply()` reads are not substitutes for that event evidence.
 
-See [`examples/envio`](./examples/envio/README.md) for a copyable Envio configuration that declares and captures every reviewed Pons event, filters PoolManager swaps to Pons-registered pools, registers each launched curve and token dynamically, and projects that mint evidence. Consumers that compose a larger configuration should use `getPonsIndexingManifest()` as the machine-readable protocol boundary rather than parsing the example YAML; its PoolManager dependency includes the required `PoolRegistered.poolId` membership filter.
+See [`examples/envio`](./examples/envio/README.md) for a copyable Envio configuration that declares and captures every reviewed Pons event, subscribes to PoolManager swaps only when verified pool IDs are explicitly selected, registers each launched curve and token dynamically, and projects that mint evidence. Consumers that compose a larger configuration should use `getPonsIndexingManifest()` as the machine-readable protocol boundary rather than parsing the example YAML; its PoolManager dependency includes the required `PoolRegistered.poolId` membership filter.
 
 ## Provenance
 
@@ -263,3 +269,22 @@ The reader returns contract facts, without wallet discovery, token valuation,
 fee entitlement, withdrawal policy, or portfolio display decisions. It uses a
 reviewed minimal V4 read ABI; Uniswap SDK math and transaction builders remain
 separate concerns.
+
+### V4 provider composition
+
+`./v4-provider` exports `getPonsV4Provider`,
+`readPonsV4PoolRegistrations`, `verifyPonsV4PoolRegistration` and
+`ponsV4GraduationCapabilities`. The receipt reader establishes registration
+against reviewed deployment and factory facts at a canonical checkpoint, using
+caller-provided confirmation depth. References include chain, manager, full pool
+key and registration provenance; revalidate canonicality before later use.
+
+The descriptor composes structurally with the shared Uniswap SDK's provider
+contract. Pons depends only on published shared v4 primitives. The graduation
+capabilities allow observation of locked liquidity, not principal withdrawal or
+unverified v4 execution. Existing curve transaction APIs remain separate.
+
+Indexing manifest v2 marks the manager as a shared source. The generated starter
+disables manager swaps by default. See the Envio README for explicit selections,
+upstream topic filtering and replay requirements. This is a manifest migration;
+consumers must handle the new shared-source kind before upgrading.

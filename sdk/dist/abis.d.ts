@@ -474,6 +474,14 @@ export declare const ponsFactoryAbi: readonly [{
     }];
     readonly outputs: readonly [];
 }, {
+    readonly name: "LaunchConfigUpdated";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "uint256";
+        readonly name: "id";
+        readonly indexed: true;
+    }];
+}, {
     readonly name: "TokenLaunched";
     readonly type: 'event';
     readonly inputs: readonly [{
@@ -1430,6 +1438,22 @@ export declare const ponsMemeHookAbi: readonly [{
     }];
 }];
 export declare const ponsLockerAbi: readonly [{
+    readonly name: "positionManager";
+    readonly type: 'function';
+    readonly stateMutability: "view";
+    readonly inputs: readonly [];
+    readonly outputs: readonly [{
+        readonly type: "address";
+    }];
+}, {
+    readonly name: "factory";
+    readonly type: 'function';
+    readonly stateMutability: "view";
+    readonly inputs: readonly [];
+    readonly outputs: readonly [{
+        readonly type: "address";
+    }];
+}, {
     readonly name: "lockedPositions";
     readonly type: 'function';
     readonly stateMutability: "view";
@@ -1584,5 +1608,57 @@ export declare const ponsBuybackVaultAbi: readonly [{
         readonly type: "address";
         readonly name: "newRecipient";
         readonly indexed: true;
+    }];
+}];
+export declare const uniswapV4PositionReadAbi: readonly [{
+    readonly name: "ownerOf";
+    readonly type: 'function';
+    readonly stateMutability: "view";
+    readonly inputs: readonly [{
+        readonly type: "uint256";
+        readonly name: "tokenId";
+    }];
+    readonly outputs: readonly [{
+        readonly type: "address";
+    }];
+}, {
+    readonly name: "getPositionLiquidity";
+    readonly type: 'function';
+    readonly stateMutability: "view";
+    readonly inputs: readonly [{
+        readonly type: "uint256";
+        readonly name: "tokenId";
+    }];
+    readonly outputs: readonly [{
+        readonly type: "uint128";
+    }];
+}, {
+    readonly name: "getPoolAndPositionInfo";
+    readonly type: 'function';
+    readonly stateMutability: "view";
+    readonly inputs: readonly [{
+        readonly type: "uint256";
+        readonly name: "tokenId";
+    }];
+    readonly outputs: readonly [{
+        readonly type: 'tuple';
+        readonly components: readonly [{
+            readonly type: "address";
+            readonly name: "currency0";
+        }, {
+            readonly type: "address";
+            readonly name: "currency1";
+        }, {
+            readonly type: "uint24";
+            readonly name: "fee";
+        }, {
+            readonly type: "int24";
+            readonly name: "tickSpacing";
+        }, {
+            readonly type: "address";
+            readonly name: "hooks";
+        }];
+    }, {
+        readonly type: "uint256";
     }];
 }];

@@ -36,6 +36,10 @@ Package versions are immutable. If an RC is rejected, merge the fix to `main`
 and advance the release branch to that reviewed commit. The next push publishes
 the next `rc.N`; it never overwrites an earlier candidate. Once `X.Y.Z` is
 published, the workflow rejects any additional candidates for that release line.
+If a legacy package with the target version has different bytes, publication
+fails closed; prepare a fresh source commit and version instead of trying to
+replace it. The RC and stable packages have distinct versions, so their tarballs
+are not expected to be byte-identical.
 
 ## Stable release
 
@@ -65,10 +69,22 @@ SHA, and `main` ancestry before any job receives package-write authority. The
 publisher executes only source already contained in `main`; repository writers
 who can land changes on `main` remain trusted release authorities.
 
-Publication is retry-safe. An existing target version is accepted only when its
-immutable `gitHead` matches the authorized source, after which the workflow
-repairs and verifies the selected dist-tag without replacing package bytes.
+Publication is retry-safe. The publisher records the prepared tarball's version,
+source `gitHead`, and SHA-512 before it publishes. It accepts an existing target
+only when those immutable registry facts match, then repairs and verifies the
+selected dist-tag without replacing package bytes. A conflicting legacy package
+requires a fresh source/version.
 
+## Indexing reference verification
+
+`npm test` builds the catalog, checks generated output with `check:indexing`,
+installs the Envio starter's frozen lockfile and runs codegen/type-checking,
+exercises generated handler fixtures, and verifies the actual packed manifest
+and event ABI exports. `prepublishOnly` also checks drift and the starter.
+After changing catalog inputs, run `npm run generate:indexing` and include all
+generated artifacts and `dist` in review. Never regenerate during a release
+check to hide stale committed output. See [the starter runbook](examples/envio/README.md)
+for local startup, replay requirements, and the live reorg smoke boundary.
 
 ## Receipt property coverage
 
@@ -120,3 +136,4 @@ release-document/workflow, pack, `publint`, and ESM package checks. The edited
 receipt suite passed a focused TypeScript check with tests included. Root SDK
 conformance and workflow-registry checks also passed. A writable temporary npm
 cache was used; package versions and lockfiles were unchanged.
+

@@ -6,6 +6,24 @@
 
 ## Unreleased
 
+## 0.4.1
+
+### 2026-09-09
+
+- Index configuration updates so consumers can preserve launch-block economics without repeated RPC reads.
+
+## 0.4.0
+
+- Read graduated V4 custody and pool facts without embedding portfolio policy.
+
+- Verify published tarball bytes and prevent stale retries from moving channels backwards.
+
+### 2026-09-08
+
+- Generate indexing artifacts from one reviewed protocol catalog to prevent drift.
+- Preserve canonical event provenance and reusable launch and pool evidence.
+- Keep the pinned Envio starter outside the published SDK surface.
+
 - Pin one finalized Robinhood Chain receipt per verifier as deployment-bound integration evidence.
 - Extend Hegel properties to every receipt verifier (acceptance, per-field mismatch, wrong emitter, reverted, floors) and to every builder's calldata verification.
 - Add Hegel construction round-trip and calldata perturbation properties for transaction builders.

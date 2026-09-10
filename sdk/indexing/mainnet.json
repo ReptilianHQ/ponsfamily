@@ -1,0 +1,2182 @@
+{
+  "schemaVersion": 1,
+  "abiRevision": "pons-v2-836f0f97",
+  "coverage": "pons-v2-public-events",
+  "chainId": 4663,
+  "startBlock": "26841846",
+  "catalog": [
+    {
+      "contract": "PonsV2Factory",
+      "name": "LaunchConfigUpdated",
+      "signature": "LaunchConfigUpdated(uint256)",
+      "description": "Factory configuration replaced; read the configuration at this block for its final values.",
+      "abi": {
+        "name": "LaunchConfigUpdated",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "uint256",
+            "name": "id",
+            "indexed": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "type": "uint256",
+          "indexed": true,
+          "semantic": {
+            "unit": "identifier",
+            "description": "Factory launch configuration ID"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Factory",
+      "name": "TokenLaunched",
+      "signature": "TokenLaunched(address,address,address,address,uint256,uint256)",
+      "description": "Launch identity and dynamic curve/token discovery.",
+      "abi": {
+        "name": "TokenLaunched",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "token",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "curve",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "deployer",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "pairToken"
+          },
+          {
+            "type": "uint256",
+            "name": "launchConfigId"
+          },
+          {
+            "type": "uint256",
+            "name": "graduationThreshold"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "token",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Launched token"
+          }
+        },
+        {
+          "name": "curve",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Bonding curve"
+          }
+        },
+        {
+          "name": "deployer",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Launch deployer"
+          }
+        },
+        {
+          "name": "pairToken",
+          "type": "address",
+          "indexed": false,
+          "semantic": {
+            "unit": "address",
+            "description": "Quote asset"
+          }
+        },
+        {
+          "name": "launchConfigId",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "identifier",
+            "description": "Factory launch configuration ID"
+          }
+        },
+        {
+          "name": "graduationThreshold",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Graduation threshold",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Factory",
+      "name": "LaunchSwept",
+      "signature": "LaunchSwept(address,uint256,uint256)",
+      "description": "Assets swept from a completed curve.",
+      "abi": {
+        "name": "LaunchSwept",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "token",
+            "indexed": true
+          },
+          {
+            "type": "uint256",
+            "name": "quoteOut"
+          },
+          {
+            "type": "uint256",
+            "name": "tokenOut"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "token",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Launch token"
+          }
+        },
+        {
+          "name": "quoteOut",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Quote swept",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "tokenOut",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Tokens swept",
+            "asset": "launch token (emitter for Transfer; token parameter for vault)",
+            "decimals": "ERC-20 decimals of launch token (emitter for Transfer; token parameter for vault); native currency sentinel uses 18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Factory",
+      "name": "CreatorFeeRecipientUpdated",
+      "signature": "CreatorFeeRecipientUpdated(address,address,address)",
+      "description": "Creator fee recipient changed.",
+      "abi": {
+        "name": "CreatorFeeRecipientUpdated",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "token",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "previousRecipient",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "newRecipient",
+            "indexed": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "token",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Launch token"
+          }
+        },
+        {
+          "name": "previousRecipient",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Previous recipient"
+          }
+        },
+        {
+          "name": "newRecipient",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "New recipient"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Factory",
+      "name": "BuybackEnabledUpdated",
+      "signature": "BuybackEnabledUpdated(address,bool,address)",
+      "description": "Launch buyback setting changed.",
+      "abi": {
+        "name": "BuybackEnabledUpdated",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "token",
+            "indexed": true
+          },
+          {
+            "type": "bool",
+            "name": "enabled"
+          },
+          {
+            "type": "address",
+            "name": "controller",
+            "indexed": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "token",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Launch token"
+          }
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "indexed": false,
+          "semantic": {
+            "unit": "boolean",
+            "description": "Buyback enabled"
+          }
+        },
+        {
+          "name": "controller",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Authorizing controller"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Factory",
+      "name": "PoolGraduated",
+      "signature": "PoolGraduated(address,uint256,uint256,uint256)",
+      "description": "Launch graduated into a liquidity position.",
+      "abi": {
+        "name": "PoolGraduated",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "token",
+            "indexed": true
+          },
+          {
+            "type": "uint256",
+            "name": "positionId"
+          },
+          {
+            "type": "uint256",
+            "name": "tokenAmount"
+          },
+          {
+            "type": "uint256",
+            "name": "pairTokenAmount"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "token",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Launch token"
+          }
+        },
+        {
+          "name": "positionId",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "identifier",
+            "description": "Liquidity position NFT ID"
+          }
+        },
+        {
+          "name": "tokenAmount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Tokens deposited",
+            "asset": "launch token (emitter for Transfer; token parameter for vault)",
+            "decimals": "ERC-20 decimals of launch token (emitter for Transfer; token parameter for vault); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "pairTokenAmount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Quote deposited",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Factory",
+      "name": "LaunchGraduationRescued",
+      "signature": "LaunchGraduationRescued(address,address,uint256,uint256)",
+      "description": "Graduation assets rescued to a recipient.",
+      "abi": {
+        "name": "LaunchGraduationRescued",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "token",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "recipient",
+            "indexed": true
+          },
+          {
+            "type": "uint256",
+            "name": "quoteAmount"
+          },
+          {
+            "type": "uint256",
+            "name": "tokenAmount"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "token",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Launch token"
+          }
+        },
+        {
+          "name": "recipient",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Rescue recipient"
+          }
+        },
+        {
+          "name": "quoteAmount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Quote rescued",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "tokenAmount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Tokens rescued",
+            "asset": "launch token (emitter for Transfer; token parameter for vault)",
+            "decimals": "ERC-20 decimals of launch token (emitter for Transfer; token parameter for vault); native currency sentinel uses 18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Curve",
+      "name": "CurveBuy",
+      "signature": "CurveBuy(address,address,uint256,uint256,uint256,uint256)",
+      "description": "Bonding curve purchase.",
+      "abi": {
+        "name": "CurveBuy",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "buyer",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "recipient",
+            "indexed": true
+          },
+          {
+            "type": "uint256",
+            "name": "quoteIn"
+          },
+          {
+            "type": "uint256",
+            "name": "tokensOut"
+          },
+          {
+            "type": "uint256",
+            "name": "fee"
+          },
+          {
+            "type": "uint256",
+            "name": "tax"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "buyer",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Buyer"
+          }
+        },
+        {
+          "name": "recipient",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Token recipient"
+          }
+        },
+        {
+          "name": "quoteIn",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Quote input",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "tokensOut",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Tokens output",
+            "asset": "launch token (emitter for Transfer; token parameter for vault)",
+            "decimals": "ERC-20 decimals of launch token (emitter for Transfer; token parameter for vault); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "fee",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Curve fee",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "tax",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Creator trade tax",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Curve",
+      "name": "CurveBuyRefunded",
+      "signature": "CurveBuyRefunded(address,uint256)",
+      "description": "Unused buy quote refunded.",
+      "abi": {
+        "name": "CurveBuyRefunded",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "buyer",
+            "indexed": true
+          },
+          {
+            "type": "uint256",
+            "name": "refund"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "buyer",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Refund recipient"
+          }
+        },
+        {
+          "name": "refund",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Quote refunded",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Curve",
+      "name": "CurveSell",
+      "signature": "CurveSell(address,address,uint256,uint256,uint256,uint256)",
+      "description": "Bonding curve sale.",
+      "abi": {
+        "name": "CurveSell",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "seller",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "recipient",
+            "indexed": true
+          },
+          {
+            "type": "uint256",
+            "name": "tokensIn"
+          },
+          {
+            "type": "uint256",
+            "name": "quoteOut"
+          },
+          {
+            "type": "uint256",
+            "name": "fee"
+          },
+          {
+            "type": "uint256",
+            "name": "tax"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "seller",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Seller"
+          }
+        },
+        {
+          "name": "recipient",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Quote recipient"
+          }
+        },
+        {
+          "name": "tokensIn",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Tokens input",
+            "asset": "launch token (emitter for Transfer; token parameter for vault)",
+            "decimals": "ERC-20 decimals of launch token (emitter for Transfer; token parameter for vault); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "quoteOut",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Quote output",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "fee",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Curve fee",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "tax",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Creator trade tax",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Curve",
+      "name": "FeesSwept",
+      "signature": "FeesSwept(uint256,uint256,uint256)",
+      "description": "Curve quote fees distributed.",
+      "abi": {
+        "name": "FeesSwept",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "uint256",
+            "name": "protocolAmount"
+          },
+          {
+            "type": "uint256",
+            "name": "buybackAmount"
+          },
+          {
+            "type": "uint256",
+            "name": "creatorAmount"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "protocolAmount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Protocol fees",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "buybackAmount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Buyback budget",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "creatorAmount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Creator fees",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Curve",
+      "name": "BuybackLocked",
+      "signature": "BuybackLocked(uint256,uint256)",
+      "description": "Buyback tokens locked from curve quote spending.",
+      "abi": {
+        "name": "BuybackLocked",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "uint256",
+            "name": "quoteSpent"
+          },
+          {
+            "type": "uint256",
+            "name": "tokensLocked"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "quoteSpent",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Quote spent",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "tokensLocked",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Tokens locked",
+            "asset": "launch token (emitter for Transfer; token parameter for vault)",
+            "decimals": "ERC-20 decimals of launch token (emitter for Transfer; token parameter for vault); native currency sentinel uses 18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Curve",
+      "name": "CurveCompleted",
+      "signature": "CurveCompleted(address,uint256,uint256)",
+      "description": "Completed curve assets transferred.",
+      "abi": {
+        "name": "CurveCompleted",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "recipient"
+          },
+          {
+            "type": "uint256",
+            "name": "quoteOut"
+          },
+          {
+            "type": "uint256",
+            "name": "tokenOut"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "recipient",
+          "type": "address",
+          "indexed": false,
+          "semantic": {
+            "unit": "address",
+            "description": "Asset recipient"
+          }
+        },
+        {
+          "name": "quoteOut",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Quote output",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "tokenOut",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Tokens output",
+            "asset": "launch token (emitter for Transfer; token parameter for vault)",
+            "decimals": "ERC-20 decimals of launch token (emitter for Transfer; token parameter for vault); native currency sentinel uses 18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2MemeHook",
+      "name": "PoolRegistered",
+      "signature": "PoolRegistered(bytes32,address,address,address)",
+      "description": "Hook proves pool membership in Pons.",
+      "abi": {
+        "name": "PoolRegistered",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "bytes32",
+            "name": "poolId",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "memecoin"
+          },
+          {
+            "type": "address",
+            "name": "quoteToken"
+          },
+          {
+            "type": "address",
+            "name": "creator"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "poolId",
+          "type": "bytes32",
+          "indexed": true,
+          "semantic": {
+            "unit": "identifier",
+            "description": "Uniswap v4 pool ID"
+          }
+        },
+        {
+          "name": "memecoin",
+          "type": "address",
+          "indexed": false,
+          "semantic": {
+            "unit": "address",
+            "description": "Launch token"
+          }
+        },
+        {
+          "name": "quoteToken",
+          "type": "address",
+          "indexed": false,
+          "semantic": {
+            "unit": "address",
+            "description": "Quote asset"
+          }
+        },
+        {
+          "name": "creator",
+          "type": "address",
+          "indexed": false,
+          "semantic": {
+            "unit": "address",
+            "description": "Creator"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2MemeHook",
+      "name": "ProtocolFeeRecipientUpdated",
+      "signature": "ProtocolFeeRecipientUpdated(address)",
+      "description": "Hook protocol fee recipient changed.",
+      "abi": {
+        "name": "ProtocolFeeRecipientUpdated",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "recipient"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "recipient",
+          "type": "address",
+          "indexed": false,
+          "semantic": {
+            "unit": "address",
+            "description": "New protocol recipient"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2MemeHook",
+      "name": "HookFeeCollected",
+      "signature": "HookFeeCollected(bytes32,address,uint256,uint256)",
+      "description": "Hook fee and tax collected in the stated currency.",
+      "abi": {
+        "name": "HookFeeCollected",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "bytes32",
+            "name": "poolId",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "currency"
+          },
+          {
+            "type": "uint256",
+            "name": "feeAmount"
+          },
+          {
+            "type": "uint256",
+            "name": "taxAmount"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "poolId",
+          "type": "bytes32",
+          "indexed": true,
+          "semantic": {
+            "unit": "identifier",
+            "description": "Pool ID"
+          }
+        },
+        {
+          "name": "currency",
+          "type": "address",
+          "indexed": false,
+          "semantic": {
+            "unit": "address",
+            "description": "Fee currency"
+          }
+        },
+        {
+          "name": "feeAmount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Hook fee",
+            "asset": "currency parameter",
+            "decimals": "ERC-20 decimals of currency parameter; native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "taxAmount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Hook tax",
+            "asset": "currency parameter",
+            "decimals": "ERC-20 decimals of currency parameter; native currency sentinel uses 18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2MemeHook",
+      "name": "PoolFeesSwept",
+      "signature": "PoolFeesSwept(bytes32,uint256,uint256,uint256,uint256)",
+      "description": "Pool quote fees distributed and buyback tokens locked.",
+      "abi": {
+        "name": "PoolFeesSwept",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "bytes32",
+            "name": "poolId",
+            "indexed": true
+          },
+          {
+            "type": "uint256",
+            "name": "protocolAmount"
+          },
+          {
+            "type": "uint256",
+            "name": "buybackAmount"
+          },
+          {
+            "type": "uint256",
+            "name": "creatorAmount"
+          },
+          {
+            "type": "uint256",
+            "name": "tokensLocked"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "poolId",
+          "type": "bytes32",
+          "indexed": true,
+          "semantic": {
+            "unit": "identifier",
+            "description": "Pool ID"
+          }
+        },
+        {
+          "name": "protocolAmount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Protocol fees",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "buybackAmount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Quote spent on buyback",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "creatorAmount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Creator fees",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "tokensLocked",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Tokens locked",
+            "asset": "launch token (emitter for Transfer; token parameter for vault)",
+            "decimals": "ERC-20 decimals of launch token (emitter for Transfer; token parameter for vault); native currency sentinel uses 18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2MemeHook",
+      "name": "PoolFeesRescued",
+      "signature": "PoolFeesRescued(bytes32,address,uint256,uint256)",
+      "description": "Pool quote fees rescued.",
+      "abi": {
+        "name": "PoolFeesRescued",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "bytes32",
+            "name": "poolId",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "quoteToken",
+            "indexed": true
+          },
+          {
+            "type": "uint256",
+            "name": "protocolAmount"
+          },
+          {
+            "type": "uint256",
+            "name": "creatorAmount"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "poolId",
+          "type": "bytes32",
+          "indexed": true,
+          "semantic": {
+            "unit": "identifier",
+            "description": "Pool ID"
+          }
+        },
+        {
+          "name": "quoteToken",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Quote asset"
+          }
+        },
+        {
+          "name": "protocolAmount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Protocol fees rescued",
+            "asset": "quoteToken parameter",
+            "decimals": "ERC-20 decimals of quoteToken parameter; native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "creatorAmount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Creator fees rescued",
+            "asset": "quoteToken parameter",
+            "decimals": "ERC-20 decimals of quoteToken parameter; native currency sentinel uses 18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2FeeEscrow",
+      "name": "Claimed",
+      "signature": "Claimed(address,uint256)",
+      "description": "Native escrow balance claimed.",
+      "abi": {
+        "name": "Claimed",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "recipient",
+            "indexed": true
+          },
+          {
+            "type": "uint256",
+            "name": "amount"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "recipient",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Recipient"
+          }
+        },
+        {
+          "name": "amount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Amount claimed",
+            "asset": "native currency",
+            "decimals": "18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2FeeEscrow",
+      "name": "ClaimedToken",
+      "signature": "ClaimedToken(address,address,uint256)",
+      "description": "Token escrow balance claimed.",
+      "abi": {
+        "name": "ClaimedToken",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "recipient",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "token",
+            "indexed": true
+          },
+          {
+            "type": "uint256",
+            "name": "amount"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "recipient",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Recipient"
+          }
+        },
+        {
+          "name": "token",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Escrow asset"
+          }
+        },
+        {
+          "name": "amount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Amount claimed",
+            "asset": "token parameter",
+            "decimals": "ERC-20 decimals of token parameter; native currency sentinel uses 18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2FeeEscrow",
+      "name": "Credited",
+      "signature": "Credited(address,address,uint256)",
+      "description": "Native escrow balance credited.",
+      "abi": {
+        "name": "Credited",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "recipient",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "depositor",
+            "indexed": true
+          },
+          {
+            "type": "uint256",
+            "name": "amount"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "recipient",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Recipient"
+          }
+        },
+        {
+          "name": "depositor",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Depositor"
+          }
+        },
+        {
+          "name": "amount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Amount credited",
+            "asset": "native currency",
+            "decimals": "18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2FeeEscrow",
+      "name": "CreditedToken",
+      "signature": "CreditedToken(address,address,address,uint256)",
+      "description": "Token escrow balance credited.",
+      "abi": {
+        "name": "CreditedToken",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "recipient",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "token",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "depositor",
+            "indexed": true
+          },
+          {
+            "type": "uint256",
+            "name": "amount"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "recipient",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Recipient"
+          }
+        },
+        {
+          "name": "token",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Escrow asset"
+          }
+        },
+        {
+          "name": "depositor",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Depositor"
+          }
+        },
+        {
+          "name": "amount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Amount credited",
+            "asset": "token parameter",
+            "decimals": "ERC-20 decimals of token parameter; native currency sentinel uses 18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2BuybackVault",
+      "name": "Locked",
+      "signature": "Locked(address,address,uint256,uint256)",
+      "description": "Bought-back launch tokens locked with a vesting start.",
+      "abi": {
+        "name": "Locked",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "token",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "depositor",
+            "indexed": true
+          },
+          {
+            "type": "uint256",
+            "name": "amount"
+          },
+          {
+            "type": "uint256",
+            "name": "newVestingStart"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "token",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Locked token"
+          }
+        },
+        {
+          "name": "depositor",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Depositor"
+          }
+        },
+        {
+          "name": "amount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Amount locked",
+            "asset": "token parameter",
+            "decimals": "ERC-20 decimals of token parameter; native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "newVestingStart",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "seconds",
+            "description": "Unix vesting start timestamp"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2BuybackVault",
+      "name": "Released",
+      "signature": "Released(address,uint256,uint256)",
+      "description": "Vested tokens released to creator and protocol.",
+      "abi": {
+        "name": "Released",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "token",
+            "indexed": true
+          },
+          {
+            "type": "uint256",
+            "name": "creatorAmount"
+          },
+          {
+            "type": "uint256",
+            "name": "protocolAmount"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "token",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Released token"
+          }
+        },
+        {
+          "name": "creatorAmount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Creator token amount",
+            "asset": "token parameter",
+            "decimals": "ERC-20 decimals of token parameter; native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "protocolAmount",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Protocol token amount",
+            "asset": "token parameter",
+            "decimals": "ERC-20 decimals of token parameter; native currency sentinel uses 18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2BuybackVault",
+      "name": "CreatorRecipientUpdated",
+      "signature": "CreatorRecipientUpdated(address,address,address)",
+      "description": "Vault creator recipient changed.",
+      "abi": {
+        "name": "CreatorRecipientUpdated",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "token",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "previousRecipient",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "newRecipient",
+            "indexed": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "token",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Launch token"
+          }
+        },
+        {
+          "name": "previousRecipient",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Previous recipient"
+          }
+        },
+        {
+          "name": "newRecipient",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "New recipient"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsLaunchToken",
+      "name": "Transfer",
+      "signature": "Transfer(address,address,uint256)",
+      "description": "Launch token transfer; zero-address sender proves full-supply mint.",
+      "abi": {
+        "name": "Transfer",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "from",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "to",
+            "indexed": true
+          },
+          {
+            "type": "uint256",
+            "name": "value"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "from",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Sender; zero for mint"
+          }
+        },
+        {
+          "name": "to",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Recipient"
+          }
+        },
+        {
+          "name": "value",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Transferred token amount",
+            "asset": "emitting launch token",
+            "decimals": "ERC-20 decimals of emitting launch token; native currency sentinel uses 18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Forwarder",
+      "name": "Launched",
+      "signature": "Launched(address,address,address,address,uint256,uint256)",
+      "description": "Forwarded launch and initial purchase completed.",
+      "abi": {
+        "name": "Launched",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "token",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "curve",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "recipient",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "launcher"
+          },
+          {
+            "type": "uint256",
+            "name": "quoteSpent"
+          },
+          {
+            "type": "uint256",
+            "name": "tokensReceived"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "token",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Launch token"
+          }
+        },
+        {
+          "name": "curve",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Curve"
+          }
+        },
+        {
+          "name": "recipient",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Token recipient"
+          }
+        },
+        {
+          "name": "launcher",
+          "type": "address",
+          "indexed": false,
+          "semantic": {
+            "unit": "address",
+            "description": "Launcher"
+          }
+        },
+        {
+          "name": "quoteSpent",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Quote spent",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "tokensReceived",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Tokens received",
+            "asset": "launch token (emitter for Transfer; token parameter for vault)",
+            "decimals": "ERC-20 decimals of launch token (emitter for Transfer; token parameter for vault); native currency sentinel uses 18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "UniswapV4PoolManager",
+      "name": "Swap",
+      "signature": "Swap(bytes32,address,int128,int128,uint160,uint128,int24,uint24)",
+      "description": "Swap retained only for a pool registered by the Pons hook.",
+      "abi": {
+        "name": "Swap",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "bytes32",
+            "name": "id",
+            "indexed": true
+          },
+          {
+            "type": "address",
+            "name": "sender",
+            "indexed": true
+          },
+          {
+            "type": "int128",
+            "name": "amount0"
+          },
+          {
+            "type": "int128",
+            "name": "amount1"
+          },
+          {
+            "type": "uint160",
+            "name": "sqrtPriceX96"
+          },
+          {
+            "type": "uint128",
+            "name": "liquidity"
+          },
+          {
+            "type": "int24",
+            "name": "tick"
+          },
+          {
+            "type": "uint24",
+            "name": "fee"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "type": "bytes32",
+          "indexed": true,
+          "semantic": {
+            "unit": "identifier",
+            "description": "Pool ID"
+          }
+        },
+        {
+          "name": "sender",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Swap sender"
+          }
+        },
+        {
+          "name": "amount0",
+          "type": "int128",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Signed PoolManager currency0 delta",
+            "asset": "pool currency0 (address-sorted currency)",
+            "decimals": "ERC-20 decimals of pool currency0 (address-sorted currency); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "amount1",
+          "type": "int128",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Signed PoolManager currency1 delta",
+            "asset": "pool currency1 (address-sorted currency)",
+            "decimals": "ERC-20 decimals of pool currency1 (address-sorted currency); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "sqrtPriceX96",
+          "type": "uint160",
+          "indexed": false,
+          "semantic": {
+            "unit": "sqrt-price-x96",
+            "description": "Square root of raw currency1/currency0 price scaled by 2^96"
+          }
+        },
+        {
+          "name": "liquidity",
+          "type": "uint128",
+          "indexed": false,
+          "semantic": {
+            "unit": "liquidity",
+            "description": "Active Uniswap v4 liquidity, not a token balance"
+          }
+        },
+        {
+          "name": "tick",
+          "type": "int24",
+          "indexed": false,
+          "semantic": {
+            "unit": "tick",
+            "description": "Post-swap price tick"
+          }
+        },
+        {
+          "name": "fee",
+          "type": "uint24",
+          "indexed": false,
+          "semantic": {
+            "unit": "ppm",
+            "description": "Swap fee in millionths"
+          }
+        }
+      ]
+    }
+  ],
+  "materializations": [
+    {
+      "name": "PonsLaunch",
+      "description": "Chain-scoped launch identity and exact full-supply mint evidence; preserve partial state in either event order.",
+      "fields": {
+        "token": {
+          "type": "String",
+          "required": true,
+          "index": true
+        },
+        "curve": {
+          "type": "String",
+          "index": true
+        },
+        "deployer": {
+          "type": "String",
+          "index": true
+        },
+        "pairToken": {
+          "type": "String"
+        },
+        "launchConfigId": {
+          "type": "BigInt"
+        },
+        "graduationThreshold": {
+          "type": "BigInt"
+        },
+        "canonicalSupply": {
+          "type": "BigInt"
+        },
+        "createdBlock": {
+          "type": "BigInt"
+        },
+        "supplyMintBlock": {
+          "type": "BigInt"
+        }
+      },
+      "updates": [
+        {
+          "contract": "PonsV2Factory",
+          "event": "TokenLaunched",
+          "key": {
+            "parameter": "token",
+            "lowercase": true
+          },
+          "set": {
+            "token": {
+              "parameter": "token",
+              "lowercase": true
+            },
+            "curve": {
+              "parameter": "curve",
+              "lowercase": true
+            },
+            "deployer": {
+              "parameter": "deployer",
+              "lowercase": true
+            },
+            "pairToken": {
+              "parameter": "pairToken",
+              "lowercase": true
+            },
+            "launchConfigId": {
+              "parameter": "launchConfigId",
+              "lowercase": false
+            },
+            "graduationThreshold": {
+              "parameter": "graduationThreshold",
+              "lowercase": false
+            },
+            "createdBlock": {
+              "event": "block.number"
+            }
+          }
+        },
+        {
+          "contract": "PonsLaunchToken",
+          "event": "Transfer",
+          "key": {
+            "event": "srcAddress",
+            "lowercase": true
+          },
+          "when": {
+            "parameter": "from",
+            "equals": "0x0000000000000000000000000000000000000000"
+          },
+          "assertUnchanged": [
+            "canonicalSupply"
+          ],
+          "set": {
+            "token": {
+              "event": "srcAddress",
+              "lowercase": true
+            },
+            "canonicalSupply": {
+              "parameter": "value",
+              "lowercase": false
+            },
+            "supplyMintBlock": {
+              "event": "block.number"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "PonsPool",
+      "description": "Chain-scoped pool membership proven by the deployed Pons hook; unknown PoolManager pools are excluded.",
+      "fields": {
+        "token": {
+          "type": "String",
+          "required": true,
+          "index": true
+        },
+        "quoteToken": {
+          "type": "String",
+          "required": true,
+          "index": true
+        },
+        "creator": {
+          "type": "String",
+          "required": true,
+          "index": true
+        },
+        "registeredBlock": {
+          "type": "BigInt",
+          "required": true
+        }
+      },
+      "updates": [
+        {
+          "contract": "PonsV2MemeHook",
+          "event": "PoolRegistered",
+          "key": {
+            "parameter": "poolId",
+            "lowercase": true
+          },
+          "set": {
+            "token": {
+              "parameter": "memecoin",
+              "lowercase": true
+            },
+            "quoteToken": {
+              "parameter": "quoteToken",
+              "lowercase": true
+            },
+            "creator": {
+              "parameter": "creator",
+              "lowercase": true
+            },
+            "registeredBlock": {
+              "event": "block.number"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "contracts": [
+    {
+      "name": "PonsV2Factory",
+      "artifact": "@reptilianhq/pons-sdk/artifacts/PonsV2Factory.json",
+      "events": [
+        "LaunchConfigUpdated",
+        "TokenLaunched",
+        "LaunchSwept",
+        "CreatorFeeRecipientUpdated",
+        "BuybackEnabledUpdated",
+        "PoolGraduated",
+        "LaunchGraduationRescued"
+      ]
+    },
+    {
+      "name": "PonsV2Curve",
+      "artifact": "@reptilianhq/pons-sdk/artifacts/PonsV2Curve.json",
+      "events": [
+        "CurveBuy",
+        "CurveBuyRefunded",
+        "CurveSell",
+        "FeesSwept",
+        "BuybackLocked",
+        "CurveCompleted"
+      ]
+    },
+    {
+      "name": "PonsV2MemeHook",
+      "artifact": "@reptilianhq/pons-sdk/artifacts/PonsV2MemeHook.json",
+      "events": [
+        "PoolRegistered",
+        "ProtocolFeeRecipientUpdated",
+        "HookFeeCollected",
+        "PoolFeesSwept",
+        "PoolFeesRescued"
+      ]
+    },
+    {
+      "name": "PonsV2FeeEscrow",
+      "artifact": "@reptilianhq/pons-sdk/artifacts/PonsV2FeeEscrow.json",
+      "events": [
+        "Claimed",
+        "ClaimedToken",
+        "Credited",
+        "CreditedToken"
+      ]
+    },
+    {
+      "name": "PonsV2BuybackVault",
+      "artifact": "@reptilianhq/pons-sdk/artifacts/PonsV2BuybackVault.json",
+      "events": [
+        "Locked",
+        "Released",
+        "CreatorRecipientUpdated"
+      ]
+    },
+    {
+      "name": "PonsLaunchToken",
+      "artifact": "@reptilianhq/pons-sdk/artifacts/PonsLaunchToken.json",
+      "events": [
+        "Transfer"
+      ]
+    },
+    {
+      "name": "PonsV2Forwarder",
+      "artifact": "@reptilianhq/pons-sdk/artifacts/PonsV2Forwarder.json",
+      "events": [
+        "Launched"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "UniswapV4PoolManager",
+      "artifact": "@reptilianhq/pons-sdk/artifacts/UniswapV4PoolManager.json",
+      "events": [
+        "Swap"
+      ],
+      "filters": [
+        {
+          "event": "Swap",
+          "parameter": "id",
+          "includeWhenRegisteredBy": {
+            "contract": "PonsV2MemeHook",
+            "event": "PoolRegistered",
+            "parameter": "poolId"
+          }
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "kind": "fixed",
+      "contract": "PonsV2Forwarder",
+      "address": "0xe33E9E479dF8802cb0866d5d05258bEc4cF62948",
+      "startBlock": "26841846",
+      "expectedRuntimeCodeHash": "0xed9065184519eaa24a22c2556403d5d8bbb230ff94dbc5c414cf5028e20e52e7"
+    },
+    {
+      "kind": "fixed",
+      "contract": "PonsV2Factory",
+      "address": "0x7eD598BcEf8bd9Edd8C97A195C6d13f40801EC7e",
+      "startBlock": "26841846",
+      "expectedRuntimeCodeHash": "0x89a27da6f703e0a7cdd4f233e7cb57604ff75b164530962d3ff7cf8483a67d84"
+    },
+    {
+      "kind": "fixed",
+      "contract": "PonsV2MemeHook",
+      "address": "0xE5e702641Ea86F4ae6cC3cDaeD2B886f976Be044",
+      "startBlock": "26841846",
+      "expectedRuntimeCodeHash": "0xc21b1e6c1b45403e81a581f22ed6d9c747997af1cfdac1b1dc9f4b1d346a10db"
+    },
+    {
+      "kind": "fixed",
+      "contract": "PonsV2FeeEscrow",
+      "address": "0xd3AFEB2a57f70eF218Aa82451c51B2fb0416Ac9e",
+      "startBlock": "26841846",
+      "expectedRuntimeCodeHash": "0xf25f75cfbc1637ba068dc34f69098fa4e8a80f8ee8fe7bf7820594e0b3fed2f1"
+    },
+    {
+      "kind": "fixed",
+      "contract": "PonsV2BuybackVault",
+      "address": "0x42df2a798f82289E177311362e8f5ccC45c1219c",
+      "startBlock": "26841846",
+      "expectedRuntimeCodeHash": "0x5de8480874faffefa539648f1a7d6c1e69b39da3fa34de22fc95eb7586aece03"
+    },
+    {
+      "kind": "fixed",
+      "contract": "UniswapV4PoolManager",
+      "address": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+      "startBlock": "26841846"
+    },
+    {
+      "kind": "dynamic",
+      "startFrom": "discovery-block",
+      "contract": "PonsV2Curve",
+      "registeredBy": {
+        "contract": "PonsV2Factory",
+        "event": "TokenLaunched",
+        "addressParameter": "curve"
+      }
+    },
+    {
+      "kind": "dynamic",
+      "startFrom": "discovery-block",
+      "contract": "PonsLaunchToken",
+      "registeredBy": {
+        "contract": "PonsV2Factory",
+        "event": "TokenLaunched",
+        "addressParameter": "token"
+      }
+    }
+  ]
+}

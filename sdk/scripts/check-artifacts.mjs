@@ -32,6 +32,7 @@ for (const [name, artifact] of [
   assert.match(provenance.reviewedContracts[name].verifiedSourceUrl, /^https:\/\/robinhoodchain\.blockscout\.com\/address\/0x[0-9a-fA-F]{40}\?tab=contract$/);
 }
 const factoryEventNames = [
+  "LaunchConfigUpdated",
   "TokenLaunched",
   "LaunchSwept",
   "CreatorFeeRecipientUpdated",

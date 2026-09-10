@@ -1,6 +1,6 @@
-import type { Address, Hex } from "viem";
+import { type Abi, type AbiEvent, type Address, type Hex } from "viem";
 export declare const PONS_INDEXING_MANIFEST_VERSION: 1;
-export type PonsIndexingContractName = "PonsV2Factory" | "PonsV2Curve" | "PonsV2MemeHook" | "PonsV2FeeEscrow" | "PonsV2BuybackVault" | "PonsLaunchToken";
+export type PonsIndexingContractName = "PonsV2Forwarder" | "PonsV2Factory" | "PonsV2Curve" | "PonsV2MemeHook" | "PonsV2FeeEscrow" | "PonsV2BuybackVault" | "PonsLaunchToken";
 export type PonsIndexingDependencyName = "UniswapV4PoolManager";
 export type PonsIndexingSourceName = PonsIndexingContractName | PonsIndexingDependencyName;
 export interface PonsIndexingContract {
@@ -32,6 +32,7 @@ export interface PonsFixedIndexingSource {
 export interface PonsDynamicIndexingSource {
     kind: "dynamic";
     contract: PonsIndexingContractName;
+    startFrom: "discovery-block";
     registeredBy: {
         contract: PonsIndexingContractName;
         event: string;
@@ -44,10 +45,62 @@ export interface PonsIndexingManifest {
     coverage: "pons-v2-public-events";
     chainId: number;
     startBlock: bigint;
+    catalog: readonly PonsIndexingEvent[];
+    materializations: readonly PonsMaterialization[];
     contracts: readonly PonsIndexingContract[];
     dependencies: readonly PonsIndexingDependency[];
     sources: readonly (PonsFixedIndexingSource | PonsDynamicIndexingSource)[];
 }
+export declare const ponsIndexingAbis: Readonly<Record<PonsIndexingSourceName, Abi>>;
+export interface PonsParameterSemantic {
+    unit: "address" | "identifier" | "boolean" | "raw-amount" | "seconds" | "tick" | "ppm" | "sqrt-price-x96" | "liquidity";
+    description: string;
+    asset?: string;
+    decimals?: string;
+}
+export interface PonsIndexingEvent {
+    contract: PonsIndexingSourceName;
+    name: string;
+    signature: string;
+    description: string;
+    abi: AbiEvent;
+    parameters: readonly {
+        name: string;
+        type: string;
+        indexed: boolean;
+        semantic: PonsParameterSemantic;
+    }[];
+}
+export declare const ponsIndexingCatalog: readonly PonsIndexingEvent[];
+/** Restricted data expressions keep owner intent independent of generated TypeScript. */
+export type PonsIndexingValue = {
+    parameter: string;
+    lowercase?: boolean;
+} | {
+    event: "srcAddress" | "block.number";
+    lowercase?: boolean;
+};
+export interface PonsMaterialization {
+    name: "PonsLaunch" | "PonsPool";
+    description: string;
+    fields: Readonly<Record<string, {
+        type: "String" | "BigInt";
+        required?: boolean;
+        index?: boolean;
+    }>>;
+    updates: readonly {
+        contract: PonsIndexingSourceName;
+        event: string;
+        key: PonsIndexingValue;
+        when?: {
+            parameter: string;
+            equals: string;
+        };
+        set: Readonly<Record<string, PonsIndexingValue>>;
+        assertUnchanged?: readonly string[];
+    }[];
+}
+export declare const ponsIndexingMaterializations: readonly PonsMaterialization[];
 /**
  * Returns the versioned public-event topology for a Pons deployment.
  *

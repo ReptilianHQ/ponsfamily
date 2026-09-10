@@ -107,6 +107,8 @@ jobs:
           cache-dependency-path: sdk/package-lock.json
           registry-url: https://npm.pkg.github.com
           scope: "@reptilianhq"
+      - name: Pin npm for reproducible package retries
+        run: npm install --global npm@11.5.2
       - name: Validate release identity
         id: release
         run: node scripts/release-plan.mjs
@@ -129,53 +131,36 @@ jobs:
       - name: Set published version
         if: needs.authorize.outputs.ref_type == 'branch'
         run: npm version --no-git-tag-version --allow-same-version "${{ steps.release.outputs.version }}"
-      - name: Check for an existing immutable target version
-        id: target
+      - name: Check out trusted SDK publishing tooling from main
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          path: .release-tools
+          fetch-depth: 1
+          persist-credentials: false
+          sparse-checkout: |
+            sdk/scripts/artifacts
+          sparse-checkout-cone-mode: false
+      - name: Run package publication checks for the selected version
+        run: npm run prepublishOnly
+      - name: Prepare immutable SDK publication evidence
+        run: >-
+          node "${GITHUB_WORKSPACE}/.release-tools/sdk/scripts/artifacts/sdk-publish.mjs"
+          prepare "${RUNNER_TEMP}/sdk-release"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_VERSION: ${{ steps.release.outputs.version }}
-          SOURCE_SHA: ${{ needs.authorize.outputs.source_sha }}
-        run: |
-          set +e
-          existing_version="$(npm view "@reptilianhq/pons-sdk@${RELEASE_VERSION}" version 2>"${RUNNER_TEMP}/npm-view.err")"
-          view_status=$?
-          set -e
-          if [ "$view_status" -eq 0 ]; then
-            test "$existing_version" = "$RELEASE_VERSION"
-            existing_git_head="$(npm view "@reptilianhq/pons-sdk@${RELEASE_VERSION}" gitHead)"
-            test "$existing_git_head" = "$SOURCE_SHA"
-            echo 'exists=true' >> "$GITHUB_OUTPUT"
-          elif grep -q E404 "${RUNNER_TEMP}/npm-view.err"; then
-            echo 'exists=false' >> "$GITHUB_OUTPUT"
-          else
-            cat "${RUNNER_TEMP}/npm-view.err" >&2
-            exit "$view_status"
-          fi
-      - name: Publish to GitHub Packages
-        if: steps.target.outputs.exists == 'false'
-        run: npm publish --access public --tag "${{ steps.release.outputs.dist_tag }}"
+          RELEASE_SOURCE_SHA: ${{ needs.authorize.outputs.source_sha }}
+          RELEASE_DIST_TAG: ${{ steps.release.outputs.dist_tag }}
+      - name: Publish the prepared immutable SDK tarball
+        run: >-
+          node "${GITHUB_WORKSPACE}/.release-tools/sdk/scripts/artifacts/sdk-publish.mjs"
+          publish "${RUNNER_TEMP}/sdk-release"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish or repair the selected install channel
-        run: npm dist-tag add "@reptilianhq/pons-sdk@${{ steps.release.outputs.version }}" "${{ steps.release.outputs.dist_tag }}"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Verify published install channel
-        run: |
-          expected="${{ steps.release.outputs.version }}"
-          package="@reptilianhq/pons-sdk@${{ steps.release.outputs.dist_tag }}"
-          for attempt in 1 2 3 4 5 6; do
-            actual="$(npm view "$package" version 2>/dev/null || true)"
-            if test "$actual" = "$expected"; then
-              echo "$package resolves to $actual"
-              exit 0
-            fi
-            sleep 5
-          done
-          echo "::error::$package did not resolve to expected version $expected (last observed: ${actual:-missing})"
-          exit 1
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+          RELEASE_SOURCE_SHA: ${{ needs.authorize.outputs.source_sha }}
+          RELEASE_DIST_TAG: ${{ steps.release.outputs.dist_tag }}
       - name: Verify package remains public
         run: |
           visibility="$(gh api /orgs/ReptilianHQ/packages/npm/pons-sdk --jq .visibility)"
@@ -186,3 +171,11 @@ jobs:
         working-directory: .
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Archive SDK publication evidence
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pons-sdk-publish-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/sdk-release
+          if-no-files-found: warn
+          retention-days: 14

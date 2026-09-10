@@ -1,0 +1,14 @@
+{
+  "name": "pons-envio-starter",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "codegen": "envio codegen",
+    "check": "envio codegen && tsc --ignoreConfig --noEmit --strict --target ES2022 --module NodeNext --moduleResolution NodeNext --skipLibCheck envio-env.d.ts src/EventHandlers.ts src/eventLog.ts",
+    "dev": "envio dev"
+  },
+  "devDependencies": {
+    "envio": "3.6.1",
+    "typescript": "7.0.2"
+  }
+}

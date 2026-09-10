@@ -42,6 +42,7 @@ export const ponsFactoryAbi = parseAbi([
   "function createGraduatedPool(address token) returns (uint256 positionId)",
   "function transferCreatorFeeRecipient(address token, address newRecipient)",
   "function setBuybackEnabled(address token, bool enabled)",
+  "event LaunchConfigUpdated(uint256 indexed id)",
   "event TokenLaunched(address indexed token, address indexed curve, address indexed deployer, address pairToken, uint256 launchConfigId, uint256 graduationThreshold)",
   "event LaunchSwept(address indexed token, uint256 quoteOut, uint256 tokenOut)",
   "event CreatorFeeRecipientUpdated(address indexed token, address indexed previousRecipient, address indexed newRecipient)",
@@ -128,6 +129,8 @@ export const ponsMemeHookAbi = parseAbi([
 ]);
 
 export const ponsLockerAbi = parseAbi([
+  "function positionManager() view returns (address)",
+  "function factory() view returns (address)",
   "function lockedPositions(address token) view returns (uint256)",
   "function lockedTokenSupply(address token) view returns (uint256)",
   "function isLocked(address token) view returns (bool)",
@@ -143,4 +146,10 @@ export const ponsBuybackVaultAbi = parseAbi([
   "event Locked(address indexed token, address indexed depositor, uint256 amount, uint256 newVestingStart)",
   "event Released(address indexed token, uint256 creatorAmount, uint256 protocolAmount)",
   "event CreatorRecipientUpdated(address indexed token, address indexed previousRecipient, address indexed newRecipient)",
+]);
+
+export const uniswapV4PositionReadAbi = parseAbi([
+  'function ownerOf(uint256 tokenId) view returns (address)',
+  'function getPositionLiquidity(uint256 tokenId) view returns (uint128)',
+  'function getPoolAndPositionInfo(uint256 tokenId) view returns ((address currency0, address currency1, uint24 fee, int24 tickSpacing, address hooks), uint256)',
 ]);

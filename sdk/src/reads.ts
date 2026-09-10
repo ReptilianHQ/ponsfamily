@@ -1,5 +1,5 @@
 import { encodeAbiParameters, getAddress, keccak256, zeroAddress, type Address, type Hex, type PublicClient } from "viem";
-import { ponsBuybackVaultAbi, ponsCurveAbi, ponsFactoryAbi, ponsFeeEscrowAbi, ponsLockerAbi, ponsMemeHookAbi, ponsTokenAbi } from "./abis.js";
+import { ponsBuybackVaultAbi, ponsCurveAbi, ponsFactoryAbi, ponsFeeEscrowAbi, ponsLockerAbi, ponsMemeHookAbi, ponsTokenAbi, uniswapV4PositionReadAbi } from "./abis.js";
 import type { PonsDeployment } from "./deployments.js";
 import { PonsSdkError } from "./errors.js";
 
@@ -391,4 +391,89 @@ function graduationPhase(value: number): GraduationPhase {
     });
   }
   return value;
+}
+
+function requireMatch(condition: boolean, message: string) {
+  if (!condition) throw new PonsSdkError("POSITION_OBSERVATION_MISMATCH", message);
+}
+const sameAddress = (a: Address, b: Address) => getAddress(a) === getAddress(b);
+
+/** Read Pons launch NFT custody and pool facts at a caller-selected block.
+ * Call assertCompatibleDeployment separately when establishing deployment trust.
+ * Number-pinned reads bracketed by hash checks detect observed reorgs, but are
+ * not an atomic snapshot or a guarantee against a future reorganization.
+ */
+export async function readGraduatedPosition(client: PublicClient, deployment: PonsDeployment,
+  token: Address, { blockNumber }: { blockNumber: bigint }) {
+  token = getAddress(token);
+  if (typeof blockNumber !== 'bigint' || blockNumber < deployment.startBlock) {
+    throw new PonsSdkError('INVALID_ARGUMENT', 'Checkpoint must be at or after the reviewed Pons deployment start');
+  }
+  if (await client.getChainId() !== deployment.chainId) {
+    throw new PonsSdkError("CHAIN_MISMATCH", "RPC chainId is incompatible with the deployment");
+  }
+  const before = await client.getBlock({ blockNumber });
+  if (!before.hash) throw new PonsSdkError('CHECKPOINT_UNAVAILABLE', 'Checkpoint block hash is unavailable');
+  const launch = await readLaunchedToken(client, deployment, token, { blockNumber });
+  requireMatch(sameAddress(launch.token, token), 'Factory launch token does not match the requested token');
+  const base = {
+    chainId: deployment.chainId,
+    token,
+    blockNumber,
+    blockHash: before.hash,
+    abiRevision: deployment.abiRevision,
+  };
+  const finish = async <T extends object>(result: T) => {
+    // All reads use the same block number. Detect a changed canonical hash over
+    // the read window; this is an observation, not a guarantee against reorgs.
+    const after = await client.getBlock({ blockNumber });
+    if (after.hash !== before.hash) throw new PonsSdkError('CHECKPOINT_CHANGED', 'Checkpoint reorganized during the observation; rerun at a stable block');
+    return { ...base, ...result };
+  };
+  if (launch.phase !== GraduationPhase.PoolCreated) {
+    requireMatch([GraduationPhase.NotGraduated, GraduationPhase.Swept, GraduationPhase.Rescued].includes(launch.phase),
+      'Factory returned an unrecognized lifecycle phase');
+    return finish({ status: 'no_graduated_position' as const, lifecyclePhase: launch.phase, position: null });
+  }
+
+  const locker = deployment.contracts.locker;
+  const manager = deployment.contracts.positionManager;
+  const [locked, positionId, lockerManager, lockerFactory] = await Promise.all([
+    client.readContract({ address: locker, abi: ponsLockerAbi, functionName: 'isLocked', args: [token], blockNumber }),
+    client.readContract({ address: locker, abi: ponsLockerAbi, functionName: 'lockedPositions', args: [token], blockNumber }),
+    client.readContract({ address: locker, abi: ponsLockerAbi, functionName: 'positionManager', blockNumber }),
+    client.readContract({ address: locker, abi: ponsLockerAbi, functionName: 'factory', blockNumber }),
+  ]);
+  requireMatch(locked === true, 'Graduated Pons launch is not registered as locked');
+  requireMatch(sameAddress(lockerManager, manager) && sameAddress(lockerFactory, deployment.contracts.factory),
+    'Locker is not wired to the reviewed factory and V4 position manager');
+  const read = { address: manager, abi: uniswapV4PositionReadAbi, args: [positionId], blockNumber } as const;
+  const [owner, liquidity, [key, info]] = await Promise.all([
+    client.readContract({ ...read, functionName: 'ownerOf' }),
+    client.readContract({ ...read, functionName: 'getPositionLiquidity' }),
+    client.readContract({ ...read, functionName: 'getPoolAndPositionInfo' }),
+  ]);
+  requireMatch(sameAddress(owner, locker), 'Graduated position NFT is not held by the reviewed Pons locker');
+  const currencies = [token, getAddress(launch.pairToken)].sort((a, b) => BigInt(a) < BigInt(b) ? -1 : 1);
+  requireMatch(sameAddress(key.currency0, currencies[0]) && sameAddress(key.currency1, currencies[1])
+    && key.fee === launch.poolFee && key.tickSpacing === launch.tickSpacing
+    && sameAddress(key.hooks, deployment.contracts.memeHook),
+  'Position pool key differs from the Pons launch currencies, fee, spacing, or hook');
+  const tickLower = Number(BigInt.asIntN(24, info >> 8n));
+  const tickUpper = Number(BigInt.asIntN(24, info >> 32n));
+  requireMatch(tickLower < tickUpper && tickLower >= -887272 && tickUpper <= 887272,
+    'Position tick range is invalid');
+  const poolId = derivePonsGraduatedPoolId({ token, pairToken: launch.pairToken,
+    poolFee: launch.poolFee, tickSpacing: launch.tickSpacing, memeHook: deployment.contracts.memeHook });
+  requireMatch(info >> 56n === BigInt(poolId) >> 56n, 'Packed position pool ID differs from the returned pool key');
+  return finish({
+    status: 'observed' as const,
+    lifecyclePhase: GraduationPhase.PoolCreated as const,
+    position: {
+      positionManager: getAddress(manager), tokenId: positionId, poolId,
+      owner: getAddress(owner), locker: getAddress(locker), locked: true as const,
+      liquidity, tickLower, tickUpper,
+      poolKey: key,
+    },
+  });
 }

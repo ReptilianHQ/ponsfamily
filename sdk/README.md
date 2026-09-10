@@ -167,7 +167,6 @@ The published provenance records the forwarder's creation transaction, block, ve
 
 - `@reptilianhq/pons-sdk/abis` — reviewed consumer ABIs
 - `@reptilianhq/pons-sdk/artifacts/*` — Envio-compatible event ABI JSON
-- `@reptilianhq/pons-sdk/examples/envio` — canonical Envio mainnet source and dynamic-registration example
 - `@reptilianhq/pons-sdk/indexing` — versioned event, artifact, address, start-block, and dynamic-source manifest
 - `@reptilianhq/pons-sdk/provenance/mainnet.json` — machine-readable reviewed deployment provenance
 - `@reptilianhq/pons-sdk/deployments` — pinned chain and contract metadata
@@ -208,15 +207,59 @@ exactly match `package.json` fail closed.
 
 RC and stable package versions are immutable. Do not commit an `-rc` version to
 `package.json`, reuse an already published version, or create an RC Git tag. If
-an RC is rejected, merge the fix to `main` and advance the same release branch
-to publish the next numbered candidate. See
+an existing version has different package bytes, its release fails closed: merge
+a fresh source commit and publish a fresh version rather than attempting to
+replace the legacy package. An RC and its eventual stable release intentionally
+have different versions and are not required to have identical tarballs. If an
+RC is rejected, merge the fix to `main` and advance the same release branch to
+publish the next numbered candidate. See
 [`RELEASING.md`](./RELEASING.md) for the exact checklist and verification
 commands.
 
 The package is intentionally public and contains only the runtime-neutral SDK,
-public deployment provenance, ABI artifacts, and the canonical Envio example.
+public deployment provenance, ABI artifacts, and the vendor-neutral indexing
+manifest. The generated Envio starter stays in the repository.
 GitHub's npm registry still requires an access token to install public packages.
 The workflow publishes with `--access public` and verifies that GitHub continues
 to report public visibility after every release.
 
 Run `npm test` before release.
+
+### Generated indexing reference
+
+`./indexing` exposes the typed event catalog and `getPonsIndexingManifest()`.
+`./indexing/mainnet.json` publishes its vendor-neutral JSON form (bigints are
+decimal strings). Event parameters include descriptions and unit semantics;
+topology includes fixed sources, dynamic discovery, and shared-pool filtering.
+The [Envio starter](examples/envio/README.md) is repo-local, generated, and
+lockfile-pinned. `npm run generate:indexing` updates it and `npm run
+check:indexing` rejects drift. It is excluded from the package API.
+
+## Graduated position custody
+
+`readGraduatedPosition` (root or `./reads` export) reads a Pons launch's Uniswap
+V4 position at an explicit block. Establish deployment trust with
+`assertCompatibleDeployment` separately; the reader checks chain identity,
+locker registration and pointers, NFT ownership, pool key, packed pool ID, and ticks.
+
+```ts
+await assertCompatibleDeployment(client, deployment, { blockNumber });
+const observation = await readGraduatedPosition(client, deployment, token, { blockNumber });
+if (observation.status === "observed") {
+  const { tokenId, owner, liquidity, poolKey } = observation.position;
+  // tokenId and liquidity remain bigint; serialization belongs to the caller.
+}
+```
+
+A valid pre-pool or rescued phase returns `no_graduated_position` and a null
+position. Custody/pool inconsistencies throw `POSITION_OBSERVATION_MISMATCH`;
+missing or changing checkpoint hashes throw `CHECKPOINT_UNAVAILABLE` or
+`CHECKPOINT_CHANGED`. RPC failures propagate. Reads use one block number and
+compare its hash before and after; this does not guarantee an atomic snapshot
+or future finality. Deployment compatibility does not independently attest the
+locker's runtime bytecode.
+
+The reader returns contract facts, without wallet discovery, token valuation,
+fee entitlement, withdrawal policy, or portfolio display decisions. It uses a
+reviewed minimal V4 read ABI; Uniswap SDK math and transaction builders remain
+separate concerns.

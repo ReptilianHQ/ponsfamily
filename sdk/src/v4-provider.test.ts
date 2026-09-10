@@ -38,6 +38,9 @@ describe('Pons v4 provider membership', () => {
     expect(getPonsV4Provider().discovery.address).toBe(deployment.contracts.memeHook);
     expect(ponsV4GraduationCapabilities.withdrawGraduationPrincipal).toBe(false);
     expect(ponsV4GraduationCapabilities.swap.supported).toBe(false);
+    expect(Object.isFrozen(ponsV4GraduationCapabilities.swap)).toBe(true);
+    expect(Object.isFrozen(ponsV4GraduationCapabilities.manageIndependentPosition)).toBe(true);
+    expect(Reflect.set(ponsV4GraduationCapabilities.swap, 'supported', true)).toBe(false);
   });
   it('does not infer membership from a matching hook or unrelated log', () => {
     for (const patch of [{ chainId: 1 }, { address: creator }, { removed: true }, { blockNumber: 0n }, { data: '0x' as Hex }]) {

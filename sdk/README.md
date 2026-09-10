@@ -27,6 +27,12 @@ Install the stable channel with:
 pnpm add @reptilianhq/pons-sdk@latest viem
 ```
 
+Version 0.5 also requires read access to the private
+`@reptilianhq/uniswap-sdk` dependency. A `read:packages` token alone is not
+sufficient without access to that package. This release targets authorized
+Reptilian integrations; the public Pons package does not grant dependency access.
+GitHub Actions consumers should receive package read access for their repository.
+
 Node.js 24 or newer is supported. `viem` >=2.55.0 <3 is a peer dependency.
 
 ## Launch a token

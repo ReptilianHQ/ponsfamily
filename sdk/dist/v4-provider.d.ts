@@ -44,14 +44,14 @@ export declare const ponsV4GraduationCapabilities: Readonly<{
     readPool: true;
     observeLockedPosition: true;
     withdrawGraduationPrincipal: false;
-    swap: {
-        supported: boolean;
-        reason: string;
-    };
-    manageIndependentPosition: {
-        supported: boolean;
-        reason: string;
-    };
+    swap: Readonly<{
+        supported: false;
+        reason: "No reviewed Pons v4 router/hook execution path in this SDK release";
+    }>;
+    manageIndependentPosition: Readonly<{
+        supported: false;
+        reason: "Independent v4 position execution has not been verified";
+    }>;
 }>;
 /** Verify supplied canonical registration content. Does not establish receipt finality,
  * deployment bytecode or RPC provenance; use readPonsV4PoolRegistrations for those reads.

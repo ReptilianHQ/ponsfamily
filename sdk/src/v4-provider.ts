@@ -43,8 +43,8 @@ export const ponsV4GraduationCapabilities = Object.freeze({
   readPool: true,
   observeLockedPosition: true,
   withdrawGraduationPrincipal: false,
-  swap: { supported: false, reason: 'No reviewed Pons v4 router/hook execution path in this SDK release' },
-  manageIndependentPosition: { supported: false, reason: 'Independent v4 position execution has not been verified' },
+  swap: Object.freeze({ supported: false as const, reason: 'No reviewed Pons v4 router/hook execution path in this SDK release' }),
+  manageIndependentPosition: Object.freeze({ supported: false as const, reason: 'Independent v4 position execution has not been verified' }),
 });
 
 function requireMatch(value: boolean, path: string): void {

@@ -11,7 +11,10 @@ dist-tags:
 
 GitHub Packages requires authentication even when the package is public. Set
 the `@reptilianhq` registry to `https://npm.pkg.github.com` and use a token with
-package read access when running the verification commands below.
+package read access when running the verification commands below. Version 0.5
+also requires access to the private shared Uniswap SDK; grant the Pons repository
+read access under that package’s Manage Actions access settings before release.
+Public package visibility does not confer access to private dependencies.
 
 ## Release candidate
 

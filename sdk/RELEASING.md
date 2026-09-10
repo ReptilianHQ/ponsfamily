@@ -130,10 +130,10 @@ cover launch reverted statuses and curve-buy absolute/partial-fill floor
 boundaries, bringing the receipt suite to 198 cases. The first-event policy is
 unchanged; no runtime SDK source or generated distribution was modified.
 
-Final validation: `npm test` passed with 314 tests across 13 files, including
+After synchronizing main at `c08939a`, `npm test` passed with 335 tests across
+14 files, including
 198 receipt cases, plus build/distribution drift, artifact, Envio example,
 release-document/workflow, pack, `publint`, and ESM package checks. The edited
 receipt suite passed a focused TypeScript check with tests included. Root SDK
 conformance and workflow-registry checks also passed. A writable temporary npm
 cache was used; package versions and lockfiles were unchanged.
-

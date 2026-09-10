@@ -9,8 +9,6 @@ export function buildLaunchTransaction(deployment, parameters) {
     assertNonNegative(parameters.launchFee, "launchFee");
     const openingBuy = parameters.openingBuy;
     if (openingBuy !== undefined) {
-        if (pairToken !== zeroAddress)
-            invalid("pairToken", "zero address for an atomic opening buy", pairToken);
         assertPositive(openingBuy.quoteIn, "openingBuy.quoteIn");
         assertNonNegative(openingBuy.minTokensOut, "openingBuy.minTokensOut");
         const recipient = normalizeAddress(openingBuy.recipient, "openingBuy.recipient");
@@ -23,7 +21,7 @@ export function buildLaunchTransaction(deployment, parameters) {
                 functionName: "launchAndBuy",
                 args: [params, parameters.launchConfigId, pairToken, openingBuy.quoteIn, openingBuy.minTokensOut, recipient, exemptions],
             }),
-            value: parameters.launchFee + openingBuy.quoteIn,
+            value: parameters.launchFee + (pairToken === zeroAddress ? openingBuy.quoteIn : 0n),
         };
     }
     if (exemptions.length > 32)

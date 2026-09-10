@@ -117,8 +117,23 @@ supplied) `canLaunch` before building a launch. These are observations, not a
 promise of execution: simulate and verify the exact transaction as usual.
 Use the **top-level effective economics** to quote an ERC-20 launch; the nested
 `config` retains its native-denominated reserve and threshold. `launchFee` is still
-paid in native ETH. Quote inputs use the quote asset's raw units. The reviewed
-atomic `openingBuy` builder remains native-only.
+paid in native ETH. Quote inputs use the quote asset's raw units. ERC-20
+opening buys require allowance to the reviewed forwarder (see below).
+
+## Approved pairs and ERC-20 opening buys
+
+`readPairTokenCandidates` scans approval events over explicit block bounds;
+`readPairAsset` verifies current approval, economics, and decimals at one block.
+Callers own checkpoint persistence, cache policy, and transport budgets. Revoked
+assets return null. Metadata never replaces the token address as identity.
+
+`buildLaunchTransaction` supports ERC-20 `openingBuy` amounts in quote-token base
+units. Approve the exact amount to the pinned forwarder first; the built request
+sends only the native launch fee. `quoteOpeningBuy` derives fresh curve reserves
+and returns actual spend/refund for partial fills. Simulate after approval and
+pin `expectedEconomics`. The forwarder does not swap ETH into ERC-20 quote assets.
+This behavior was checked against the exact-match verified forwarder source at
+the URL and compiler recorded in `provenance/mainnet.json` on 2026-09-10.
 
 ## Trade the bonding curve
 

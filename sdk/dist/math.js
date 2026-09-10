@@ -151,4 +151,15 @@ function invalid(path, expected, actual) {
         actual: String(actual),
     });
 }
+/** Opening curve reserves from PonsV2BondingCurve.initialize, before any trade. */
+export function quoteOpeningBuy(parameters) {
+    assertPositive(parameters.supply, "supply");
+    assertPositive(parameters.phantomQuote, "phantomQuote");
+    assertPositive(parameters.graduationThreshold, "graduationThreshold");
+    const denominator = checkedAdd(parameters.phantomQuote, parameters.graduationThreshold, "openingBuy.denominator");
+    const reserved = parameters.supply * parameters.phantomQuote / denominator;
+    assertPositive(reserved, "openingBuy.reservedTokens");
+    return quoteCurveBuyExecution({ ...parameters, quoteReserve: parameters.phantomQuote,
+        tokenReserve: parameters.supply, sellableTokens: parameters.supply - reserved });
+}
 //# sourceMappingURL=math.js.map

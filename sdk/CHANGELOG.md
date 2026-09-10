@@ -1,10 +1,16 @@
 # Changelog
 
-
-## Unreleased
+## 0.6.0
 
 - Read pair-specific launch terms and preserve raw state during metadata outages.
 - Support allowance revocation and verify unique matching events in batched receipts.
+
+
+
+## 0.5.1
+
+- 2026-09-10: Support approved pairing assets and atomic ERC20 opening buys.
+
 
 - Fix generated Envio handler discovery so selected pool indexing starts and reorgs recover.
 

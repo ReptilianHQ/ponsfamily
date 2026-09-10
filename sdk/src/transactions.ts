@@ -66,7 +66,7 @@ export interface BuildLaunchParameters {
   pairToken?: Address;
   snipeTaxExemptions?: readonly Address[];
   launchFee: bigint;
-  /** Native ETH atomic opening buy through the reviewed forwarder. */
+  /** Atomic opening buy. ERC-20 pairs require quoteIn allowance to the forwarder. */
   openingBuy?: {
     quoteIn: bigint;
     minTokensOut: bigint;
@@ -87,7 +87,6 @@ export function buildLaunchTransaction(
   const openingBuy = parameters.openingBuy;
 
   if (openingBuy !== undefined) {
-    if (pairToken !== zeroAddress) invalid("pairToken", "zero address for an atomic opening buy", pairToken);
     assertPositive(openingBuy.quoteIn, "openingBuy.quoteIn");
     assertNonNegative(openingBuy.minTokensOut, "openingBuy.minTokensOut");
     const recipient = normalizeAddress(openingBuy.recipient, "openingBuy.recipient");
@@ -99,7 +98,7 @@ export function buildLaunchTransaction(
         functionName: "launchAndBuy",
         args: [params, parameters.launchConfigId, pairToken, openingBuy.quoteIn, openingBuy.minTokensOut, recipient, exemptions],
       }),
-      value: parameters.launchFee + openingBuy.quoteIn,
+      value: parameters.launchFee + (pairToken === zeroAddress ? openingBuy.quoteIn : 0n),
     };
   }
 

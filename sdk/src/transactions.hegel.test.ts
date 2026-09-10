@@ -299,23 +299,21 @@ describe("Pons transaction construction properties", () => {
   });
 });
 
-describe("Pons launch construction rejections", () => {
-  it("refuses an atomic opening buy against a non-native pair token", () => {
+describe("ERC-20 atomic launch funding", () => {
+  it("sends only the native launch fee for any ERC-20 opening-buy amount", () => {
     hegel.test((tc) => {
-      let caught: unknown;
-      try {
-        buildLaunchTransaction(robinhoodMainnet, {
-          token: { name: "Pons", symbol: "PONS", salt: drawBytes32(tc), expectedEconomics: drawBytes32(tc) },
-          launchConfigId: 0n,
-          pairToken: drawAddress(tc),
-          launchFee: drawAmount(tc),
-          openingBuy: { quoteIn: drawAmount(tc, 1n), minTokensOut: drawAmount(tc), recipient: drawAddress(tc) },
-        });
-      } catch (error) {
-        caught = error;
-      }
-      expect(isPonsSdkError(caught)).toBe(true);
-      if (isPonsSdkError(caught)) expect(caught).toMatchObject({ code: "INVALID_ARGUMENT", path: "pairToken" });
+      const pairToken = drawAddress(tc);
+      const launchFee = drawAmount(tc);
+      const quoteIn = drawAmount(tc, 1n);
+      const request = buildLaunchTransaction(robinhoodMainnet, {
+        token: { name: "Pons", symbol: "PONS", salt: drawBytes32(tc), expectedEconomics: drawBytes32(tc) },
+        launchConfigId: 0n, pairToken, launchFee,
+        openingBuy: { quoteIn, minTokensOut: drawAmount(tc), recipient: drawAddress(tc) },
+      });
+      expect(request.value).toBe(launchFee);
+      const decoded = decodeFunctionData({ abi: ponsForwarderAbi, data: request.data });
+      expect(decoded.args[2]).toBe(pairToken);
+      expect(decoded.args[3]).toBe(quoteIn);
     }, HEGEL_SETTINGS);
   });
 });

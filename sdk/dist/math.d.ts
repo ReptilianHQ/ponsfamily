@@ -36,3 +36,12 @@ export declare function quoteCurveBuyExecution(parameters: CurveQuoteParameters 
 /** Returns the smallest quote input whose on-chain execution reaches tokensOut. */
 export declare function quoteCurveBuyExactTokensOut(parameters: ExactTokenBuyParameters): CurveBuyExecutionQuote;
 export declare function quoteCurveSell(parameters: CurveQuoteParameters): bigint;
+/** Opening curve reserves from PonsV2BondingCurve.initialize, before any trade. */
+export declare function quoteOpeningBuy(parameters: {
+    amountIn: bigint;
+    supply: bigint;
+    phantomQuote: bigint;
+    graduationThreshold: bigint;
+    feeBps: bigint;
+    creatorTaxBps: bigint;
+}): CurveBuyExecutionQuote;

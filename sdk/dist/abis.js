@@ -21,6 +21,7 @@ export const ponsFactoryAbi = parseAbi([
     "function snipeTaxSeconds() view returns (uint256)",
     "function canLaunch(address launcher) view returns (bool)",
     "function approvedPairTokens(address pairToken) view returns (bool)",
+    "function pairTokenEconomics(address pairToken) view returns (uint256 phantomQuote, uint256 graduationThreshold, uint8 decimals)",
     "function previewLaunchEconomics(uint256 launchConfigId, address pairToken) view returns (bytes32)",
     "function launchForwarder() view returns (address)",
     "function launchDeployer() view returns (address)",

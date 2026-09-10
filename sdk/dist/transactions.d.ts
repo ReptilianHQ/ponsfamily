@@ -40,7 +40,7 @@ export interface BuildLaunchParameters {
     pairToken?: Address;
     snipeTaxExemptions?: readonly Address[];
     launchFee: bigint;
-    /** Native ETH atomic opening buy through the reviewed forwarder. */
+    /** Atomic opening buy. ERC-20 pairs require quoteIn allowance to the forwarder. */
     openingBuy?: {
         quoteIn: bigint;
         minTokensOut: bigint;

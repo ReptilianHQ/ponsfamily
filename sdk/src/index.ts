@@ -9,3 +9,5 @@ export * from "./projection.js";
 export * from "./reads.js";
 export * from "./receipts.js";
 export * from "./transactions.js";
+
+export * from "./pairAssets.js";

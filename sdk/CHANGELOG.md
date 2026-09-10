@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-09-09
+
+- Strengthen receipt verification coverage with named fields, adversarial logs, and atomic launch boundaries.
+
 ## Unreleased
 
 - Pin one finalized Robinhood Chain receipt per verifier as deployment-bound integration evidence.

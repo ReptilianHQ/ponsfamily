@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { globSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { parse } from 'yaml';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { getPonsIndexingManifest } from '../dist/indexing.js';
@@ -12,6 +13,13 @@ test('deterministic generation detects changed, missing and obsolete outputs wit
     assert.deepEqual(renderIndexing(), renderIndexing());
     generate({ directory });
     generate({ directory, check: true });
+    const example = resolve(directory, 'examples/envio');
+    const config = parse(readFileSync(resolve(example, 'config.yaml'), 'utf8'));
+    // Envio appends its recursive module glob to this directory. A file path
+    // passes codegen but discovers zero runtime handlers.
+    const handlerFiles = globSync(`./${config.handlers}/**/*.{js,mjs,ts}`, { cwd: example });
+    assert.ok(handlerFiles.some(path => path.endsWith('EventHandlers.ts')),
+      'Envio runtime discovery must load the generated event registrations');
     for (const path of ['indexing/mainnet.json', 'artifacts/PonsV2Factory.json', 'examples/envio/config.yaml', 'examples/envio/schema.graphql', 'examples/envio/src/EventHandlers.ts', 'examples/envio/src/eventLog.ts']) {
       writeFileSync(resolve(directory, path), 'stale');
       assert.throws(() => generate({ directory, check: true }), /Indexing output drift/);

@@ -3,6 +3,8 @@
 
 ## Unreleased
 
+- Fix generated Envio handler discovery so selected pool indexing starts and reorgs recover.
+
 ## 0.5.0
 
 - Compose verified Pons pools with shared v4 indexing without subscribing to unrelated pools.

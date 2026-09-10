@@ -13,12 +13,22 @@ try {
   await writeFile(join(directory, "package.json"), JSON.stringify({
     name: "pons-sdk-production-install-smoke",
     private: true,
+    packageManager: "pnpm@11.9.0",
     type: "module",
     dependencies: {
       "@reptilianhq/pons-sdk": `github:ReptilianHQ/ponsfamily#${ref}&path:/sdk`,
       viem: "2.55.10",
     },
   }, null, 2));
+
+  // The optional native keccak build is unnecessary for the SDK's ESM path.
+  // Keep dependency builds disabled explicitly rather than relying on pnpm defaults.
+  const sdk = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
+  await writeFile(join(directory, 'pnpm-workspace.yaml'), [
+    'allowBuilds:', '  keccak: false', 'strictDepBuilds: true',
+    'minimumReleaseAgeExclude:',
+    `  - '@reptilianhq/uniswap-sdk@${sdk.dependencies['@reptilianhq/uniswap-sdk']}'`, '',
+  ].join('\n'));
 
   const install = spawnSync("corepack", ["pnpm", "install", "--prod"], {
     cwd: directory,
@@ -37,6 +47,8 @@ try {
 
   const runtime = spawnSync("node", ["--input-type=module", "--eval", [
     "import { verifyCurveBuyReceipt } from '@reptilianhq/pons-sdk';",
+    "import { getPonsV4Provider } from '@reptilianhq/pons-sdk/v4-provider';",
+    "if (getPonsV4Provider().providerId !== 'pons') process.exit(1);",
     "if (typeof verifyCurveBuyReceipt !== 'function') process.exit(1);",
   ].join("\n")], { cwd: directory, encoding: "utf8" });
   assert.equal(runtime.status, 0, `${runtime.stdout}\n${runtime.stderr}`);

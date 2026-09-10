@@ -37,7 +37,10 @@ describe("Pons indexing manifest", () => {
       }],
     }]);
     expect(manifest.sources).toContainEqual(expect.objectContaining({
-      kind: "fixed",
+      kind: "shared",
+      selection: "verified-pool-ids",
+      filterAt: "ingestion",
+      emptySelection: "no-subscription",
       contract: "UniswapV4PoolManager",
       address: robinhoodMainnet.contracts.poolManager,
     }));

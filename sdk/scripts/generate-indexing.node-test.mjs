@@ -41,3 +41,24 @@ test('coverage, metadata, discovery and materialization references fail closed',
     assert.throws(() => validateCatalog(manifest));
   }
 });
+
+test('shared manager ingestion is disabled by default and bounded by selected pool ids', async () => {
+  const { getV4PoolId } = await import('@reptilianhq/uniswap-sdk/v4');
+  const manifest = getPonsIndexingManifest();
+  const provider = manifest.composition;
+  const key = { currency0: '0x0000000000000000000000000000000000000000', currency1: '0x1111111111111111111111111111111111111111', fee: 10000, tickSpacing: 200, hooks: provider.hooks[0] };
+  const pool = { providerId: provider.providerId, deploymentId: provider.deploymentId, chainId: provider.chainId, poolManager: provider.poolManager, key, poolId: getV4PoolId(key), membership: { sourceAddress: provider.discovery.address, eventSignature: provider.discovery.eventSignature, blockNumber: provider.startBlock, blockHash: `0x${'12'.repeat(32)}`, transactionHash: `0x${'34'.repeat(32)}`, logIndex: 0 } };
+  const empty = renderIndexing();
+  assert.ok(!empty.get('examples/envio/config.yaml').toLowerCase().includes(provider.poolManager.toLowerCase()));
+  assert.match(empty.get('examples/envio/src/EventHandlers.ts'), /where: \(\) => false/);
+  const selected = renderIndexing(manifest, { poolSelection: [pool, pool] });
+  assert.ok(selected.get('examples/envio/config.yaml').toLowerCase().includes(provider.poolManager.toLowerCase()));
+  assert.ok(selected.get('examples/envio/src/EventHandlers.ts').includes(JSON.stringify({ params: { id: [pool.poolId] } })));
+  for (const patch of [{ chainId: 1 }, { providerId: 'foreign' }, { poolId: `0x${'00'.repeat(32)}` }, { poolManager: key.currency1 }]) {
+    assert.throws(() => renderIndexing(manifest, { poolSelection: [{ ...pool, ...patch }] }));
+  }
+  assert.throws(() => renderIndexing(manifest, { poolSelection: [pool, { ...pool, membership: { ...pool.membership, blockHash: `0x${'56'.repeat(32)}` } }] }), /Conflicting/);
+  const unsafe = structuredClone(manifest);
+  unsafe.sources.find(s => s.kind === 'shared').kind = 'fixed';
+  assert.throws(() => validateCatalog(unsafe));
+});

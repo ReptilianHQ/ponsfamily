@@ -163,7 +163,7 @@ indexer.onEvent({"contract":"PonsV2Forwarder","event":"Launched"}, async ({ even
     context.PonsProtocolEvent.set(normalizedEvent(event, "PonsV2Forwarder", "Launched", "Launched(address,address,address,address,uint256,uint256)"));
 });
 
-indexer.onEvent({"contract":"UniswapV4PoolManager","event":"Swap"}, async ({ event, context }) => {
+indexer.onEvent({ contract: "UniswapV4PoolManager", event: "Swap", where: () => false }, async ({ event, context }) => {
     if (!await context.PonsPool.get(chainKey(event.chainId, event.params.id))) return;
     context.PonsProtocolEvent.set(normalizedEvent(event, "UniswapV4PoolManager", "Swap", "Swap(bytes32,address,int128,int128,uint160,uint128,int24,uint24)"));
 });

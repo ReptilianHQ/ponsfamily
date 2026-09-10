@@ -1,5 +1,6 @@
+import { getPonsV4Provider } from './v4-provider.js';
 import { type Abi, type AbiEvent, type Address, type Hex } from "viem";
-export declare const PONS_INDEXING_MANIFEST_VERSION: 1;
+export declare const PONS_INDEXING_MANIFEST_VERSION: 2;
 export type PonsIndexingContractName = "PonsV2Forwarder" | "PonsV2Factory" | "PonsV2Curve" | "PonsV2MemeHook" | "PonsV2FeeEscrow" | "PonsV2BuybackVault" | "PonsLaunchToken";
 export type PonsIndexingDependencyName = "UniswapV4PoolManager";
 export type PonsIndexingSourceName = PonsIndexingContractName | PonsIndexingDependencyName;
@@ -39,8 +40,18 @@ export interface PonsDynamicIndexingSource {
         addressParameter: string;
     };
 }
+export interface PonsSharedIndexingSource {
+    kind: 'shared';
+    contract: 'UniswapV4PoolManager';
+    address: Address;
+    startBlock: bigint;
+    selection: 'verified-pool-ids';
+    filterAt: 'ingestion';
+    emptySelection: 'no-subscription';
+}
 export interface PonsIndexingManifest {
     schemaVersion: typeof PONS_INDEXING_MANIFEST_VERSION;
+    composition: ReturnType<typeof getPonsV4Provider>;
     abiRevision: string;
     coverage: "pons-v2-public-events";
     chainId: number;
@@ -49,7 +60,7 @@ export interface PonsIndexingManifest {
     materializations: readonly PonsMaterialization[];
     contracts: readonly PonsIndexingContract[];
     dependencies: readonly PonsIndexingDependency[];
-    sources: readonly (PonsFixedIndexingSource | PonsDynamicIndexingSource)[];
+    sources: readonly (PonsFixedIndexingSource | PonsDynamicIndexingSource | PonsSharedIndexingSource)[];
 }
 export declare const ponsIndexingAbis: Readonly<Record<PonsIndexingSourceName, Abi>>;
 export interface PonsParameterSemantic {

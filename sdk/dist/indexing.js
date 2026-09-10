@@ -1,9 +1,10 @@
+import { getPonsV4Provider } from './v4-provider.js';
 import { parseAbi, toEventSignature } from "viem";
 import { ponsFactoryAbi, ponsForwarderAbi, ponsCurveAbi, ponsMemeHookAbi, ponsFeeEscrowAbi, ponsBuybackVaultAbi, ponsTokenAbi } from "./abis.js";
 import { PonsSdkError } from "./errors.js";
 import { ABI_REVISION } from "./abis.js";
 import { getPonsDeployment } from "./deployments.js";
-export const PONS_INDEXING_MANIFEST_VERSION = 1;
+export const PONS_INDEXING_MANIFEST_VERSION = 2;
 /** Each supported ABI is checked in full; dependency selection is deliberately narrower. */
 const catalogAbis = {
     PonsV2Factory: ponsFactoryAbi,
@@ -147,6 +148,7 @@ export function getPonsIndexingManifest(chainId = 4663) {
     const { startBlock } = deployment;
     return deepFreeze({
         schemaVersion: PONS_INDEXING_MANIFEST_VERSION,
+        composition: getPonsV4Provider(chainId),
         abiRevision: ABI_REVISION,
         coverage: "pons-v2-public-events",
         chainId,
@@ -161,7 +163,10 @@ export function getPonsIndexingManifest(chainId = 4663) {
             fixed("PonsV2MemeHook", deployment.contracts.memeHook, startBlock, deployment.memeHookRuntimeCodeHash),
             fixed("PonsV2FeeEscrow", deployment.contracts.feeEscrow, startBlock, deployment.feeEscrowRuntimeCodeHash),
             fixed("PonsV2BuybackVault", deployment.contracts.buybackVault, startBlock, deployment.buybackVaultRuntimeCodeHash),
-            fixed("UniswapV4PoolManager", deployment.contracts.poolManager, startBlock),
+            { kind: 'shared', contract: 'UniswapV4PoolManager',
+                address: deployment.contracts.poolManager, startBlock,
+                selection: 'verified-pool-ids', filterAt: 'ingestion',
+                emptySelection: 'no-subscription' },
             dynamic("PonsV2Curve", "curve"),
             dynamic("PonsLaunchToken", "token"),
         ],

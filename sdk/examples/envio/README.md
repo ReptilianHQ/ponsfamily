@@ -2,8 +2,8 @@
 
 This repo-local starter is generated from `sdk/src/indexing.ts`. It captures all
 reviewed SDK protocol events (including the forwarder), discovers curves and
-tokens from the factory, and retains PoolManager swaps only after the deployed
-Pons hook registers their pool ID. The SDK package publishes the vendor-neutral
+tokens from the factory. PoolManager swaps are disabled by default; explicit
+verified pool selections enable indexed topic filtering before ingestion. The SDK package publishes the vendor-neutral
 manifest and event ABIs; it does not publish this starter.
 
 ## Run locally
@@ -79,3 +79,21 @@ Third-party indexers can import `getPonsIndexingManifest()` from
 `@reptilianhq/pons-sdk/indexing` or the decimal-string JSON manifest from
 `@reptilianhq/pons-sdk/indexing/mainnet.json`. Consumers own their subscription
 policy, schema, pricing, persistence, runtime tuning, and provider credentials.
+
+## Select PoolManager pools
+
+From `sdk/`, generate with `node scripts/generate-indexing.mjs --pool-selection
+selected-pools.json`. Supply an array of verified Pons v4 references from
+`readPonsV4PoolRegistrations`, serializing bigint values as decimal strings.
+The generator validates identity and limits the selection to 256 entries, then
+adds the manager address and an indexed `id` filter to the Swap registration.
+No selection means no manager subscription, not a wildcard. Use the same flag
+with `--check` to verify a consumer's generated selection.
+
+Selection files are trusted canonical discovery inputs; structural validation
+does not prove RPC provenance. New selections require regeneration and replay
+from deployment history, including the full discovery block. This starter does
+not update topic subscriptions dynamically. Revalidate canonical registration
+when restoring persisted selections or after a reorg; remove orphaned membership
+and replay projections. Its ordered handler excludes pre-registration swaps.
+Never substitute manager-wide ingestion when filtering is unavailable.

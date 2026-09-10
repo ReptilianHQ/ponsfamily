@@ -3,6 +3,11 @@
 
 ## Unreleased
 
+## 0.5.0
+
+- Compose verified Pons pools with shared v4 indexing without subscribing to unrelated pools.
+- Require Node 24 and explicit pool selection for indexing manifest v2.
+
 - Strengthen receipt verification coverage with named fields, adversarial logs, and atomic launch boundaries.
 
 ## 0.4.1

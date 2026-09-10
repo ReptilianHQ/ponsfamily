@@ -4,7 +4,7 @@ description: Generated Pons event log, source discovery, and materialized eviden
 rollback_on_reorg: true
 raw_events: false
 address_format: lowercase
-handlers: ./src/EventHandlers.ts
+handlers: ./src
 full_batch_size: 5000
 storage:
   postgres:

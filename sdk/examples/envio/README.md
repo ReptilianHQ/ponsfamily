@@ -97,3 +97,22 @@ not update topic subscriptions dynamically. Revalidate canonical registration
 when restoring persisted selections or after a reorg; remove orphaned membership
 and replay projections. Its ordered handler excludes pre-registration swaps.
 Never substitute manager-wide ingestion when filtering is unavailable.
+
+## Runtime handler discovery and reorg evidence
+
+Envio's `handlers` setting names a directory: `./src`. Pointing it at the
+`EventHandlers.ts` file passes codegen but loads zero runtime registrations. The
+generator regression test now verifies that Envio's recursive module glob finds
+the generated handlers.
+
+[Recorded reorg evidence](./REORG_EVIDENCE.json) uses the generated selected-pool
+starter with Envio `3.9.0-reptilian.2` and disposable local Postgres. A local RPC
+fixture replayed a real registration and 23 captured Swap payloads on synthetic
+competing block histories. Envio removed the orphaned `PonsPool` and all
+`PonsProtocolEvent` rows, replayed the replacement history, and preserved exact
+counts across restart. Every manager request carried the selected pool-ID filter.
+
+This verifies the starter's persisted membership/event rollback. It does not
+verify the host indexer's trade, wallet, balance or aggregate projections,
+a production-scale membership lifecycle, or a live cutover. Those remain in
+[Reptilian #2245](https://github.com/ReptilianHQ/reptilian/issues/2245).

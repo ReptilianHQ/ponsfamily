@@ -155,7 +155,7 @@ export function renderIndexing(manifest = getPonsIndexingManifest(), { poolSelec
   }
   const config = {
     name: 'pons-v2-mainnet-example', description: 'Generated Pons event log, source discovery, and materialized evidence.',
-    rollback_on_reorg: true, raw_events: false, address_format: 'lowercase', handlers: './src/EventHandlers.ts',
+    rollback_on_reorg: true, raw_events: false, address_format: 'lowercase', handlers: './src',
     full_batch_size: 5000, storage: { postgres: { default: true } },
     field_selection: { transaction_fields: ['hash', 'transactionIndex'] },
     contracts: [...manifest.contracts, ...manifest.dependencies].map(c => ({ name: c.name, abi_file_path: `./abis/${c.name}.json`, events: c.events.map(event => ({ event })) })),

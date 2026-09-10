@@ -1,7 +1,9 @@
 # Changelog
 
+- 2026-09-10: Support approved pairing assets and atomic ERC20 opening buys.
 
-## Unreleased
+
+## 0.5.1
 
 - Fix generated Envio handler discovery so selected pool indexing starts and reorgs recover.
 

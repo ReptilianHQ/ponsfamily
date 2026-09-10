@@ -101,6 +101,21 @@ reviewed launch cannot silently execute under changed economics. Infrastructure
 that intentionally accepts the live terms may omit the digest only by passing
 `unsafeAllowUnpinnedEconomics: true` in the token parameters.
 
+## Approved pairs and ERC-20 opening buys
+
+`readPairTokenCandidates` scans approval events over explicit block bounds;
+`readPairAsset` verifies current approval, economics, and decimals at one block.
+Callers own checkpoint persistence, cache policy, and transport budgets. Revoked
+assets return null. Metadata never replaces the token address as identity.
+
+`buildLaunchTransaction` supports ERC-20 `openingBuy` amounts in quote-token base
+units. Approve the exact amount to the pinned forwarder first; the built request
+sends only the native launch fee. `quoteOpeningBuy` derives fresh curve reserves
+and returns actual spend/refund for partial fills. Simulate after approval and
+pin `expectedEconomics`. The forwarder does not swap ETH into ERC-20 quote assets.
+This behavior was checked against the exact-match verified forwarder source at
+the URL and compiler recorded in `provenance/mainnet.json` on 2026-09-10.
+
 ## Trade the bonding curve
 
 ```ts

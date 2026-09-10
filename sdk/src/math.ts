@@ -222,3 +222,16 @@ function invalid(path: string, expected: string, actual: bigint | number): never
     actual: String(actual),
   });
 }
+
+/** Opening curve reserves from PonsV2BondingCurve.initialize, before any trade. */
+export function quoteOpeningBuy(parameters: {
+  amountIn: bigint; supply: bigint; phantomQuote: bigint; graduationThreshold: bigint;
+  feeBps: bigint; creatorTaxBps: bigint;
+}): CurveBuyExecutionQuote {
+  assertPositive(parameters.supply, "supply");
+  assertPositive(parameters.phantomQuote, "phantomQuote");
+  assertPositive(parameters.graduationThreshold, "graduationThreshold");
+  const reserved = parameters.supply * parameters.phantomQuote / (parameters.phantomQuote + parameters.graduationThreshold);
+  return quoteCurveBuyExecution({ ...parameters, quoteReserve: parameters.phantomQuote,
+    tokenReserve: parameters.supply, sellableTokens: parameters.supply - reserved });
+}

@@ -178,10 +178,11 @@ async function waitFor(predicate) { const deadline = Date.now() + 60000; while (
         throw Error('Worker exited ' + worker.exitCode);
     await new Promise(r => setTimeout(r, 200));
 } throw Error('Timed out: ' + JSON.stringify(await status())); }
+const complete = s => s.pools === 1 && s.events?.length === 2 && s.events.find(x => x.kind === 'PoolRegistered')?.n === 1 && s.events.find(x => x.kind === 'Swap')?.n === 23;
 try {
     await client.connect();
     start();
-    const a = await waitFor(s => s.pools === 1 && s.events?.find(x => x.kind === 'Swap')?.n === 23 && s.progress >= head - 2);
+    const a = await waitFor(s => complete(s) && s.progress >= head - 2);
     console.log('Branch A persisted', a);
     branch = 'B';
     head += 10;
@@ -189,16 +190,18 @@ try {
     console.log('Branch B rolled back', bb);
     branch = 'C';
     head += 10;
-    const c = await waitFor(s => s.pools === 1 && s.events?.find(x => x.kind === 'Swap')?.n === 23 && s.progress >= head - 2);
+    const c = await waitFor(s => complete(s) && s.progress >= head - 2);
     console.log('Branch C replayed', c);
     await stop();
     head += 10;
     const beforeRestartRequests = requests;
     start();
-    const restarted = await waitFor(s => requests > beforeRestartRequests && s.pools === 1 && s.events?.find(x => x.kind === 'Swap')?.n === 23 && s.progress >= head - 2);
+    const restarted = await waitFor(s => requests > beforeRestartRequests && complete(s) && s.progress >= head - 2);
     const hashes = (await client.query('select distinct "blockHash" from v4_reorg."PonsProtocolEvent"')).rows;
     if (hashes.some(x => !logs.some(l => hash(Number(BigInt(l.blockNumber))) === x.blockHash)))
         throw Error('Orphan hash remains');
+    if (unfiltered !== 0 || managerRequests === 0)
+        throw Error('Selected PoolManager filtering was not verified');
     const result = { verifiedAt: new Date().toISOString(), runtime: '3.9.0-reptilian.2', scope: 'Actual Envio/Postgres, SDK-generated selected starter, synthetic competing RPC branches using captured public event payloads; not production aggregate projections', branchA: a, orphanBranch: bb, replacementBranch: c, afterRestart: restarted, requests, managerRequests, unfiltered, observed };
     writeFileSync(values.output, JSON.stringify(result, null, 2));
     console.log('PASS');
@@ -208,10 +211,19 @@ catch (e) {
     process.exitCode = 1;
 }
 finally {
-    await stop();
+    try {
+        await stop();
+    } finally {
+        try {
+            await client.end();
+        } finally {
+            try {
+                await new Promise(r => source.close(r));
+            } finally {
+                try { database.stop(); }
+                finally { rmSync(dir, { recursive: true, force: true }); }
+            }
+        }
+    }
     writeFileSync(values.output + '.worker.log', output);
-    await client.end();
-    await new Promise(r => source.close(r));
-    database.stop();
-    rmSync(dir, { recursive: true, force: true });
 }

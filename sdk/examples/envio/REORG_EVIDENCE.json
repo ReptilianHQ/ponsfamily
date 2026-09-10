@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-09-10T15:06:25.394Z",
+  "verifiedAt": "2026-09-10T15:11:40.876Z",
   "runtime": "3.9.0-reptilian.2",
   "scope": "Actual Envio/Postgres, SDK-generated selected starter, synthetic competing RPC branches using captured public event payloads; not production aggregate projections",
   "branchA": {
@@ -64,7 +64,8 @@
     "replacement branch replayed without stale hashes",
     "restart preserved exact event counts",
     "all PoolManager queries included selected indexed pool ID",
-    "restart advances beyond the pre-restart checkpoint with fresh source requests"
+    "restart advances beyond the pre-restart checkpoint with fresh source requests",
+    "evidence write failure exits nonzero after disposable database cleanup"
   ],
   "productionCutover": false,
   "cleanup": "worker stopped; disposable Postgres cluster removed"

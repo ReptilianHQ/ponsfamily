@@ -64,7 +64,7 @@ export interface PonsIndexingManifest {
 }
 export declare const ponsIndexingAbis: Readonly<Record<PonsIndexingSourceName, Abi>>;
 export interface PonsParameterSemantic {
-    unit: "address" | "identifier" | "boolean" | "raw-amount" | "seconds" | "tick" | "ppm" | "sqrt-price-x96" | "liquidity";
+    unit: "address" | "identifier" | "boolean" | "raw-amount" | "seconds" | "basis-points" | "integer" | "tick" | "ppm" | "sqrt-price-x96" | "liquidity";
     description: string;
     asset?: string;
     decimals?: string;

@@ -56,6 +56,309 @@
     },
     {
       "contract": "PonsV2Factory",
+      "name": "LaunchFeeUpdated",
+      "signature": "LaunchFeeUpdated(uint256)",
+      "description": "Factory launch fee changed.",
+      "abi": {
+        "name": "LaunchFeeUpdated",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "uint256",
+            "name": "launchFee"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "launchFee",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "New launch fee",
+            "asset": "native currency",
+            "decimals": "18"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Factory",
+      "name": "LaunchEnabledUpdated",
+      "signature": "LaunchEnabledUpdated(bool)",
+      "description": "Factory launch availability changed.",
+      "abi": {
+        "name": "LaunchEnabledUpdated",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "bool",
+            "name": "enabled"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "enabled",
+          "type": "bool",
+          "indexed": false,
+          "semantic": {
+            "unit": "boolean",
+            "description": "Whether launches are enabled"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Factory",
+      "name": "MaxCreatorTaxUpdated",
+      "signature": "MaxCreatorTaxUpdated(uint256)",
+      "description": "Maximum creator trade-tax rate changed.",
+      "abi": {
+        "name": "MaxCreatorTaxUpdated",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "uint256",
+            "name": "bps"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "bps",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "basis-points",
+            "description": "Maximum creator tax"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Factory",
+      "name": "SnipeTaxStartBpsUpdated",
+      "signature": "SnipeTaxStartBpsUpdated(uint256)",
+      "description": "Initial snipe-tax rate changed.",
+      "abi": {
+        "name": "SnipeTaxStartBpsUpdated",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "uint256",
+            "name": "bps"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "bps",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "basis-points",
+            "description": "Initial snipe tax"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Factory",
+      "name": "SnipeTaxSecondsUpdated",
+      "signature": "SnipeTaxSecondsUpdated(uint256)",
+      "description": "Snipe-tax duration changed.",
+      "abi": {
+        "name": "SnipeTaxSecondsUpdated",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "uint256",
+            "name": "secondsWindow"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "secondsWindow",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "seconds",
+            "description": "Snipe-tax duration"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Factory",
+      "name": "LaunchDeployerSet",
+      "signature": "LaunchDeployerSet(address)",
+      "description": "Factory launch deployer pointer changed.",
+      "abi": {
+        "name": "LaunchDeployerSet",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "deployer"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "deployer",
+          "type": "address",
+          "indexed": false,
+          "semantic": {
+            "unit": "address",
+            "description": "New launch deployer"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Factory",
+      "name": "LaunchForwarderSet",
+      "signature": "LaunchForwarderSet(address)",
+      "description": "Factory launch forwarder pointer changed.",
+      "abi": {
+        "name": "LaunchForwarderSet",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "forwarder"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "forwarder",
+          "type": "address",
+          "indexed": false,
+          "semantic": {
+            "unit": "address",
+            "description": "New launch forwarder"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Factory",
+      "name": "PairTokenApprovalUpdated",
+      "signature": "PairTokenApprovalUpdated(address,bool)",
+      "description": "Pair token approval changed.",
+      "abi": {
+        "name": "PairTokenApprovalUpdated",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "pairToken",
+            "indexed": true
+          },
+          {
+            "type": "bool",
+            "name": "approved"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "pairToken",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Pair token"
+          }
+        },
+        {
+          "name": "approved",
+          "type": "bool",
+          "indexed": false,
+          "semantic": {
+            "unit": "boolean",
+            "description": "Whether this pair token is approved"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Factory",
+      "name": "PairTokenEconomicsUpdated",
+      "signature": "PairTokenEconomicsUpdated(address,uint256,uint256,uint8)",
+      "description": "Pair token curve economics changed.",
+      "abi": {
+        "name": "PairTokenEconomicsUpdated",
+        "type": "event",
+        "inputs": [
+          {
+            "type": "address",
+            "name": "pairToken",
+            "indexed": true
+          },
+          {
+            "type": "uint256",
+            "name": "phantomQuote"
+          },
+          {
+            "type": "uint256",
+            "name": "graduationThreshold"
+          },
+          {
+            "type": "uint8",
+            "name": "decimals"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "pairToken",
+          "type": "address",
+          "indexed": true,
+          "semantic": {
+            "unit": "address",
+            "description": "Pair token"
+          }
+        },
+        {
+          "name": "phantomQuote",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Pair-token phantom quote reserve",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "graduationThreshold",
+          "type": "uint256",
+          "indexed": false,
+          "semantic": {
+            "unit": "raw-amount",
+            "description": "Pair-token graduation threshold",
+            "asset": "launch pairToken (pool quoteToken for hook events)",
+            "decimals": "ERC-20 decimals of launch pairToken (pool quoteToken for hook events); native currency sentinel uses 18"
+          }
+        },
+        {
+          "name": "decimals",
+          "type": "uint8",
+          "indexed": false,
+          "semantic": {
+            "unit": "integer",
+            "description": "Expected pair-token decimals"
+          }
+        }
+      ]
+    },
+    {
+      "contract": "PonsV2Factory",
       "name": "TokenLaunched",
       "signature": "TokenLaunched(address,address,address,address,uint256,uint256)",
       "description": "Launch identity and dynamic curve/token discovery.",
@@ -2052,6 +2355,15 @@
       "artifact": "@reptilianhq/pons-sdk/artifacts/PonsV2Factory.json",
       "events": [
         "LaunchConfigUpdated",
+        "LaunchFeeUpdated",
+        "LaunchEnabledUpdated",
+        "MaxCreatorTaxUpdated",
+        "SnipeTaxStartBpsUpdated",
+        "SnipeTaxSecondsUpdated",
+        "LaunchDeployerSet",
+        "LaunchForwarderSet",
+        "PairTokenApprovalUpdated",
+        "PairTokenEconomicsUpdated",
         "TokenLaunched",
         "LaunchSwept",
         "CreatorFeeRecipientUpdated",

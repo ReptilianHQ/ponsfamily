@@ -12,6 +12,134 @@
     "anonymous": false
   },
   {
+    "name": "LaunchFeeUpdated",
+    "type": "event",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "launchFee",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "LaunchEnabledUpdated",
+    "type": "event",
+    "inputs": [
+      {
+        "type": "bool",
+        "name": "enabled",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "MaxCreatorTaxUpdated",
+    "type": "event",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "bps",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "SnipeTaxStartBpsUpdated",
+    "type": "event",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "bps",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "SnipeTaxSecondsUpdated",
+    "type": "event",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "secondsWindow",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "LaunchDeployerSet",
+    "type": "event",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "deployer",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "LaunchForwarderSet",
+    "type": "event",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "forwarder",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "PairTokenApprovalUpdated",
+    "type": "event",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "pairToken",
+        "indexed": true
+      },
+      {
+        "type": "bool",
+        "name": "approved",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "PairTokenEconomicsUpdated",
+    "type": "event",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "pairToken",
+        "indexed": true
+      },
+      {
+        "type": "uint256",
+        "name": "phantomQuote",
+        "indexed": false
+      },
+      {
+        "type": "uint256",
+        "name": "graduationThreshold",
+        "indexed": false
+      },
+      {
+        "type": "uint8",
+        "name": "decimals",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
     "name": "TokenLaunched",
     "type": "event",
     "inputs": [

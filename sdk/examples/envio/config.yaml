@@ -18,6 +18,15 @@ contracts:
     abi_file_path: ./abis/PonsV2Factory.json
     events:
       - event: LaunchConfigUpdated
+      - event: LaunchFeeUpdated
+      - event: LaunchEnabledUpdated
+      - event: MaxCreatorTaxUpdated
+      - event: SnipeTaxStartBpsUpdated
+      - event: SnipeTaxSecondsUpdated
+      - event: LaunchDeployerSet
+      - event: LaunchForwarderSet
+      - event: PairTokenApprovalUpdated
+      - event: PairTokenEconomicsUpdated
       - event: TokenLaunched
       - event: LaunchSwept
       - event: CreatorFeeRecipientUpdated

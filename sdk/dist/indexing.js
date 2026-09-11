@@ -31,6 +31,15 @@ const token = (description) => amount("launch token (emitter for Transfer; token
 const metadata = {
     PonsV2Factory: {
         LaunchConfigUpdated: { description: "Factory configuration replaced; read the configuration at this block for its final values.", parameters: { id: identifier("Factory launch configuration ID") } },
+        LaunchFeeUpdated: { description: "Factory launch fee changed.", parameters: { launchFee: amount("native currency", "New launch fee") } },
+        LaunchEnabledUpdated: { description: "Factory launch availability changed.", parameters: { enabled: { unit: "boolean", description: "Whether launches are enabled" } } },
+        MaxCreatorTaxUpdated: { description: "Maximum creator trade-tax rate changed.", parameters: { bps: { unit: "basis-points", description: "Maximum creator tax" } } },
+        SnipeTaxStartBpsUpdated: { description: "Initial snipe-tax rate changed.", parameters: { bps: { unit: "basis-points", description: "Initial snipe tax" } } },
+        SnipeTaxSecondsUpdated: { description: "Snipe-tax duration changed.", parameters: { secondsWindow: { unit: "seconds", description: "Snipe-tax duration" } } },
+        LaunchDeployerSet: { description: "Factory launch deployer pointer changed.", parameters: { deployer: address("New launch deployer") } },
+        LaunchForwarderSet: { description: "Factory launch forwarder pointer changed.", parameters: { forwarder: address("New launch forwarder") } },
+        PairTokenApprovalUpdated: { description: "Pair token approval changed.", parameters: { pairToken: address("Pair token"), approved: { unit: "boolean", description: "Whether this pair token is approved" } } },
+        PairTokenEconomicsUpdated: { description: "Pair token curve economics changed.", parameters: { pairToken: address("Pair token"), phantomQuote: quote("Pair-token phantom quote reserve"), graduationThreshold: quote("Pair-token graduation threshold"), decimals: { unit: "integer", description: "Expected pair-token decimals" } } },
         TokenLaunched: { description: "Launch identity and dynamic curve/token discovery.", parameters: { token: address("Launched token"), curve: address("Bonding curve"), deployer: address("Launch deployer"), pairToken: address("Quote asset"), launchConfigId: identifier("Factory launch configuration ID"), graduationThreshold: quote("Graduation threshold") } },
         LaunchSwept: { description: "Assets swept from a completed curve.", parameters: { token: address("Launch token"), quoteOut: quote("Quote swept"), tokenOut: token("Tokens swept") } },
         CreatorFeeRecipientUpdated: { description: "Creator fee recipient changed.", parameters: { token: address("Launch token"), previousRecipient: address("Previous recipient"), newRecipient: address("New recipient") } },

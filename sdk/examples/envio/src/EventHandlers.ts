@@ -11,6 +11,42 @@ indexer.onEvent({"contract":"PonsV2Factory","event":"LaunchConfigUpdated"}, asyn
     context.PonsProtocolEvent.set(normalizedEvent(event, "PonsV2Factory", "LaunchConfigUpdated", "LaunchConfigUpdated(uint256)"));
 });
 
+indexer.onEvent({"contract":"PonsV2Factory","event":"LaunchFeeUpdated"}, async ({ event, context }) => {
+    context.PonsProtocolEvent.set(normalizedEvent(event, "PonsV2Factory", "LaunchFeeUpdated", "LaunchFeeUpdated(uint256)"));
+});
+
+indexer.onEvent({"contract":"PonsV2Factory","event":"LaunchEnabledUpdated"}, async ({ event, context }) => {
+    context.PonsProtocolEvent.set(normalizedEvent(event, "PonsV2Factory", "LaunchEnabledUpdated", "LaunchEnabledUpdated(bool)"));
+});
+
+indexer.onEvent({"contract":"PonsV2Factory","event":"MaxCreatorTaxUpdated"}, async ({ event, context }) => {
+    context.PonsProtocolEvent.set(normalizedEvent(event, "PonsV2Factory", "MaxCreatorTaxUpdated", "MaxCreatorTaxUpdated(uint256)"));
+});
+
+indexer.onEvent({"contract":"PonsV2Factory","event":"SnipeTaxStartBpsUpdated"}, async ({ event, context }) => {
+    context.PonsProtocolEvent.set(normalizedEvent(event, "PonsV2Factory", "SnipeTaxStartBpsUpdated", "SnipeTaxStartBpsUpdated(uint256)"));
+});
+
+indexer.onEvent({"contract":"PonsV2Factory","event":"SnipeTaxSecondsUpdated"}, async ({ event, context }) => {
+    context.PonsProtocolEvent.set(normalizedEvent(event, "PonsV2Factory", "SnipeTaxSecondsUpdated", "SnipeTaxSecondsUpdated(uint256)"));
+});
+
+indexer.onEvent({"contract":"PonsV2Factory","event":"LaunchDeployerSet"}, async ({ event, context }) => {
+    context.PonsProtocolEvent.set(normalizedEvent(event, "PonsV2Factory", "LaunchDeployerSet", "LaunchDeployerSet(address)"));
+});
+
+indexer.onEvent({"contract":"PonsV2Factory","event":"LaunchForwarderSet"}, async ({ event, context }) => {
+    context.PonsProtocolEvent.set(normalizedEvent(event, "PonsV2Factory", "LaunchForwarderSet", "LaunchForwarderSet(address)"));
+});
+
+indexer.onEvent({"contract":"PonsV2Factory","event":"PairTokenApprovalUpdated"}, async ({ event, context }) => {
+    context.PonsProtocolEvent.set(normalizedEvent(event, "PonsV2Factory", "PairTokenApprovalUpdated", "PairTokenApprovalUpdated(address,bool)"));
+});
+
+indexer.onEvent({"contract":"PonsV2Factory","event":"PairTokenEconomicsUpdated"}, async ({ event, context }) => {
+    context.PonsProtocolEvent.set(normalizedEvent(event, "PonsV2Factory", "PairTokenEconomicsUpdated", "PairTokenEconomicsUpdated(address,uint256,uint256,uint8)"));
+});
+
 indexer.onEvent({"contract":"PonsV2Factory","event":"TokenLaunched"}, async ({ event, context }) => {
     context.PonsProtocolEvent.set(normalizedEvent(event, "PonsV2Factory", "TokenLaunched", "TokenLaunched(address,address,address,address,uint256,uint256)"));
     {

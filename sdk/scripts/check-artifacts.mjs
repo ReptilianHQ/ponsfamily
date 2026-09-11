@@ -33,6 +33,15 @@ for (const [name, artifact] of [
 }
 const factoryEventNames = [
   "LaunchConfigUpdated",
+  "LaunchFeeUpdated",
+  "LaunchEnabledUpdated",
+  "MaxCreatorTaxUpdated",
+  "SnipeTaxStartBpsUpdated",
+  "SnipeTaxSecondsUpdated",
+  "LaunchDeployerSet",
+  "LaunchForwarderSet",
+  "PairTokenApprovalUpdated",
+  "PairTokenEconomicsUpdated",
   "TokenLaunched",
   "LaunchSwept",
   "CreatorFeeRecipientUpdated",

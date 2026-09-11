@@ -500,6 +500,83 @@ export declare const ponsFactoryAbi: readonly [{
         readonly indexed: true;
     }];
 }, {
+    readonly name: "LaunchFeeUpdated";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "uint256";
+        readonly name: "launchFee";
+    }];
+}, {
+    readonly name: "LaunchEnabledUpdated";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "bool";
+        readonly name: "enabled";
+    }];
+}, {
+    readonly name: "MaxCreatorTaxUpdated";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "uint256";
+        readonly name: "bps";
+    }];
+}, {
+    readonly name: "SnipeTaxStartBpsUpdated";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "uint256";
+        readonly name: "bps";
+    }];
+}, {
+    readonly name: "SnipeTaxSecondsUpdated";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "uint256";
+        readonly name: "secondsWindow";
+    }];
+}, {
+    readonly name: "LaunchDeployerSet";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "address";
+        readonly name: "deployer";
+    }];
+}, {
+    readonly name: "LaunchForwarderSet";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "address";
+        readonly name: "forwarder";
+    }];
+}, {
+    readonly name: "PairTokenApprovalUpdated";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "address";
+        readonly name: "pairToken";
+        readonly indexed: true;
+    }, {
+        readonly type: "bool";
+        readonly name: "approved";
+    }];
+}, {
+    readonly name: "PairTokenEconomicsUpdated";
+    readonly type: 'event';
+    readonly inputs: readonly [{
+        readonly type: "address";
+        readonly name: "pairToken";
+        readonly indexed: true;
+    }, {
+        readonly type: "uint256";
+        readonly name: "phantomQuote";
+    }, {
+        readonly type: "uint256";
+        readonly name: "graduationThreshold";
+    }, {
+        readonly type: "uint8";
+        readonly name: "decimals";
+    }];
+}, {
     readonly name: "TokenLaunched";
     readonly type: 'event';
     readonly inputs: readonly [{

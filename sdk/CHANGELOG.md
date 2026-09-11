@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.1
+
+- Expose Pons factory configuration and approved pair-asset events for indexed,
+  event-driven launch-term projections.
+
 ## 0.6.0
 
 - Read pair-specific launch terms and preserve raw state during metadata outages.

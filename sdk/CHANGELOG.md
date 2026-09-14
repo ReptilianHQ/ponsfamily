@@ -2,6 +2,7 @@
 
 ## 0.6.1
 
+- Reserve the full Node compatibility matrix for explicit release verification.
 - Expose Pons factory configuration and approved pair-asset events for indexed,
   event-driven launch-term projections.
 

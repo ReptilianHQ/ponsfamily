@@ -1,6 +1,7 @@
 import { type Address, type Hex, type PublicClient } from 'viem';
 import { type V4PoolKey, type V4PoolReference } from '@reptilianhq/uniswap-sdk/v4';
 import { type PonsDeployment } from './deployments.js';
+export { readPonsV4HistoryAnchor, verifyPonsV4HistoryMembership, type PonsV4HistoryAnchor, type PonsV4HistoryLog } from './v4-history.js';
 declare const registrationSignature: 'PoolRegistered(bytes32,address,address,address)';
 /** Portable provider composition v1. Shared SDK consumers use structural typing.
  * Pons owns membership semantics; a hook-address match is not membership proof.
@@ -75,4 +76,3 @@ export declare function readPonsV4PoolRegistrations(client: PublicClient, transa
     chainId?: number;
     minimumConfirmations: bigint;
 }): Promise<PonsV4PoolReference[]>;
-export {};

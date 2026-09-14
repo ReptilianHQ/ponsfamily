@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.0
+
+- Verify canonical graduation history without repeating per-pool RPC compatibility and launch-state reads.
+
 ## 0.6.1
 
 - Reserve the full Node compatibility matrix for explicit release verification.

@@ -6,6 +6,8 @@ import { getPonsDeployment, type PonsDeployment } from './deployments.js';
 import { PonsSdkError } from './errors.js';
 import { GraduationPhase, readLaunchedToken } from './reads.js';
 
+export { readPonsV4HistoryAnchor, verifyPonsV4HistoryMembership, type PonsV4HistoryAnchor, type PonsV4HistoryLog } from './v4-history.js';
+
 const registrationSignature = 'PoolRegistered(bytes32,address,address,address)' as const;
 
 /** Portable provider composition v1. Shared SDK consumers use structural typing.

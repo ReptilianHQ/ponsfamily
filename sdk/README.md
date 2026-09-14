@@ -347,3 +347,35 @@ Indexing manifest v2 marks the manager as a shared source. The generated starter
 disables manager swaps by default. See the Envio README for explicit selections,
 upstream topic filtering and replay requirements. This is a manifest migration;
 consumers must handle the new shared-source kind before upgrading.
+
+### Historical membership without per-pool RPC
+
+`./v4-provider` also exports `readPonsV4HistoryAnchor` and
+`verifyPonsV4HistoryMembership`. A host can establish one canonical compatibility
+anchor, then verify successful-transaction event triples from its trusted
+canonical history source (for example HyperSync): PoolManager `Initialize`, hook
+`PoolRegistered`, and factory `PoolGraduated`, in that order and in the same
+transaction/block. The verifier checks the full pool key, provider addresses,
+token, positive graduation amounts, event ordering, successful status and anchor
+scope. Missing, ambiguous or noncanonical companion events must stop the host's
+scan. A hook match alone is insufficient.
+
+This proof is pinned to source `836f0f97f9a9569855876570d6778501c163c883`.
+`PonsV2LaunchFactory.createGraduatedPool` requires an existing swept launch,
+sets `PoolCreated`, initializes the stored key, registers through the hook and
+emits `PoolGraduated` after successful minting. The factory/hook are not proxies
+and expose no delegatecall, code replacement or selfdestruct path. Hook
+`setFactory` is one-time and `registerPool` is factory-only. The anchor reader
+checks the reviewed factory/hook runtime hashes both at deployment and at the
+anchor, plus normal deployment compatibility and the hook's factory pointer.
+These guarantees let the event triple replace repeated historical launch-state
+calls for **indexing membership only**.
+
+The SDK does not select or authenticate a history transport. Hosts must verify
+page completeness, canonical block/transaction metadata and successful status,
+fence the anchor before/after scans, reject duplicate/conflicting evidence and
+roll back membership on reorgs. The pure verifier does not make arbitrary
+supplied JSON trustworthy. Anchors and history membership do not authorize
+transactions or replace current execution compatibility checks. The existing
+receipt reader remains available for individual receipts; the new history API
+does not change locked-principal or unverified v4 execution capabilities.

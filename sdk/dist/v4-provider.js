@@ -5,6 +5,7 @@ import { assertCompatibleDeployment } from './compatibility.js';
 import { getPonsDeployment } from './deployments.js';
 import { PonsSdkError } from './errors.js';
 import { GraduationPhase, readLaunchedToken } from './reads.js';
+export { readPonsV4HistoryAnchor, verifyPonsV4HistoryMembership } from './v4-history.js';
 const registrationSignature = 'PoolRegistered(bytes32,address,address,address)';
 /** Portable provider composition v1. Shared SDK consumers use structural typing.
  * Pons owns membership semantics; a hook-address match is not membership proof.

@@ -126,12 +126,17 @@ jobs:
         run: node scripts/release-provenance.mjs "${{ needs.authorize.outputs.source_sha }}" && git merge-base --is-ancestor HEAD origin/main
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Resolve the public @reptilianhq/uniswap-sdk dependency from npm, not GitHub Packages
+        # @reptilianhq/uniswap-sdk is public and shares this package's @reptilianhq
+        # scope; the scope-wide GitHub Packages mapping above (needed for
+        # release-plan.mjs/release-provenance.mjs's own npm view calls against
+        # this package) would otherwise misroute it too, since it doesn't exist
+        # on GitHub Packages. Restored below once npm ci/test no longer need it.
+        run: npm config delete @reptilianhq:registry
       - run: npm ci
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN || secrets.GITHUB_TOKEN }}
       - run: npm test
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN || secrets.GITHUB_TOKEN }}
+      - name: Restore the GitHub Packages scope mapping for publishing
+        run: npm config set @reptilianhq:registry https://npm.pkg.github.com
       - name: Set published version
         if: needs.authorize.outputs.ref_type == 'branch'
         run: npm version --no-git-tag-version --allow-same-version "${{ steps.release.outputs.version }}"

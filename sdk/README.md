@@ -27,11 +27,43 @@ Install the stable channel with:
 pnpm add @reptilianhq/pons-sdk@latest viem
 ```
 
-Version 0.5 also requires read access to the private
-`@reptilianhq/uniswap-sdk` dependency. A `read:packages` token alone is not
-sufficient without access to that package. This release targets authorized
-Reptilian integrations; the public Pons package does not grant dependency access.
-GitHub Actions consumers should receive package read access for their repository.
+`@reptilianhq/uniswap-sdk`, a dependency of this package, is now public on npm
+(0.2.2+) and needs no separate access grant. It shares the `@reptilianhq` scope
+with `pons-sdk`, though, so the registry mapping above — needed to resolve
+`pons-sdk` itself — would otherwise also misroute it to GitHub Packages: an
+older version is still there, so the failure mode is a version mismatch or
+integrity error, not a clean 404. If your install fails on
+`@reptilianhq/uniswap-sdk`, pin it explicitly to its public tarball URL
+(check `sdk/package.json`'s `dependencies` for the exact version currently
+required).
+
+With npm, an `overrides` entry in `package.json` works:
+
+```json
+{
+  "overrides": {
+    "@reptilianhq/uniswap-sdk": "https://registry.npmjs.org/@reptilianhq/uniswap-sdk/-/uniswap-sdk-0.2.2.tgz"
+  }
+}
+```
+
+With pnpm 11+, a plain `overrides` entry in `pnpm-workspace.yaml` is rejected
+for a URL-pinned transitive dependency as a supply-chain safety measure
+(`ERR_PNPM_EXOTIC_SUBDEP`) — a top-level dependency does not satisfy or
+replace it either, since pnpm's isolated `node_modules` keeps the two
+separate rather than deduplicating them. Explicitly opt out of that guard for
+this one override instead:
+
+```yaml
+# pnpm-workspace.yaml
+blockExoticSubdeps: false
+overrides:
+  "@reptilianhq/uniswap-sdk": "https://registry.npmjs.org/@reptilianhq/uniswap-sdk/-/uniswap-sdk-0.2.2.tgz"
+```
+
+That relaxes the guard for the whole project, not just this one dependency —
+know what you're opting out of. It's also correct on pnpm 10, which doesn't
+enforce the guard in the first place.
 
 Node.js 24 or newer is supported. `viem` >=2.55.0 <3 is a peer dependency.
 

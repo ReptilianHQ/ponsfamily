@@ -47,18 +47,23 @@ With npm, an `overrides` entry in `package.json` works:
 }
 ```
 
-With pnpm, an `overrides` entry (in `pnpm-workspace.yaml`) is rejected for a
-URL-pinned transitive dependency as a supply-chain safety measure
-(`ERR_PNPM_EXOTIC_SUBDEP`). Declare it as a direct dependency instead, which
-takes priority over the transitive requirement pulled in from `pons-sdk`:
+With pnpm 11+, a plain `overrides` entry in `pnpm-workspace.yaml` is rejected
+for a URL-pinned transitive dependency as a supply-chain safety measure
+(`ERR_PNPM_EXOTIC_SUBDEP`) — a top-level dependency does not satisfy or
+replace it either, since pnpm's isolated `node_modules` keeps the two
+separate rather than deduplicating them. Explicitly opt out of that guard for
+this one override instead:
 
-```json
-{
-  "dependencies": {
-    "@reptilianhq/uniswap-sdk": "https://registry.npmjs.org/@reptilianhq/uniswap-sdk/-/uniswap-sdk-0.2.2.tgz"
-  }
-}
+```yaml
+# pnpm-workspace.yaml
+blockExoticSubdeps: false
+overrides:
+  "@reptilianhq/uniswap-sdk": "https://registry.npmjs.org/@reptilianhq/uniswap-sdk/-/uniswap-sdk-0.2.2.tgz"
 ```
+
+That relaxes the guard for the whole project, not just this one dependency —
+know what you're opting out of. It's also correct on pnpm 10, which doesn't
+enforce the guard in the first place.
 
 Node.js 24 or newer is supported. `viem` >=2.55.0 <3 is a peer dependency.
 

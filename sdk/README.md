@@ -30,16 +30,32 @@ pnpm add @reptilianhq/pons-sdk@latest viem
 `@reptilianhq/uniswap-sdk`, a dependency of this package, is now public on npm
 (0.2.2+) and needs no separate access grant. It shares the `@reptilianhq` scope
 with `pons-sdk`, though, so the registry mapping above — needed to resolve
-`pons-sdk` itself — would otherwise also misroute it to GitHub Packages, where
-it doesn't exist. If your install fails looking for `@reptilianhq/uniswap-sdk`
-on GitHub Packages, add an override pinning it to its public tarball:
+`pons-sdk` itself — would otherwise also misroute it to GitHub Packages: an
+older version is still there, so the failure mode is a version mismatch or
+integrity error, not a clean 404. If your install fails on
+`@reptilianhq/uniswap-sdk`, pin it explicitly to its public tarball URL
+(check `sdk/package.json`'s `dependencies` for the exact version currently
+required).
+
+With npm, an `overrides` entry in `package.json` works:
 
 ```json
 {
-  "pnpm": {
-    "overrides": {
-      "@reptilianhq/uniswap-sdk": "https://registry.npmjs.org/@reptilianhq/uniswap-sdk/-/uniswap-sdk-0.2.2.tgz"
-    }
+  "overrides": {
+    "@reptilianhq/uniswap-sdk": "https://registry.npmjs.org/@reptilianhq/uniswap-sdk/-/uniswap-sdk-0.2.2.tgz"
+  }
+}
+```
+
+With pnpm, an `overrides` entry (in `pnpm-workspace.yaml`) is rejected for a
+URL-pinned transitive dependency as a supply-chain safety measure
+(`ERR_PNPM_EXOTIC_SUBDEP`). Declare it as a direct dependency instead, which
+takes priority over the transitive requirement pulled in from `pons-sdk`:
+
+```json
+{
+  "dependencies": {
+    "@reptilianhq/uniswap-sdk": "https://registry.npmjs.org/@reptilianhq/uniswap-sdk/-/uniswap-sdk-0.2.2.tgz"
   }
 }
 ```

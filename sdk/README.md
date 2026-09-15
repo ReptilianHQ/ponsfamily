@@ -27,11 +27,22 @@ Install the stable channel with:
 pnpm add @reptilianhq/pons-sdk@latest viem
 ```
 
-Version 0.5 also requires read access to the private
-`@reptilianhq/uniswap-sdk` dependency. A `read:packages` token alone is not
-sufficient without access to that package. This release targets authorized
-Reptilian integrations; the public Pons package does not grant dependency access.
-GitHub Actions consumers should receive package read access for their repository.
+`@reptilianhq/uniswap-sdk`, a dependency of this package, is now public on npm
+(0.2.2+) and needs no separate access grant. It shares the `@reptilianhq` scope
+with `pons-sdk`, though, so the registry mapping above — needed to resolve
+`pons-sdk` itself — would otherwise also misroute it to GitHub Packages, where
+it doesn't exist. If your install fails looking for `@reptilianhq/uniswap-sdk`
+on GitHub Packages, add an override pinning it to its public tarball:
+
+```json
+{
+  "pnpm": {
+    "overrides": {
+      "@reptilianhq/uniswap-sdk": "https://registry.npmjs.org/@reptilianhq/uniswap-sdk/-/uniswap-sdk-0.2.2.tgz"
+    }
+  }
+}
+```
 
 Node.js 24 or newer is supported. `viem` >=2.55.0 <3 is a peer dependency.
 

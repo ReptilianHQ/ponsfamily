@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Depend on the now-public `@reptilianhq/uniswap-sdk@0.2.2` on npm instead of the private `0.1.0-rc.4` on GitHub Packages. Consumers no longer need dependency-specific package access, though the shared `@reptilianhq` scope means a `pnpm.overrides` entry is needed if you've configured the GitHub Packages scope mapping for `pons-sdk` itself — see README.
+
 ## 0.7.0
 
 - Verify canonical graduation history without repeating per-pool RPC compatibility and launch-state reads.

@@ -143,19 +143,49 @@ test('prepare packs repeatable source-bound bytes, restores the manifest, and ig
   }
 });
 
-// npm 11.5.2 emits structured --json errors to stdout and diagnostics to stderr.
-test('registry lookup accepts only structured E404 and fails closed on auth or transport errors', () => {
-  const directory = mkdtempSync(join(tmpdir(), 'sdk-npm-response-'));
-  const previousPath = process.env.PATH;
+// npm view returns empty stdout with exit 0 against this registry regardless
+// of the actual result (reproduced directly against npm.pkg.github.com), so
+// lookup() fetches the packument itself instead of shelling out to npm.
+test('registry lookup resolves an exact version and a dist-tag, and treats either as absent when unpublished', async () => {
+  const previousFetch = globalThis.fetch;
+  const previousToken = process.env.NODE_AUTH_TOKEN;
+  process.env.NODE_AUTH_TOKEN = 'test-token';
   try {
-    process.env.PATH = `${directory}:${previousPath}`;
-    for (const code of ['E404', 'E401', 'ECONNRESET']) {
-      writeFileSync(join(directory, 'npm'), `#!/bin/sh\nprintf '%s' '{"error":{"code":"${code}"}}'\nprintf '%s' 'diagnostic mentions E404' >&2\nexit 1\n`, { mode: 0o755 });
-      if (code === 'E404') assert.equal(lookup('@reptilianhq/sdk@99.0.0'), null);
-      else assert.throws(() => lookup('@reptilianhq/sdk@99.0.0'), /refusing publication/);
-    }
+    globalThis.fetch = async (url, init) => {
+      assert.equal(url, 'https://npm.pkg.github.com/%40reptilianhq%2Fsdk');
+      assert.equal(init.headers.Authorization, 'Bearer test-token');
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          'dist-tags': { latest: '1.2.3' },
+          versions: { '1.2.3': { name: '@reptilianhq/sdk', version: '1.2.3' } },
+        }),
+      };
+    };
+    assert.deepEqual(await lookup('@reptilianhq/sdk@1.2.3'), { name: '@reptilianhq/sdk', version: '1.2.3' });
+    assert.deepEqual(await lookup('@reptilianhq/sdk@latest'), { name: '@reptilianhq/sdk', version: '1.2.3' });
+    assert.equal(await lookup('@reptilianhq/sdk@99.0.0'), null);
+    assert.equal(await lookup('@reptilianhq/sdk@rc'), null);
   } finally {
-    process.env.PATH = previousPath;
-    rmSync(directory, { recursive: true, force: true });
+    globalThis.fetch = previousFetch;
+    if (previousToken === undefined) delete process.env.NODE_AUTH_TOKEN;
+    else process.env.NODE_AUTH_TOKEN = previousToken;
+  }
+});
+
+test('registry lookup accepts a missing package and fails closed on auth or transport errors', async () => {
+  const previousFetch = globalThis.fetch;
+  try {
+    globalThis.fetch = async () => ({ ok: false, status: 404 });
+    assert.equal(await lookup('@reptilianhq/sdk@99.0.0'), null);
+
+    globalThis.fetch = async () => ({ ok: false, status: 401 });
+    await assert.rejects(lookup('@reptilianhq/sdk@99.0.0'), /refusing publication/);
+
+    globalThis.fetch = async () => { throw new Error('ECONNRESET'); };
+    await assert.rejects(lookup('@reptilianhq/sdk@99.0.0'), /refusing publication/);
+  } finally {
+    globalThis.fetch = previousFetch;
   }
 });

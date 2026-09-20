@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join, resolve } from 'node:path';
@@ -46,45 +46,60 @@ export function assertExact(record, actual) {
   assert.equal(actual.gitHead, record.sourceSha, 'registry source differs');
   assert.equal(actual.dist?.integrity, record.integrity, 'immutable tarball bytes conflict; use a new source/version');
 }
-export function lookup(spec) {
-  const result = spawnSync('npm', ['view', spec, '--json', '--registry', registry], { cwd: tmpdir(), encoding: 'utf8' });
-  if (result.error) throw result.error;
-  if (result.status === 0) {
-    const value = JSON.parse(result.stdout);
-    assert.ok(value && !Array.isArray(value), 'unexpected registry response');
-    return value;
+/**
+ * `npm view <spec> --json` reliably returns empty stdout with exit 0 against
+ * this registry (reproduced directly against npm.pkg.github.com across
+ * multiple npm versions, with the underlying registry GET itself returning
+ * 200 and a well-formed body) -- an npm CLI behavior against this registry,
+ * not a problem with the published data. Fetch the packument directly
+ * instead, and resolve `spec`'s trailing `@version` or `@dist-tag` from it,
+ * matching `npm view`'s own resolution.
+ */
+export async function lookup(spec) {
+  const lastAt = spec.lastIndexOf('@');
+  const name = spec.slice(0, lastAt);
+  const versionOrTag = spec.slice(lastAt + 1);
+  let response;
+  try {
+    response = await fetch(`${registry}/${encodeURIComponent(name)}`, {
+      headers: { Authorization: `Bearer ${process.env.NODE_AUTH_TOKEN ?? ''}` },
+    });
+  } catch (error) {
+    throw new Error(`Registry lookup failed for ${spec}; refusing publication`, { cause: error });
   }
-  let error;
-  try { error = JSON.parse(result.stdout).error; } catch { /* fail closed */ }
-  if (error?.code === 'E404') return null;
-  throw new Error(`Registry lookup failed for ${spec}; refusing publication`);
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error(`Registry lookup failed for ${spec}; refusing publication`);
+  const packument = await response.json();
+  assert.ok(packument && !Array.isArray(packument), 'unexpected registry response');
+  const version = packument.versions?.[versionOrTag] ? versionOrTag : packument['dist-tags']?.[versionOrTag];
+  return version ? packument.versions?.[version] ?? null : null;
 }
 export async function publishVerified(record, { lookup, publish, tag, download, wait = () => new Promise(resolve => setTimeout(resolve, 5000)) }) {
   validate(record);
   const exactSpec = `${record.name}@${record.version}`;
   const channelSpec = `${record.name}@${record.channel}`;
-  const checkChannel = () => {
-    const current = lookup(channelSpec);
+  const checkChannel = async () => {
+    const current = await lookup(channelSpec);
     assert.ok(!current || compareVersions(current.version, record.version) <= 0, `Refusing to move ${channelSpec} backwards`);
     return current;
   };
-  const existing = lookup(exactSpec);
+  const existing = await lookup(exactSpec);
   if (existing) {
     assertExact(record, existing);
     assert.equal(integrity(download(exactSpec)), record.integrity, 'downloaded registry tarball differs');
   }
-  let current = checkChannel();
+  let current = await checkChannel();
   if (!existing) {
     publish();
   } else if (current?.version !== record.version) {
     // Recheck immediately before the channel write. Owner concurrency serializes
     // our writers; npm has no compare-and-swap for external/manual writers.
-    current = checkChannel();
+    current = await checkChannel();
     if (current?.version !== record.version) tag();
   }
   for (let attempt = 0; attempt < 6; attempt++) {
-    const exact = lookup(exactSpec);
-    const channel = lookup(channelSpec);
+    const exact = await lookup(exactSpec);
+    const channel = await lookup(channelSpec);
     if (exact) assertExact(record, exact);
     if (channel && compareVersions(channel.version, record.version) > 0) throw new Error('Install channel advanced during publication; refusing repair');
     if (exact && channel?.version === record.version) {

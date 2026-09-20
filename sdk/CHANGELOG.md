@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Sync the release guard with canonical fail-closed registry verification.
+
 ## 0.7.0
 
 - Verify canonical graduation history without repeating per-pool RPC compatibility and launch-state reads.

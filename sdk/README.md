@@ -35,7 +35,7 @@ older version is still there, so the failure mode is a version mismatch or
 integrity error, not a clean 404. If your install fails on
 `@reptilianhq/uniswap-sdk`, pin it explicitly to its public tarball URL
 (check `sdk/package.json`'s `dependencies` for the exact version currently
-required).
+required, and update both the path segment and the filename in the URLs below).
 
 With npm, an `overrides` entry in `package.json` works:
 

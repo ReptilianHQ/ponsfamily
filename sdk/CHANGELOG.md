@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Depend on the now-public `@reptilianhq/uniswap-sdk@0.2.2` on npm instead of the private `0.1.0-rc.4` on GitHub Packages. If you map the shared `@reptilianhq` scope to GitHub Packages for `pons-sdk` itself, pin the public tarball via `overrides` (`blockExoticSubdeps: false` on pnpm 11+) — see README.
 - Sync the release guard with canonical fail-closed registry verification.
 
 ## 0.7.0

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- 2026-10-07: Strengthen slippage rounding and capped-fill pricing guarantees with independent property oracles.
+
 - Sync the release guard with canonical fail-closed registry verification.
 
 ## 0.7.0

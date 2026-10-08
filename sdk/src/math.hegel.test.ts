@@ -97,7 +97,7 @@ describe("Pons curve math properties", () => {
     }, HEGEL_SETTINGS);
   });
 
-  it("keeps slippage floors bounded and monotonic", () => {
+  it("floors slippage exactly and decreases the minimum as slippage increases", () => {
     hegel.test((tc) => {
       const amount = tc.draw(gs.bigIntegers({ minValue: 0n, maxValue: MAX_AMOUNT }));
       const firstBps = tc.draw(gs.integers({ minValue: 0, maxValue: 10_000 }));
@@ -106,6 +106,16 @@ describe("Pons curve math properties", () => {
       const higherBps = Math.max(firstBps, secondBps);
       const lowerSlippageMinimum = applySlippage(amount, lowerBps);
       const higherSlippageMinimum = applySlippage(amount, higherBps);
+
+      // 1 bps forces remainders 9,999, 1, and 0 for the small mandatory amounts.
+      for (const input of [0n, 1n, 9_999n, 10_000n, MAX_UINT256, amount]) {
+        for (const bps of [0, 1, 10_000, lowerBps, higherBps]) {
+          const minimum = applySlippage(input, bps);
+          const numerator = input * BigInt(10_000 - bps);
+          expect(minimum * 10_000n).toBeLessThanOrEqual(numerator);
+          expect((minimum + 1n) * 10_000n).toBeGreaterThan(numerator);
+        }
+      }
 
       expect(lowerSlippageMinimum).toBeGreaterThanOrEqual(0n);
       expect(lowerSlippageMinimum).toBeLessThanOrEqual(amount);
@@ -175,7 +185,7 @@ describe("Pons curve math properties", () => {
     }, HEGEL_SETTINGS);
   });
 
-  it("produces partial fills that satisfy the contract price-bound equation", () => {
+  it("prices capped fills with the contract rounding and refunds the unspent input", () => {
     hegel.test((tc) => {
       const quoteReserve = tc.draw(gs.bigIntegers({ minValue: 1n, maxValue: 10n ** 12n }));
       const reserveScale = BigInt(tc.draw(gs.integers({ minValue: 10, maxValue: 1_000_000 })));
@@ -185,12 +195,42 @@ describe("Pons curve math properties", () => {
       const creatorTaxBps = BigInt(tc.draw(gs.integers({ minValue: 0, maxValue: 1_000 })));
       const sellableTokens = tc.draw(gs.bigIntegers({ minValue: 1n, maxValue: tokenReserve / 2n }));
 
-      const quote = quoteCurveBuyExecution({ amountIn, quoteReserve, tokenReserve, sellableTokens, feeBps, creatorTaxBps });
-      const maximumMinTokensOut = quote.quoteOffered * quote.tokensOut / quote.quoteSpent;
+      // Keep arbitrary reserve parity and caps; a doubled reserve with a half
+      // cap additionally forces exact division. All fills cost less than the offer.
+      const fills = [
+        { reserve: tokenReserve, cap: 1n },
+        { reserve: tokenReserve, cap: sellableTokens },
+        { reserve: tokenReserve * 2n, cap: tokenReserve },
+      ];
+      for (const { reserve, cap } of fills) {
+        const quote = quoteCurveBuyExecution({
+          amountIn, quoteReserve, tokenReserve: reserve, sellableTokens: cap, feeBps, creatorTaxBps,
+        });
+        // Independent integer search over the constant-product inequality.
+        // PonsV2BondingCurveMath.getAmountIn uses floor + 1, so equality is
+        // deliberately insufficient, including at an exactly divisible cap.
+        const remaining = reserve - cap;
+        const product = cap * quoteReserve;
+        let low = 1n, high = quoteReserve + 1n;
+        while (low < high) {
+          const middle = (low + high) / 2n;
+          if (middle * remaining > product) high = middle;
+          else low = middle + 1n;
+        }
+        const requiredNet = low;
+        expect(requiredNet * remaining).toBeGreaterThan(product);
+        expect((requiredNet - 1n) * remaining).toBeLessThanOrEqual(product);
 
-      expect(quote.partialFill).toBe(true);
-      expect(quote.quoteSpent * maximumMinTokensOut).toBeLessThanOrEqual(quote.quoteOffered * quote.tokensOut);
-      expect(quote.quoteSpent * (maximumMinTokensOut + 1n)).toBeGreaterThan(quote.quoteOffered * quote.tokensOut);
+        // The contract then grosses up with ceil. These inequalities uniquely
+        // determine spend without calling SDK pricing helpers in the oracle.
+        const retainedBps = 10_000n - feeBps - creatorTaxBps;
+        expect(quote.quoteSpent * retainedBps).toBeGreaterThanOrEqual(requiredNet * 10_000n);
+        expect((quote.quoteSpent - 1n) * retainedBps).toBeLessThan(requiredNet * 10_000n);
+        expect(quote.tokensOut).toBe(cap);
+        expect(quote.quoteOffered).toBe(amountIn);
+        expect(quote.quoteRefund).toBe(amountIn - quote.quoteSpent);
+        expect(quote.partialFill).toBe(true);
+      }
     }, HEGEL_SETTINGS);
   });
 

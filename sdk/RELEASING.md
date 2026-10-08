@@ -11,10 +11,15 @@ dist-tags:
 
 GitHub Packages requires authentication even when the package is public. Set
 the `@reptilianhq` registry to `https://npm.pkg.github.com` and use a token with
-package read access when running the verification commands below. Version 0.5
-also requires access to the private shared Uniswap SDK; grant the Pons repository
-read access under that package’s Manage Actions access settings before release.
-Public package visibility does not confer access to private dependencies.
+package read access when running the verification commands below.
+
+As of the `@reptilianhq/uniswap-sdk` dependency's 0.2.2 release, that dependency
+is public on npm and needs no such access. It shares the `@reptilianhq` scope
+with this package, though, so the `@reptilianhq:registry` mapping above — needed
+to resolve `pons-sdk` itself — would otherwise also misroute it to GitHub
+Packages, where the current version doesn't exist. The release workflow handles
+this by clearing that scope mapping around `npm ci`; consumers hitting the same
+issue should see [README.md](README.md#install) for the override.
 
 ## Release candidate
 

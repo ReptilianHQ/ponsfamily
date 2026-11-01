@@ -426,3 +426,14 @@ supplied JSON trustworthy. Anchors and history membership do not authorize
 transactions or replace current execution compatibility checks. The existing
 receipt reader remains available for individual receipts; the new history API
 does not change locked-principal or unverified v4 execution capabilities.
+
+### Live deployer provenance
+
+The launch predictor ABI is bound to the exact-match Sourcify verification of
+`0x3711ceA4feaDE896C913C68F01Eda97Cb06D1A42` on chain 4663. Its verified source
+snapshot, compiler, source hash and creation/runtime match facts are recorded in
+`provenance/mainnet.json`. The live deployer contains salt-based prediction that
+historical repository Solidity omits; no repository source commit is claimed for
+that verified snapshot. Artifact checks compare all named ABI tuple components
+and outputs, not only function selectors. Fee-policy reads are separately bound
+to the verified hook interface and its existing pinned runtime hash.

@@ -5,6 +5,7 @@
 ## 0.9.0
 
 - Own launch address prediction and exemption capacity at the protocol boundary.
+- Pin verified deployer source and ABI provenance.
 
 - 2026-10-07: Strengthen slippage rounding and capped-fill pricing guarantees with independent property oracles.
 

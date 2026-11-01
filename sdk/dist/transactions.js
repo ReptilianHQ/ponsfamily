@@ -1,6 +1,16 @@
 import { encodeFunctionData, getAddress, isAddress, isHex, zeroAddress, } from "viem";
 import { ponsBuybackVaultAbi, ponsCurveAbi, ponsFactoryAbi, ponsFeeEscrowAbi, ponsForwarderAbi, ponsMemeHookAbi, ponsTokenAbi, } from "./abis.js";
 import { PonsSdkError } from "./errors.js";
+/** Protocol-owned capacity; product-reserved entries count against the same limit. */
+export function launchExemptionCapacity(openingBuy, reserved = 0) {
+    if (typeof openingBuy !== "boolean")
+        invalid("openingBuy", "a boolean", openingBuy);
+    const maximum = openingBuy ? 31 : 32;
+    if (!Number.isSafeInteger(reserved) || reserved < 0 || reserved > maximum) {
+        invalid("reserved", `an integer from 0 to ${maximum}`, reserved);
+    }
+    return maximum - reserved;
+}
 export function buildLaunchTransaction(deployment, parameters) {
     const params = normalizeTokenParameters(parameters.token);
     const pairToken = normalizeAddress(parameters.pairToken ?? zeroAddress, "pairToken");
@@ -12,7 +22,7 @@ export function buildLaunchTransaction(deployment, parameters) {
         assertPositive(openingBuy.quoteIn, "openingBuy.quoteIn");
         assertNonNegative(openingBuy.minTokensOut, "openingBuy.minTokensOut");
         const recipient = normalizeAddress(openingBuy.recipient, "openingBuy.recipient");
-        if (exemptions.length > 31)
+        if (exemptions.length > launchExemptionCapacity(true))
             invalid("snipeTaxExemptions", "at most 31 entries with an opening buy", exemptions.length);
         return {
             to: deployment.contracts.forwarder,
@@ -24,7 +34,7 @@ export function buildLaunchTransaction(deployment, parameters) {
             value: parameters.launchFee + (pairToken === zeroAddress ? openingBuy.quoteIn : 0n),
         };
     }
-    if (exemptions.length > 32)
+    if (exemptions.length > launchExemptionCapacity(false))
         invalid("snipeTaxExemptions", "at most 32 entries", exemptions.length);
     return {
         to: deployment.contracts.factory,
@@ -150,7 +160,7 @@ export function buildReleaseBuybackTransaction(buybackVault, token) {
         value: 0n,
     };
 }
-function normalizeTokenParameters(parameters) {
+export function normalizeTokenParameters(parameters) {
     const expectedEconomics = normalizeExpectedEconomics(parameters);
     const socials = parameters.socials ?? {};
     const normalized = {

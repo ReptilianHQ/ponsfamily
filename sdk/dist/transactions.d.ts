@@ -47,6 +47,8 @@ export interface BuildLaunchParameters {
         recipient: Address;
     };
 }
+/** Protocol-owned capacity; product-reserved entries count against the same limit. */
+export declare function launchExemptionCapacity(openingBuy: boolean, reserved?: number): number;
 export declare function buildLaunchTransaction(deployment: PonsDeployment, parameters: BuildLaunchParameters): TransactionRequest;
 export interface BuildBuyParameters {
     curve: Address;
@@ -73,4 +75,22 @@ export declare function buildSweepPoolFeesTransaction(memeHook: Address, poolId:
 export declare function buildClaimNativeFeesTransaction(feeEscrow: Address, amount?: bigint): TransactionRequest;
 export declare function buildClaimTokenFeesTransaction(feeEscrow: Address, token: Address, amount?: bigint): TransactionRequest;
 export declare function buildReleaseBuybackTransaction(buybackVault: Address, token: Address): TransactionRequest;
+export declare function normalizeTokenParameters(parameters: PonsTokenParameters): {
+    name: string;
+    symbol: string;
+    logo: string;
+    description: string;
+    socials: {
+        twitter: string;
+        telegram: string;
+        discord: string;
+        website: string;
+        farcaster: string;
+    };
+    creatorFeeRecipient: `0x${string}`;
+    creatorTaxBps: number;
+    buybackEnabled: boolean;
+    expectedEconomics: `0x${string}`;
+    salt: `0x${string}`;
+};
 export {};

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
-import { ABI_REVISION, ponsBuybackVaultAbi, ponsCurveAbi, ponsFactoryAbi, ponsFeeEscrowAbi, ponsMemeHookAbi, ponsTokenAbi } from "../dist/abis.js";
+import { ponsLaunchDeployerAbi, ponsFeePolicyReadAbi, ABI_REVISION, ponsBuybackVaultAbi, ponsCurveAbi, ponsFactoryAbi, ponsFeeEscrowAbi, ponsMemeHookAbi, ponsTokenAbi } from "../dist/abis.js";
 import { robinhoodMainnet } from "../dist/deployments.js";
 import { getPonsIndexingManifest } from "../dist/indexing.js";
 
@@ -109,3 +110,24 @@ function canonicalEvent(event) {
     inputs: event.inputs.map(({ name, type, indexed }) => ({ name, type, indexed: indexed ?? false })),
   };
 }
+
+// These live read interfaces differ from historical checked-in Solidity.
+// Bind every named tuple component to the verified compiler ABI and source.
+const deployer = provenance.reviewedContracts.launchDeployer;
+assert.equal(deployer.address.toLowerCase(), robinhoodMainnet.contracts.launchDeployer.toLowerCase());
+assert.equal(deployer.creationMatch, "exact_match");
+assert.equal(deployer.runtimeMatch, "exact_match");
+assert.equal(deployer.sourceCommit, null, "Do not claim historical Solidity is the live deployer source");
+const source = await readFile(new URL(`../${deployer.verifiedSourceFile}`, import.meta.url));
+assert.equal(createHash("sha256").update(source).digest("hex"), deployer.sourceSha256);
+const deployerAbi = JSON.parse(await readFile(new URL(`../${deployer.artifact}`, import.meta.url), "utf8"));
+const policyAbi = JSON.parse(await readFile(new URL(`../${provenance.feePolicyRead.artifact}`, import.meta.url), "utf8"));
+const parameter = value => ({ name: value.name ?? "", type: value.type,
+  ...(value.components ? { components: value.components.map(parameter) } : {}) });
+const functionShape = value => ({ name: value.name, type: value.type, stateMutability: value.stateMutability,
+  inputs: value.inputs.map(parameter), outputs: value.outputs.map(parameter) });
+assert.deepEqual(functionShape(ponsLaunchDeployerAbi.find(item => item.type === "function")),
+  functionShape(deployerAbi.find(item => item.name === "predictLaunchAddresses")));
+assert.deepEqual(functionShape(ponsFeePolicyReadAbi.find(item => item.type === "function")), functionShape(policyAbi[0]));
+assert.equal(provenance.feePolicyRead.address.toLowerCase(), robinhoodMainnet.contracts.memeHook.toLowerCase());
+assert.equal(provenance.feePolicyRead.runtimeCodeHash, robinhoodMainnet.memeHookRuntimeCodeHash);

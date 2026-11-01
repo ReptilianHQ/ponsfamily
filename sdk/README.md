@@ -133,6 +133,21 @@ reviewed launch cannot silently execute under changed economics. Infrastructure
 that intentionally accepts the live terms may omit the digest only by passing
 `unsafeAllowUnpinnedEconomics: true` in the token parameters.
 
+## Launch prediction and exemption capacity
+
+`predictLaunchAddresses(client, deployment, { launcher, token, terms })` reads the
+reviewed deployer's dedicated predictor. Pass the block-consistent result of
+`readLaunchTermsForPair` and the same `PonsTokenParameters` used to build the
+launch. The SDK checks the economics digest, reads the fee-policy snapshot at
+that block and assembles the exact deployment inputs. Prediction does not
+simulate, authorize, sign or submit the launch; callers retain their live
+compatibility and execution checks.
+
+`launchExemptionCapacity(hasOpeningBuy, reservedEntries)` returns the remaining
+protocol capacity after product-reserved entries. Use it for selection UI and
+validation instead of copying protocol limits. The transaction builder uses the
+same capacity owner and still enforces the total final list independently.
+
 ## ERC-20 launch terms
 
 Use `readLaunchTermsForPair(client, deployment, { launchConfigId, pairToken, launcher },
@@ -411,3 +426,15 @@ supplied JSON trustworthy. Anchors and history membership do not authorize
 transactions or replace current execution compatibility checks. The existing
 receipt reader remains available for individual receipts; the new history API
 does not change locked-principal or unverified v4 execution capabilities.
+
+### Live deployer provenance
+
+The launch predictor ABI is bound to the exact-match Sourcify verification of
+`0x3711ceA4feaDE896C913C68F01Eda97Cb06D1A42` on chain 4663. Its verified source
+snapshot, compiler, source hash and creation/runtime match facts are recorded in
+`provenance/mainnet.json`. The live deployer contains salt-based prediction that
+historical repository Solidity omits; no repository source commit is claimed for
+that verified snapshot. Verified read ABIs live under `provenance/`; the `artifacts/` directory remains
+owned exclusively by the indexing generator. Artifact checks compare all named ABI tuple components
+and outputs, not only function selectors. Fee-policy reads are separately bound
+to the verified hook interface and its existing pinned runtime hash.

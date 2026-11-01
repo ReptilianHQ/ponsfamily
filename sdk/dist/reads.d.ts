@@ -1,3 +1,4 @@
+import { type PonsTokenParameters } from "./transactions.js";
 import { type Address, type Hex, type PublicClient } from "viem";
 import type { PonsDeployment } from "./deployments.js";
 export declare enum GraduationPhase {
@@ -372,3 +373,11 @@ export declare function readGraduatedPosition(client: PublicClient, deployment: 
         };
     };
 })>;
+/** Predicts the exact launch addresses using one block-consistent terms observation.
+ * The caller owns transport/chain compatibility; this helper never simulates or sends.
+ */
+export declare function predictLaunchAddresses(client: PublicClient, deployment: PonsDeployment, input: {
+    launcher: Address;
+    token: PonsTokenParameters;
+    terms: Awaited<ReturnType<typeof readLaunchTermsForPair>>;
+}): Promise<readonly [token: `0x${string}`, `0x${string}`]>;

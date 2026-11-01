@@ -1,0 +1,42 @@
+[
+  {
+    "name": "currentFeePolicy",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "components": [
+          {
+            "name": "protocolFeeRecipient",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "protocolFeeShareBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "buybackBurnBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "hookFeeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "maxInternalPriceImpactBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          }
+        ],
+        "internalType": "struct FeePolicySnapshot"
+      }
+    ],
+    "stateMutability": "view"
+  }
+]

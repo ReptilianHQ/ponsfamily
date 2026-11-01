@@ -35,7 +35,32 @@
       "artifact": "PonsV2BuybackVault.json",
       "runtimeCodeHash": "0x5de8480874faffefa539648f1a7d6c1e69b39da3fa34de22fc95eb7586aece03",
       "verifiedSourceUrl": "https://robinhoodchain.blockscout.com/address/0x42df2a798f82289E177311362e8f5ccC45c1219c?tab=contract"
+    },
+    "launchDeployer": {
+      "address": "0x3711ceA4feaDE896C913C68F01Eda97Cb06D1A42",
+      "artifact": "provenance/PonsV2LaunchDeployer.json",
+      "runtimeCodeHash": "0xeade22566c766377f6adfb99534f2772251efad9568642c0704a7051418e624c",
+      "verifiedSourceUrl": "https://sourcify.dev/server/v2/contract/4663/0x3711ceA4feaDE896C913C68F01Eda97Cb06D1A42",
+      "creationMatch": "exact_match",
+      "runtimeMatch": "exact_match",
+      "verifiedAt": "2026-08-04T17:41:17Z",
+      "sourceCommit": null,
+      "sourcePath": "contracts/src/v2/PonsV2LaunchDeployer.sol",
+      "verifiedSourceFile": "provenance/PonsV2LaunchDeployer.sol",
+      "sourceSha256": "4d87005e44e9f377e3199b3c289511ac3017ab3dffe9e146d7fd5d403a387825",
+      "compiler": "0.8.35+commit.47b9dedd",
+      "creationTransaction": "0x849d092ee4ed37d8138636839c28aabd2878e445cb68ba99c4cdafa11a778b2e",
+      "creationBlock": "26841846"
     }
   },
-  "reviewedAt": "2026-08-12"
+  "reviewedAt": "2026-08-12",
+  "feePolicyRead": {
+    "address": "0xE5e702641Ea86F4ae6cC3cDaeD2B886f976Be044",
+    "artifact": "provenance/PonsV2FeePolicyRead.json",
+    "verifiedSourceUrl": "https://sourcify.dev/server/v2/contract/4663/0xE5e702641Ea86F4ae6cC3cDaeD2B886f976Be044",
+    "creationMatch": "match",
+    "runtimeMatch": "match",
+    "verifiedAt": "2026-08-05T10:00:13Z",
+    "runtimeCodeHash": "0xc21b1e6c1b45403e81a581f22ed6d9c747997af1cfdac1b1dc9f4b1d346a10db"
+  }
 }

@@ -38,7 +38,7 @@
     },
     "launchDeployer": {
       "address": "0x3711ceA4feaDE896C913C68F01Eda97Cb06D1A42",
-      "artifact": "PonsV2LaunchDeployer.json",
+      "artifact": "provenance/PonsV2LaunchDeployer.json",
       "runtimeCodeHash": "0xeade22566c766377f6adfb99534f2772251efad9568642c0704a7051418e624c",
       "verifiedSourceUrl": "https://sourcify.dev/server/v2/contract/4663/0x3711ceA4feaDE896C913C68F01Eda97Cb06D1A42",
       "creationMatch": "exact_match",
@@ -56,7 +56,7 @@
   "reviewedAt": "2026-08-12",
   "feePolicyRead": {
     "address": "0xE5e702641Ea86F4ae6cC3cDaeD2B886f976Be044",
-    "artifact": "PonsV2FeePolicyRead.json",
+    "artifact": "provenance/PonsV2FeePolicyRead.json",
     "verifiedSourceUrl": "https://sourcify.dev/server/v2/contract/4663/0xE5e702641Ea86F4ae6cC3cDaeD2B886f976Be044",
     "creationMatch": "match",
     "runtimeMatch": "match",

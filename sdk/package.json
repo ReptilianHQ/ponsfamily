@@ -99,8 +99,8 @@
       "types": "./dist/v4-provider.d.ts",
       "import": "./dist/v4-provider.js"
     },
-    "./artifacts/PonsV2LaunchDeployer.json": "./artifacts/PonsV2LaunchDeployer.json",
-    "./artifacts/PonsV2FeePolicyRead.json": "./artifacts/PonsV2FeePolicyRead.json"
+    "./provenance/PonsV2LaunchDeployer.json": "./provenance/PonsV2LaunchDeployer.json",
+    "./provenance/PonsV2FeePolicyRead.json": "./provenance/PonsV2FeePolicyRead.json"
   },
   "scripts": {
     "clean": "rm -rf dist",

@@ -120,8 +120,8 @@ assert.equal(deployer.runtimeMatch, "exact_match");
 assert.equal(deployer.sourceCommit, null, "Do not claim historical Solidity is the live deployer source");
 const source = await readFile(new URL(`../${deployer.verifiedSourceFile}`, import.meta.url));
 assert.equal(createHash("sha256").update(source).digest("hex"), deployer.sourceSha256);
-const deployerAbi = JSON.parse(await readFile(new URL(`../artifacts/${deployer.artifact}`, import.meta.url), "utf8"));
-const policyAbi = JSON.parse(await readFile(new URL(`../artifacts/${provenance.feePolicyRead.artifact}`, import.meta.url), "utf8"));
+const deployerAbi = JSON.parse(await readFile(new URL(`../${deployer.artifact}`, import.meta.url), "utf8"));
+const policyAbi = JSON.parse(await readFile(new URL(`../${provenance.feePolicyRead.artifact}`, import.meta.url), "utf8"));
 const parameter = value => ({ name: value.name ?? "", type: value.type,
   ...(value.components ? { components: value.components.map(parameter) } : {}) });
 const functionShape = value => ({ name: value.name, type: value.type, stateMutability: value.stateMutability,

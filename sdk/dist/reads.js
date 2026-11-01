@@ -1,5 +1,6 @@
+import { normalizeTokenParameters } from "./transactions.js";
 import { encodeAbiParameters, getAddress, keccak256, zeroAddress } from "viem";
-import { ponsBuybackVaultAbi, ponsCurveAbi, ponsFactoryAbi, ponsFeeEscrowAbi, ponsLockerAbi, ponsMemeHookAbi, ponsTokenAbi, uniswapV4PositionReadAbi } from "./abis.js";
+import { ponsLaunchDeployerAbi, ponsFeePolicyReadAbi, ponsBuybackVaultAbi, ponsCurveAbi, ponsFactoryAbi, ponsFeeEscrowAbi, ponsLockerAbi, ponsMemeHookAbi, ponsTokenAbi, uniswapV4PositionReadAbi } from "./abis.js";
 import { PonsSdkError } from "./errors.js";
 export var GraduationPhase;
 (function (GraduationPhase) {
@@ -433,6 +434,30 @@ export async function readGraduatedPosition(client, deployment, token, { blockNu
             liquidity, tickLower, tickUpper,
             poolKey: key,
         },
+    });
+}
+/** Predicts the exact launch addresses using one block-consistent terms observation.
+ * The caller owns transport/chain compatibility; this helper never simulates or sends.
+ */
+export async function predictLaunchAddresses(client, deployment, input) {
+    const { launcher, token, terms } = input;
+    const params = normalizeTokenParameters(token);
+    if (params.expectedEconomics.toLowerCase() !== terms.expectedEconomics.toLowerCase()) {
+        throw new PonsSdkError("INVALID_ARGUMENT", "Prediction economics differ from the observed terms", { path: "expectedEconomics" });
+    }
+    const policy = await client.readContract({ address: deployment.contracts.memeHook,
+        abi: ponsFeePolicyReadAbi, functionName: "currentFeePolicy", blockNumber: terms.blockNumber });
+    return client.readContract({ address: deployment.contracts.launchDeployer,
+        abi: ponsLaunchDeployerAbi, functionName: "predictLaunchAddresses", blockNumber: terms.blockNumber,
+        args: [{ pairToken: terms.pairToken,
+                creatorFeeRecipient: params.creatorFeeRecipient === zeroAddress ? getAddress(launcher) : params.creatorFeeRecipient,
+                originalDeployer: getAddress(launcher), feePolicy: deployment.contracts.memeHook, policy,
+                feeEscrow: deployment.contracts.feeEscrow, buybackVault: deployment.contracts.buybackVault,
+                phantomQuote: terms.phantomQuote, curveFeeBps: terms.config.curveFeeBps,
+                creatorTaxBps: BigInt(params.creatorTaxBps), buybackEnabled: params.buybackEnabled,
+                graduationThreshold: terms.graduationThreshold, supply: terms.config.supply,
+                salt: params.salt, name: params.name, symbol: params.symbol, logo: params.logo,
+                description: params.description, socials: params.socials }],
     });
 }
 //# sourceMappingURL=reads.js.map

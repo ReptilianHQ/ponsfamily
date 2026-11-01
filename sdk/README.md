@@ -133,6 +133,21 @@ reviewed launch cannot silently execute under changed economics. Infrastructure
 that intentionally accepts the live terms may omit the digest only by passing
 `unsafeAllowUnpinnedEconomics: true` in the token parameters.
 
+## Launch prediction and exemption capacity
+
+`predictLaunchAddresses(client, deployment, { launcher, token, terms })` reads the
+reviewed deployer's dedicated predictor. Pass the block-consistent result of
+`readLaunchTermsForPair` and the same `PonsTokenParameters` used to build the
+launch. The SDK checks the economics digest, reads the fee-policy snapshot at
+that block and assembles the exact deployment inputs. Prediction does not
+simulate, authorize, sign or submit the launch; callers retain their live
+compatibility and execution checks.
+
+`launchExemptionCapacity(hasOpeningBuy, reservedEntries)` returns the remaining
+protocol capacity after product-reserved entries. Use it for selection UI and
+validation instead of copying protocol limits. The transaction builder uses the
+same capacity owner and still enforces the total final list independently.
+
 ## ERC-20 launch terms
 
 Use `readLaunchTermsForPair(client, deployment, { launchConfigId, pairToken, launcher },

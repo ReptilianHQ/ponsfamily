@@ -152,4 +152,14 @@ export const uniswapV4PositionReadAbi = parseAbi([
     'function getPositionLiquidity(uint256 tokenId) view returns (uint128)',
     'function getPoolAndPositionInfo(uint256 tokenId) view returns ((address currency0, address currency1, uint24 fee, int24 tickSpacing, address hooks), uint256)',
 ]);
+/** Reviewed read-only deployer interface; kept beside the protocol ABI owner. */
+export const ponsLaunchDeployerAbi = parseAbi([
+    ...factoryStructs,
+    "struct LaunchDeployment { address pairToken; address creatorFeeRecipient; address originalDeployer; address feePolicy; FeePolicySnapshot policy; address feeEscrow; address buybackVault; uint256 phantomQuote; uint256 curveFeeBps; uint256 creatorTaxBps; bool buybackEnabled; uint256 graduationThreshold; uint256 supply; bytes32 salt; string name; string symbol; string logo; string description; Socials socials; }",
+    "function predictLaunchAddresses(LaunchDeployment params) view returns (address token, address curve)",
+]);
+export const ponsFeePolicyReadAbi = parseAbi([
+    ...factoryStructs,
+    "function currentFeePolicy() view returns (FeePolicySnapshot)",
+]);
 //# sourceMappingURL=abis.js.map

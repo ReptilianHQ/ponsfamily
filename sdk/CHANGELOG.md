@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.9.0
+
+- Own launch address prediction and exemption capacity at the protocol boundary.
+
 - 2026-10-07: Strengthen slippage rounding and capped-fill pricing guarantees with independent property oracles.
 
 ## 0.8.0

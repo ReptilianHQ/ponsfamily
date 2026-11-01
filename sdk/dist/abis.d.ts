@@ -1757,3 +1757,135 @@ export declare const uniswapV4PositionReadAbi: readonly [{
         readonly type: "uint256";
     }];
 }];
+/** Reviewed read-only deployer interface; kept beside the protocol ABI owner. */
+export declare const ponsLaunchDeployerAbi: readonly [{
+    readonly name: "predictLaunchAddresses";
+    readonly type: 'function';
+    readonly stateMutability: "view";
+    readonly inputs: readonly [{
+        readonly type: 'tuple';
+        readonly components: readonly [{
+            readonly type: "address";
+            readonly name: "pairToken";
+        }, {
+            readonly type: "address";
+            readonly name: "creatorFeeRecipient";
+        }, {
+            readonly type: "address";
+            readonly name: "originalDeployer";
+        }, {
+            readonly type: "address";
+            readonly name: "feePolicy";
+        }, {
+            readonly name: "policy";
+            readonly type: 'tuple';
+            readonly components: readonly [{
+                readonly type: "address";
+                readonly name: "protocolFeeRecipient";
+            }, {
+                readonly type: "uint16";
+                readonly name: "protocolFeeShareBps";
+            }, {
+                readonly type: "uint16";
+                readonly name: "buybackBurnBps";
+            }, {
+                readonly type: "uint16";
+                readonly name: "hookFeeBps";
+            }, {
+                readonly type: "uint16";
+                readonly name: "maxInternalPriceImpactBps";
+            }];
+        }, {
+            readonly type: "address";
+            readonly name: "feeEscrow";
+        }, {
+            readonly type: "address";
+            readonly name: "buybackVault";
+        }, {
+            readonly type: "uint256";
+            readonly name: "phantomQuote";
+        }, {
+            readonly type: "uint256";
+            readonly name: "curveFeeBps";
+        }, {
+            readonly type: "uint256";
+            readonly name: "creatorTaxBps";
+        }, {
+            readonly type: "bool";
+            readonly name: "buybackEnabled";
+        }, {
+            readonly type: "uint256";
+            readonly name: "graduationThreshold";
+        }, {
+            readonly type: "uint256";
+            readonly name: "supply";
+        }, {
+            readonly type: "bytes32";
+            readonly name: "salt";
+        }, {
+            readonly type: "string";
+            readonly name: "name";
+        }, {
+            readonly type: "string";
+            readonly name: "symbol";
+        }, {
+            readonly type: "string";
+            readonly name: "logo";
+        }, {
+            readonly type: "string";
+            readonly name: "description";
+        }, {
+            readonly name: "socials";
+            readonly type: 'tuple';
+            readonly components: readonly [{
+                readonly type: "string";
+                readonly name: "twitter";
+            }, {
+                readonly type: "string";
+                readonly name: "telegram";
+            }, {
+                readonly type: "string";
+                readonly name: "discord";
+            }, {
+                readonly type: "string";
+                readonly name: "website";
+            }, {
+                readonly type: "string";
+                readonly name: "farcaster";
+            }];
+        }];
+        readonly name: "params";
+    }];
+    readonly outputs: readonly [{
+        readonly type: "address";
+        readonly name: "token";
+    }, {
+        readonly type: "address";
+        readonly name: "curve";
+    }];
+}];
+export declare const ponsFeePolicyReadAbi: readonly [{
+    readonly name: "currentFeePolicy";
+    readonly type: 'function';
+    readonly stateMutability: "view";
+    readonly inputs: readonly [];
+    readonly outputs: readonly [{
+        readonly type: 'tuple';
+        readonly components: readonly [{
+            readonly type: "address";
+            readonly name: "protocolFeeRecipient";
+        }, {
+            readonly type: "uint16";
+            readonly name: "protocolFeeShareBps";
+        }, {
+            readonly type: "uint16";
+            readonly name: "buybackBurnBps";
+        }, {
+            readonly type: "uint16";
+            readonly name: "hookFeeBps";
+        }, {
+            readonly type: "uint16";
+            readonly name: "maxInternalPriceImpactBps";
+        }];
+    }];
+}];

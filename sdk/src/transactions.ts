@@ -74,6 +74,16 @@ export interface BuildLaunchParameters {
   };
 }
 
+/** Protocol-owned capacity; product-reserved entries count against the same limit. */
+export function launchExemptionCapacity(openingBuy: boolean, reserved = 0): number {
+  if (typeof openingBuy !== "boolean") invalid("openingBuy", "a boolean", openingBuy);
+  const maximum = openingBuy ? 31 : 32;
+  if (!Number.isSafeInteger(reserved) || reserved < 0 || reserved > maximum) {
+    invalid("reserved", `an integer from 0 to ${maximum}`, reserved);
+  }
+  return maximum - reserved;
+}
+
 export function buildLaunchTransaction(
   deployment: PonsDeployment,
   parameters: BuildLaunchParameters,
@@ -90,7 +100,7 @@ export function buildLaunchTransaction(
     assertPositive(openingBuy.quoteIn, "openingBuy.quoteIn");
     assertNonNegative(openingBuy.minTokensOut, "openingBuy.minTokensOut");
     const recipient = normalizeAddress(openingBuy.recipient, "openingBuy.recipient");
-    if (exemptions.length > 31) invalid("snipeTaxExemptions", "at most 31 entries with an opening buy", exemptions.length);
+    if (exemptions.length > launchExemptionCapacity(true)) invalid("snipeTaxExemptions", "at most 31 entries with an opening buy", exemptions.length);
     return {
       to: deployment.contracts.forwarder,
       data: encodeFunctionData({
@@ -102,7 +112,7 @@ export function buildLaunchTransaction(
     };
   }
 
-  if (exemptions.length > 32) invalid("snipeTaxExemptions", "at most 32 entries", exemptions.length);
+  if (exemptions.length > launchExemptionCapacity(false)) invalid("snipeTaxExemptions", "at most 32 entries", exemptions.length);
   return {
     to: deployment.contracts.factory,
     data: encodeFunctionData({
@@ -266,7 +276,7 @@ export function buildReleaseBuybackTransaction(buybackVault: Address, token: Add
   };
 }
 
-function normalizeTokenParameters(parameters: PonsTokenParameters) {
+export function normalizeTokenParameters(parameters: PonsTokenParameters) {
   const expectedEconomics = normalizeExpectedEconomics(parameters);
   const socials = parameters.socials ?? {};
   const normalized = {

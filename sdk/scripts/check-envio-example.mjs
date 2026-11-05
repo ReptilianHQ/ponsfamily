@@ -13,7 +13,9 @@ const exampleRoot = resolve(sdkRoot, 'examples/envio');
 // Optional probe: `--envio <version>` runs the same codegen and type-check against
 // another Envio version. It is informational, never part of check or release, and
 // does not make that version supported.
-const args = process.argv.slice(2);
+// pnpm forwards a literal `--` ahead of the flag; drop one if present.
+const rawArgs = process.argv.slice(2);
+const args = rawArgs[0] === '--' ? rawArgs.slice(1) : rawArgs;
 assert.ok(
   args.length === 0 || (args.length === 2 && args[0] === '--envio'),
   'usage: check-envio-example.mjs [--envio <version>]',

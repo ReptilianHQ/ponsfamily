@@ -13,17 +13,20 @@ const exampleRoot = resolve(sdkRoot, 'examples/envio');
 // Optional probe: `--envio <version>` runs the same codegen and type-check against
 // another Envio version. It is informational, never part of check or release, and
 // does not make that version supported.
-const probeIndex = process.argv.indexOf('--envio');
-const probeVersion = probeIndex === -1 ? undefined : process.argv[probeIndex + 1];
+const args = process.argv.slice(2);
 assert.ok(
-  probeIndex === -1 || /^\d+\.\d+\.\d+$/.test(probeVersion ?? ''),
+  args.length === 0 || (args.length === 2 && args[0] === '--envio'),
+  'usage: check-envio-example.mjs [--envio <version>]',
+);
+const probeVersion = args[1];
+assert.ok(
+  probeVersion === undefined || /^\d+\.\d+\.\d+$/.test(probeVersion),
   '--envio needs an exact version such as 3.15.0',
 );
 generate({ check: true });
 const starter = JSON.parse(readFileSync(resolve(exampleRoot, 'package.json'), 'utf8'));
 const lock = JSON.parse(readFileSync(resolve(exampleRoot, 'package-lock.json'), 'utf8'));
-if (!probeVersion)
-for (const [name, version] of Object.entries(starter.devDependencies)) {
+for (const [name, version] of Object.entries(probeVersion ? {} : starter.devDependencies)) {
   assert.match(version, /^\d+\.\d+\.\d+$/);
   assert.equal(lock.packages[`node_modules/${name}`].version, version);
 }
@@ -67,9 +70,8 @@ for (const poolSelection of [[], [selected]]) {
 
 if (probeVersion) {
   console.log(`Probe passed: ${probeVersion} ran codegen and the type-check. Informational only; the starter is verified at its pin.`);
-  process.exit(0);
 }
-console.log('Empty and selected Envio examples match reviewed Pons artifacts and pass Envio codegen/typecheck.');
+if (!probeVersion) console.log('Empty and selected Envio examples match reviewed Pons artifacts and pass Envio codegen/typecheck.');
 
 function run(command, args, env = process.env) {
   const result = spawnSync(command, args, { cwd: sdkRoot, encoding: 'utf8', env });
@@ -80,13 +82,20 @@ function run(command, args, env = process.env) {
   );
 }
 
+// The probe reuses the starter's exact devDependencies (including its TypeScript pin)
+// and overrides only envio, so the type-check stays comparable across versions.
 function installProbe(starter, version) {
   const dir = mkdtempSync(resolve(tmpdir(), 'envio-probe-'));
   writeFileSync(
     resolve(dir, 'package.json'),
     JSON.stringify({ private: true, devDependencies: { ...starter.devDependencies, envio: version } }),
   );
-  const result = spawnSync('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund'], { cwd: dir, encoding: 'utf8' });
-  assert.equal(result.status, 0, `npm install of envio@${version} failed:\n${result.stdout}${result.stderr}`);
+  try {
+    const result = spawnSync('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund'], { cwd: dir, encoding: 'utf8' });
+    assert.equal(result.status, 0, `npm install of envio@${version} failed:\n${result.stdout}${result.stderr}`);
+  } catch (error) {
+    rmSync(dir, { recursive: true, force: true });
+    throw error;
+  }
   return dir;
 }

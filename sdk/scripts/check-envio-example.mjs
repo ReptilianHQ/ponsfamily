@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { cpSync, mkdtempSync, readFileSync, rmSync, symlinkSync, mkdirSync } from 'node:fs';
+import { cpSync, mkdtempSync, readFileSync, rmSync, symlinkSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -10,9 +10,19 @@ import { generate } from './generate-indexing.mjs';
 
 const sdkRoot = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const exampleRoot = resolve(sdkRoot, 'examples/envio');
+// Optional probe: `--envio <version>` runs the same codegen and type-check against
+// another Envio version. It is informational, never part of check or release, and
+// does not make that version supported.
+const probeIndex = process.argv.indexOf('--envio');
+const probeVersion = probeIndex === -1 ? undefined : process.argv[probeIndex + 1];
+assert.ok(
+  probeIndex === -1 || /^\d+\.\d+\.\d+$/.test(probeVersion ?? ''),
+  '--envio needs an exact version such as 3.15.0',
+);
 generate({ check: true });
 const starter = JSON.parse(readFileSync(resolve(exampleRoot, 'package.json'), 'utf8'));
 const lock = JSON.parse(readFileSync(resolve(exampleRoot, 'package-lock.json'), 'utf8'));
+if (!probeVersion)
 for (const [name, version] of Object.entries(starter.devDependencies)) {
   assert.match(version, /^\d+\.\d+\.\d+$/);
   assert.equal(lock.packages[`node_modules/${name}`].version, version);
@@ -21,6 +31,8 @@ for (const [name, version] of Object.entries(starter.devDependencies)) {
 const provider = getPonsV4Provider();
 const key = { currency0: '0x0000000000000000000000000000000000000000', currency1: '0x1111111111111111111111111111111111111111', fee: 10000, tickSpacing: 200, hooks: provider.hooks[0] };
 const selected = { providerId: provider.providerId, deploymentId: provider.deploymentId, chainId: provider.chainId, poolManager: provider.poolManager, key, poolId: getV4PoolId(key), membership: { sourceAddress: provider.discovery.address, eventSignature: provider.discovery.eventSignature, blockNumber: provider.startBlock, blockHash: `0x${'12'.repeat(32)}`, transactionHash: `0x${'34'.repeat(32)}`, logIndex: 0 } };
+const toolRoot = probeVersion ? installProbe(starter, probeVersion) : exampleRoot;
+if (probeVersion) process.on('exit', () => rmSync(toolRoot, { recursive: true, force: true }));
 for (const poolSelection of [[], [selected]]) {
   const verificationRoot = mkdtempSync(resolve(tmpdir(), 'pons-envio-example-'));
   try {
@@ -29,13 +41,13 @@ for (const poolSelection of [[], [selected]]) {
     // Generator paths include examples/envio; copy that variant into the verification root.
     cpSync(resolve(verificationRoot, 'examples/envio'), verificationRoot, { recursive: true });
     mkdirSync(resolve(verificationRoot, 'node_modules'), { recursive: true });
-    symlinkSync(resolve(exampleRoot, 'node_modules/envio'), resolve(verificationRoot, 'node_modules/envio'), 'dir');
+    symlinkSync(resolve(toolRoot, 'node_modules/envio'), resolve(verificationRoot, 'node_modules/envio'), 'dir');
 
-    run(resolve(exampleRoot, 'node_modules/.bin/envio'), ['codegen', '--directory', verificationRoot], {
+    run(resolve(toolRoot, 'node_modules/.bin/envio'), ['codegen', '--directory', verificationRoot], {
       ...process.env,
       ENVIO_ROBINHOOD_MAINNET_RPC_URL: 'http://127.0.0.1:8545',
     });
-    run(resolve(exampleRoot, 'node_modules/.bin/tsc'), [
+    run(resolve(toolRoot, 'node_modules/.bin/tsc'), [
       '--ignoreConfig',
       '--noEmit',
       '--strict',
@@ -53,6 +65,10 @@ for (const poolSelection of [[], [selected]]) {
 
 }
 
+if (probeVersion) {
+  console.log(`Probe passed: ${probeVersion} ran codegen and the type-check. Informational only; the starter is verified at its pin.`);
+  process.exit(0);
+}
 console.log('Empty and selected Envio examples match reviewed Pons artifacts and pass Envio codegen/typecheck.');
 
 function run(command, args, env = process.env) {
@@ -62,4 +78,15 @@ function run(command, args, env = process.env) {
     0,
     `${command} ${args.join(' ')} failed:\n${result.stdout}${result.stderr}`,
   );
+}
+
+function installProbe(starter, version) {
+  const dir = mkdtempSync(resolve(tmpdir(), 'envio-probe-'));
+  writeFileSync(
+    resolve(dir, 'package.json'),
+    JSON.stringify({ private: true, devDependencies: { ...starter.devDependencies, envio: version } }),
+  );
+  const result = spawnSync('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund'], { cwd: dir, encoding: 'utf8' });
+  assert.equal(result.status, 0, `npm install of envio@${version} failed:\n${result.stdout}${result.stderr}`);
+  return dir;
 }
